@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KrishiScan</title>
+    <!-- <link rel="stylesheet" href="index.css"> -->
+    <link rel="stylesheet" href="{% static 'index.css' %}">
+</head>
+
+<body>
+    <header>
+        <div class="logo">KRISHISCAN</div>
+        <div class="nav-buttons">
+            <button class="btn" onclick="window.location.href='{% url 'login' %}'">Login</button>
+            <button class="btn" onclick="window.location.href='{% url 'signup' %}'">Sign Up</button>
+        </div>
+    </header>
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <div class="hero-image">
+            <img src="{% static 'crop image.jpg' %}" alt="KrishiScan">
+        </div>
+        <h1>KRISHISCAN</h1>
+    </section>
+    <section class="users">
+        <button class="user-btn"
+            onclick="openModal('Farmer', 'Sell crops directly to consumers and increase profit')">Farmer</button>
+        <button class="user-btn"
+            onclick="openModal('Consumer', 'Buy fresh vegetables and fruits directly from farmers')">Consumer</button>
+    </section>
+
+    <!-- DESCRIPTION -->
+    <div class="card-container">
+        <div class="card" style="width: 25%;">
+            <div class="card-body">
+                <center>
+                    <h5 class="card-title">innovative digital marketplace</h5>
+                </center>
+                <p class="card-text">KrishiScan is an innovative digital marketplace that facilitates direct
+                    transactions between agricultural producers and end-consumers, eliminating the need for
+                    intermediaries.</p>
+            </div>
+        </div>
+        <div class="card" style="width: 25%;">
+            <div class="card-body">
+                <center>
+                    <h5 class="card-title">Direct farm-to-consumer connection</h5>
+                </center>
+                <p class="card-text">By cutting out middlemen, the KrishiScan platform provides a seamless connection,
+                    allowing farmers to
+                    list their crops and consumers to purchase fresh farm produce directly.</p>
+            </div>
+        </div>
+        <div class="card" style="width: 25%;">
+            <div class="card-body">
+                <center>
+                    <h5 class="card-title">Streamlines Supply Chain</h5>
+                </center>
+                <p class="card-text">KrishiScan streamlines the farm-to-consumer supply chain, empowering farmers to
+                    sell their harvests
+                    directly to buyers through a smart online portal.</p>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <p>© 2026 KrishiScan | Direct Farm To Consumer</p>
+    </footer>
+
+    <div id="infoModal" class="modal">
+        <div class="modal-card">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle"></h2>
+            <p id="modalDesc"></p>
+        </div>
+    </div>
+
+    <script>
+        function openModal(title, description) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalDesc').innerText = description;
+            document.getElementById('infoModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('infoModal').style.display = 'none';
+        }
+
+        window.onclick = function (event) {
+            var modal = document.getElementById('infoModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+
+</html>

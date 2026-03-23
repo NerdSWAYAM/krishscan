@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KrishiScan Login</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(120deg, #bcd7bd, #b6dab8);
+        }
+
+        .container {
+            width: 380px;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2e7d32;
+            margin-bottom: 5px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 6px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        input:focus {
+            border-color: #2e7d32;
+            outline: none;
+        }
+
+        input,
+        select {
+            border: 2px solid #2e7d32;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #1b5e20;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            background: #2e7d32;
+            color: white;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #1b5e20;
+            color: white;
+        }
+
+        .register {
+            margin-top: 15px;
+            font-size: 13px;
+        }
+
+        .register a {
+            color: #2e7d32;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: gray;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <a href="{% url 'home' %}" style="text-decoration:none;">🔙</a>
+        <div class="logo">🌾 KrishiScan</div>
+        <form>
+
+            <div class="input-group">
+                <label>Email</label>
+                <input type="email" placeholder="Enter your email" id="email" required>
+            </div>
+
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" placeholder="Enter your password" id="pass" required>
+            </div>
+
+            <div class="input-group">
+                <label>Login As</label>
+                <select required>
+                    <option value="">Select Role</option>
+                    <option value="farmer">Farmer</option>
+                    <option value="consumer">Consumer</option>
+                </select>
+            </div>
+
+            <button type="submit">Login</button>
+
+            <div class="register">
+                <a href="{% url 'signup' %}">Register</a>
+            </div>
+
+        </form>
+
+        <div class="footer">
+            © 2026 KrishiScan
+        </div>
+
+    </div>
+
+    <script>
+        document.querySelector("form").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const email = document.getElementById("email").value;
+            const pass = document.getElementById("pass").value;
+            const role = document.querySelector("select").value;
+            console.log(email, pass, role);
+
+            // Redirect the user back to the index page
+            window.location.href = "{% url 'dashboard' %}";
+        });
+    </script>
+</body>
+
+</html>

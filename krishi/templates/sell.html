@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Sell Crops</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f8f2;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: #2e7d32;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 24px;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        input,
+        select,
+        button {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background: #2e7d32;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1b5e20;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid #ddd;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background: #e8f5e9;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>🌾 Sell Your Crops</header>
+
+    <div class="container">
+        <h2>Add Crop</h2>
+
+        <input type="text" id="cropName" placeholder="Crop Name (e.g., Rice)">
+        <input type="number" id="quantity" placeholder="Quantity (kg)">
+        <input type="number" id="price" placeholder="Price per kg (₹)">
+        <input type="text" id="quality" placeholder="Quality (e.g., Good)">
+        <div
+            style="margin: 10px 0; text-align: center; border: 1px solid #ddd; padding: 10px; border-radius: 5px; background: #fafafa;">
+            <p style="margin: 0 0 10px 0; font-size: 14px; color: #555;">📸 Live Camera Option</p>
+            <video id="cameraStream" autoplay playsinline
+                style="display: none; width: 100%; max-width: 300px; border-radius: 5px; margin-bottom: 10px;"></video>
+            <canvas id="cameraCanvas" style="display: none;"></canvas>
+            <img id="cameraPreview"
+                style="display: none; width: 100%; max-width: 150px; border-radius: 5px; margin-bottom: 10px; border: 2px solid #2e7d32; object-fit: cover;" />
+            <br>
+            <button type="button" id="startCameraBtn" onclick="startCamera()"
+                style="width: auto; padding: 8px 15px;">Start Camera</button>
+            <button type="button" id="captureBtn" onclick="captureImage()"
+                style="display: none; width: auto; padding: 8px 15px; background: #ff9800;">Capture Photo</button>
+        </div>
+
+        <p style="text-align: center; margin: 10px 0;">OR Upload Image / Take Photo via Mobile System Camera:</p>
+        <input type="file" id="cropImage" accept="image/*" capture="environment" />
+        <button onclick="addCrop()">Add Crop</button>
+
+        <h2>Available Crops</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Crop</th>
+                    <th>Quantity (kg)</th>
+                    <th>Price (₹)</th>
+                    <th>Quality</th>
+                    <th>Image</th>
+                </tr>
+            </thead>
+            <tbody id="cropTable">
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        let capturedImage = null;
+        let stream = null;
+
+        async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                let video = document.getElementById('cameraStream');
+                video.srcObject = stream;
+                video.style.display = "inline-block";
+                document.getElementById('captureBtn').style.display = "inline-block";
+                document.getElementById('startCameraBtn').style.display = "none";
+                document.getElementById('cameraPreview').style.display = "none";
+                capturedImage = null; // Reset image
+            } catch (err) {
+                alert("Could not access camera: " + err.message);
+            }
+        }
+
+        function captureImage() {
+            let video = document.getElementById('cameraStream');
+            let canvas = document.getElementById('cameraCanvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            let ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            capturedImage = canvas.toDataURL('image/png');
+
+            // Stop stream
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            video.style.display = "none";
+            document.getElementById('captureBtn').style.display = "none";
+
+            let preview = document.getElementById('cameraPreview');
+            preview.src = capturedImage;
+            preview.style.display = "inline-block";
+
+            let startBtn = document.getElementById('startCameraBtn');
+            startBtn.style.display = "inline-block";
+            startBtn.innerText = "Retake Photo";
+        }
+
+        function addCrop() {
+            let name = document.getElementById("cropName").value;
+            let quantity = document.getElementById("quantity").value;
+            let price = document.getElementById("price").value;
+            let quality = document.getElementById("quality").value;
+            let imageInput = document.getElementById("cropImage");
+
+            if (!name || !quantity || !price || !quality) {
+                alert("Please fill all fields!");
+                return;
+            }
+
+            if (imageInput.files.length === 0 && !capturedImage) {
+                alert("Please capture or upload an image!");
+                return;
+            }
+
+            if (imageInput.files.length > 0) {
+                let file = imageInput.files[0];
+                let reader = new FileReader();
+
+                reader.onload = function (e) {
+                    insertRow(name, quantity, price, quality, e.target.result);
+                };
+                reader.readAsDataURL(file);
+            } else if (capturedImage) {
+                insertRow(name, quantity, price, quality, capturedImage);
+            }
+        }
+
+        function insertRow(name, quantity, price, quality, imgSrc) {
+            let table = document.getElementById("cropTable");
+            let row = table.insertRow();
+
+            row.insertCell(0).innerText = name;
+            row.insertCell(1).innerText = quantity;
+            row.insertCell(2).innerText = "₹" + price;
+            row.insertCell(3).innerText = quality;
+
+            let imgCell = row.insertCell(4);
+            let img = document.createElement("img");
+            img.src = imgSrc;
+            img.style.width = "80px";
+            img.style.height = "80px";
+            img.style.objectFit = "cover";
+            img.style.borderRadius = "5px";
+            imgCell.appendChild(img);
+
+            // Clear inputs
+            document.getElementById("cropName").value = "";
+            document.getElementById("quantity").value = "";
+            document.getElementById("price").value = "";
+            document.getElementById("quality").value = "";
+            document.getElementById("cropImage").value = "";
+
+            capturedImage = null;
+            document.getElementById('cameraPreview').style.display = "none";
+            let startBtn = document.getElementById('startCameraBtn');
+            startBtn.innerText = "Start Camera";
+            startBtn.style.display = "inline-block";
+        }
+    </script>
+
+</body>
+
+</html>

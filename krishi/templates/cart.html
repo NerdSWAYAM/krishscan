@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Crop Marketplace</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f8f2;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2e7d32;
+        }
+
+        .products,
+        .cart {
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .item {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        button {
+            background: #2e7d32;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1b5e20;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🌾 Crop Marketplace</h1>
+
+    <div class="products">
+        <h2>Available Crops</h2>
+
+        <div class="item">
+            <span>Rice - ₹30/kg</span>
+            <button onclick="addToCart('Rice', 30)">Add to Cart</button>
+        </div>
+
+        <div class="item">
+            <span>Wheat - ₹25/kg</span>
+            <button onclick="addToCart('Wheat', 25)">Add to Cart</button>
+        </div>
+
+        <div class="item">
+            <span>Maize - ₹20/kg</span>
+            <button onclick="addToCart('Maize', 20)">Add to Cart</button>
+        </div>
+
+    </div>
+
+    <div class="cart">
+        <h2>🛒 Cart</h2>
+        <ul id="cartList"></ul>
+        <h3 id="total">Total: ₹0</h3>
+    </div>
+
+    <script>
+        let cart = [];
+
+        function addToCart(name, price) {
+            let item = cart.find(c => c.name === name);
+
+            if (item) {
+                item.quantity++;
+            } else {
+                cart.push({ name, price, quantity: 1 });
+            }
+
+            updateCart();
+        }
+
+        function updateCart() {
+            let cartList = document.getElementById("cartList");
+            let total = 0;
+
+            cartList.innerHTML = "";
+
+            cart.forEach(item => {
+                let li = document.createElement("li");
+                let itemTotal = item.price * item.quantity;
+                total += itemTotal;
+
+                li.textContent = `${item.name} - ${item.quantity} kg - ₹${itemTotal}`;
+                cartList.appendChild(li);
+            });
+
+            document.getElementById("total").innerText = "Total: ₹" + total;
+        }
+    </script>
+
+</body>
+
+</html>

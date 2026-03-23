@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmer Dashboard</title>
+    <!-- <link rel="stylesheet" href="dashboard.css"> -->
+    <link rel="stylesheet" href="{% static 'dashboard.css' %}">
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+        <h2>Dashboard</h2>
+    </header>
+
+    <!-- PROFILE SECTION -->
+    <section class="profile-section">
+
+        <!-- Profile Image -->
+        <div class="profile-img">
+            <img src="nezuko.jpg" alt="Profile">
+        </div>
+
+        <!-- User Info -->
+        <div class="profile-info">
+            <p><span class="value">John</span></p>
+            <p>john@example.com</p>
+            <p>India</p>
+        </div>
+
+    </section>
+
+    <section class="crops-section">
+        <h3>Crops Sold</h3>
+
+        <div class="crop-container">
+
+            <div class="crop-card">
+                <img src="wheat.png" alt="Crop">
+                <p>wheat</p>
+                <p>₹20/kg</p>
+            </div>
+
+            <div class="crop-card">
+                <img src="rice.jpg" alt="Crop">
+                <p>rice</p>
+                <p>₹15/kg</p>
+            </div>
+
+            <div class="crop-card">
+                <img src="wheat.png" alt="Crop">
+                <p>wheat</p>
+                <p>₹10/kg</p>
+            </div>
+        </div>
+    </section>
+
+</body>
+
+</html>

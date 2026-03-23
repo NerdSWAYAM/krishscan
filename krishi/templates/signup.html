@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KrishiScan - Sign Up</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #b2ddb6, #b3dab4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            width: 350px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            border: 2px solid #2e7d32;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2e7d32;
+            margin-bottom: 5px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #046e0a;
+            margin-bottom: 20px;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .row input {
+            width: 50%;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 4px;
+            border: 2px solid #2e7d32;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .location-group {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            margin: 8px 0;
+            gap: 10px;
+        }
+
+        .location-group input {
+            margin: 0;
+            flex: 1;
+        }
+
+        .location-group button {
+            width: auto;
+            margin: 0;
+            padding: 10px 15px;
+            background: #2e7d32;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .location-group button:hover {
+            background: #1b5e20;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #1b5e20;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-evenly;
+            align-items: center;
+            margin: 8px 0;
+            padding: 10px;
+            border: 2px solid #2e7d32;
+            border-radius: 6px;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        .radio-group label {
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .radio-group input[type="radio"] {
+            width: auto;
+            margin: 0 8px 0 0;
+            padding: 0;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #2e7d32;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #1b5e20;
+        }
+
+        .login {
+            margin-top: 15px;
+            font-size: 13px;
+        }
+
+        .login a {
+            color: #2e7d32;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+
+<body>
+    <div class="container">
+        <a href="{% url 'home' %}" style="text-decoration:none;">🔙</a>
+        <div class="logo">🌾 KrishiScan</div>
+        <h2>Sign Up</h2>
+        <form>
+            <div class="row">
+                <input type="text" placeholder="First Name" required>
+                <input type="text" placeholder="Last Name" required>
+            </div>
+
+            <input type="email" placeholder="Email" required>
+
+            <input type="password" placeholder="Password" required>
+
+            <div class="radio-group">
+                <label><input type="radio" name="role" value="Farmer" required> Farmer</label>
+                <label><input type="radio" name="role" value="Consumer"> Consumer</label>
+            </div>
+
+            <div class="location-group">
+                <input type="text" id="location-input" placeholder="Location" required>
+                <button type="button" id="get-location" title="Get My Location">Get Location</button>
+            </div>
+
+            <button>Create Account</button>
+            <div class="login">
+                <a href={% url 'login' %}>LOGIN</a>
+            </div>
+        </form>
+    </div>
+    </div>
+    <script>
+        const button = document.getElementById("get-location");
+        const locationInput = document.getElementById("location-input");
+
+        button.addEventListener("click", () => {
+            locationInput.value = "Fetching location...";
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition, showError);
+            } else {
+                locationInput.value = "Geolocation not supported.";
+            }
+        });
+
+        async function showPosition(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+                const data = await response.json();
+
+                if (data && data.display_name) {
+                    locationInput.value = data.display_name;
+                } else {
+                    locationInput.value = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+                }
+            } catch (error) {
+                console.error("Error fetching location name:", error);
+                locationInput.value = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+            }
+        }
+
+        function showError(error) {
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    locationInput.value = "Permission denied.";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    locationInput.value = "Location unavailable.";
+                    break;
+                case error.TIMEOUT:
+                    locationInput.value = "Request timed out.";
+                    break;
+                case error.UNKNOWN_ERROR:
+                    locationInput.value = "Unknown error occurred.";
+                    break;
+            }
+        }
+    </script>
+
+</body>
+
+</html>
