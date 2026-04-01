@@ -1,1 +1,4 @@
 ./venv
+otp.py
+db.sqlite3
+__pycache__/

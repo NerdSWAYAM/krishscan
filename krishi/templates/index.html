@@ -1,100 +1,183 @@
 <!DOCTYPE html>
 <html lang="en">
 {% load static %}
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KrishiScan</title>
-    <!-- <link rel="stylesheet" href="index.css"> -->
+    <title>KrishiScan - Direct Farm to Consumer</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'index.css' %}">
 </head>
-
 <body>
-    <header>
-        <div class="logo">KRISHISCAN</div>
+    <!-- HEADER -->
+    <header class="navbar">
+        <div class="logo-container">
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #10b981;"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+                <span>KrishiScan</span>
+            </div>
+        </div>
         <div class="nav-buttons">
-            <button class="btn" onclick="window.location.href='{% url 'login' %}'">Login</button>
-            <button class="btn" onclick="window.location.href='{% url 'signup' %}'">Sign Up</button>
+            <a href="{% url 'login' %}" class="btn btn-outline">Log in</a>
+            <a href="{% url 'signup' %}" class="btn btn-primary">Sign up</a>
         </div>
     </header>
-    <!-- HERO SECTION -->
-    <section class="hero">
-        <div class="hero-image">
-            <img src="{% static 'crop image.jpg' %}" alt="KrishiScan">
-        </div>
-        <h1>KRISHISCAN</h1>
-    </section>
-    <section class="users">
-        <button class="user-btn"
-            onclick="openModal('Farmer', 'Sell crops directly to consumers and increase profit')">Farmer</button>
-        <button class="user-btn"
-            onclick="openModal('Consumer', 'Buy fresh vegetables and fruits directly from farmers')">Consumer</button>
-    </section>
 
-    <!-- DESCRIPTION -->
-    <div class="card-container">
-        <div class="card" style="width: 25%;">
-            <div class="card-body">
-                <center>
-                    <h5 class="card-title">innovative digital marketplace</h5>
-                </center>
-                <p class="card-text">KrishiScan is an innovative digital marketplace that facilitates direct
-                    transactions between agricultural producers and end-consumers, eliminating the need for
-                    intermediaries.</p>
+    <main>
+        <!-- HERO SECTION -->
+        <section class="hero">
+            <div class="hero-bg">
+                <img src="{% static 'crop image.jpg' %}" alt="Farm background">
+                <div class="hero-overlay"></div>
             </div>
-        </div>
-        <div class="card" style="width: 25%;">
-            <div class="card-body">
-                <center>
-                    <h5 class="card-title">Direct farm-to-consumer connection</h5>
-                </center>
-                <p class="card-text">By cutting out middlemen, the KrishiScan platform provides a seamless connection,
-                    allowing farmers to
-                    list their crops and consumers to purchase fresh farm produce directly.</p>
+            <div class="hero-content">
+                <span class="badge">Revolutionizing Agriculture</span>
+                <h1>Empowering Farmers,<br>Delighting Consumers</h1>
+                <p>An innovative digital marketplace establishing a seamless direct connection from farm to table. Eliminate the middlemen and embrace fresh, sustainable agriculture.</p>
+                <div class="hero-actions">
+                    <button class="btn btn-primary btn-large" onclick="window.location.href='{% url 'signup' %}'">Get Started</button>
+                    <a href="#about" class="btn btn-outline-white btn-large">Learn More</a>
+                </div>
             </div>
-        </div>
-        <div class="card" style="width: 25%;">
-            <div class="card-body">
-                <center>
-                    <h5 class="card-title">Streamlines Supply Chain</h5>
-                </center>
-                <p class="card-text">KrishiScan streamlines the farm-to-consumer supply chain, empowering farmers to
-                    sell their harvests
-                    directly to buyers through a smart online portal.</p>
+        </section>
+
+        <!-- USERS SECTION -->
+        <section class="users-section" id="roles">
+            <div class="section-header">
+                <h2>Who do we serve?</h2>
+                <p>Join our platform customized for your unique needs.</p>
             </div>
-        </div>
-    </div>
+            <div class="users-grid">
+                <!-- Farmer Card -->
+                <div class="user-card farmer" onclick="openModal('Farmer', 'Sell crops directly to consumers and increase profit. Gain full control over your pricing and build lasting direct-to-consumer relationships without relying on intermediaries.')">
+                    <div class="icon-wrapper">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    </div>
+                    <h3>I am a Farmer</h3>
+                    <p>Maximize your profits by bypassing middlemen and connecting directly with your buyers.</p>
+                    <span class="card-link">Learn more &rarr;</span>
+                </div>
+                <!-- Consumer Card -->
+                <div class="user-card consumer" onclick="openModal('Consumer', 'Buy fresh vegetables and fruits directly from local farmers. Enjoy top-quality organic produce, trace its origin, and support your local agricultural community while getting the best prices.')">
+                    <div class="icon-wrapper">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                    </div>
+                    <h3>I am a Consumer</h3>
+                    <p>Get fresh produce delivered from local farms straight to your table at authentic market prices.</p>
+                    <span class="card-link">Learn more &rarr;</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- DESCRIPTION / FEATURES -->
+        <section class="features-section" id="about">
+            <div class="section-header">
+                <h2>Why choose KrishiScan?</h2>
+                <p>Designed to provide unparalleled value and transparency in the agricultural supply chain.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </div>
+                    <h3>Digital Marketplace</h3>
+                    <p>An innovative digital marketplace that facilitates direct transactions between agricultural producers and end-consumers securely.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
+                    <h3>Direct Connection</h3>
+                    <p>By cutting out middlemen, the platform allows farmers to quickly list their crops and consumers to purchase them instantly.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    </div>
+                    <h3>Streamlined Supply Chain</h3>
+                    <p>Empowering farmers to sell their harvests efficiently through a smart online portal, ensuring fair prices and superior quality control.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
     <footer>
-        <p>© 2026 KrishiScan | Direct Farm To Consumer</p>
+        <div class="footer-content">
+            <div class="footer-logo">KrishiScan</div>
+            <p>Bridging the gap between farms and tables with complete transparency, reliability, and trust.</p>
+            <div class="social-links">
+                <a href="#">Twitter</a>
+                <a href="#">Facebook</a>
+                <a href="#">Instagram</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 KrishiScan | Direct Farm To Consumer. All rights reserved.</p>
+        </div>
     </footer>
 
+    <!-- MODAL POPUP -->
     <div id="infoModal" class="modal">
+        <div class="modal-backdrop" onclick="closeModal()"></div>
         <div class="modal-card">
-            <span class="close-btn" onclick="closeModal()">&times;</span>
-            <h2 id="modalTitle"></h2>
-            <p id="modalDesc"></p>
+            <div class="modal-header">
+                <h2 id="modalTitle">Modal Title</h2>
+                <button class="close-btn" onclick="closeModal()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="modalDesc">Modal description text goes here.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeModal()">Got it</button>
+            </div>
         </div>
     </div>
 
+    <!-- SCRIPTS -->
     <script>
+        // Modal logic
         function openModal(title, description) {
             document.getElementById('modalTitle').innerText = title;
             document.getElementById('modalDesc').innerText = description;
-            document.getElementById('infoModal').style.display = 'flex';
+            const modal = document.getElementById('infoModal');
+            modal.style.display = 'flex';
+            // Slight delay to allow CSS transitions to trigger
+            setTimeout(() => {
+                modal.classList.add('show');
+            }, 10);
         }
 
         function closeModal() {
-            document.getElementById('infoModal').style.display = 'none';
+            const modal = document.getElementById('infoModal');
+            modal.classList.remove('show');
+            // Wait for transition duration before hiding
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
         }
 
-        window.onclick = function (event) {
-            var modal = document.getElementById('infoModal');
-            if (event.target == modal) {
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
                 closeModal();
             }
-        }
+        });
+
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('.navbar');
+            if (window.scrollY > 20) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
     </script>
 </body>
-
 </html>

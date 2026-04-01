@@ -11,3 +11,9 @@ def login(request):
 
 def dashboard(request):
     return render(request, 'dashboard.html')
+
+def sell(request):
+    return render(request, 'sell.html')
+
+def cart(request):
+    return render(request, 'cart.html')

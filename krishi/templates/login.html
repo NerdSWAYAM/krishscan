@@ -28,6 +28,7 @@
             padding: 40px;
             border-radius: 12px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            border: 2px solid #2e7d32;
         }
 
         .logo {
@@ -35,6 +36,7 @@
             font-weight: bold;
             color: #2e7d32;
             margin-bottom: 5px;
+            text-align: center;
         }
 
         .input-group {
@@ -95,26 +97,47 @@
         .register {
             margin-top: 15px;
             font-size: 13px;
+            text-align: center;
         }
 
         .register a {
             color: #2e7d32;
             text-decoration: none;
             font-weight: bold;
+            text-align: center;
+            text-transform: uppercase;
         }
 
         .footer {
             margin-top: 20px;
             font-size: 12px;
             color: gray;
+            text-align: center;
         }
+        .close-btn {
+            font-size: 24px;
+            color: #333;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .header-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+        a, a:visited, a:hover, a:active, a:focus {
+            text-decoration: none;
+        }
+
     </style>
 </head>
 
 <body>
 
     <div class="container">
-        <a href="{% url 'home' %}" style="text-decoration:none;">🔙</a>
+        <!-- <a href="{% url 'home' %}" style="text-decoration:none;">🔙</a> -->
+         <div class="header-actions">
+            <a href="{% url 'home' %}"><span class="close-btn">&times;</span></a>
+         </div>
         <div class="logo">🌾 KrishiScan</div>
         <form>
 
@@ -128,14 +151,14 @@
                 <input type="password" placeholder="Enter your password" id="pass" required>
             </div>
 
-            <div class="input-group">
+            <!-- <div class="input-group">
                 <label>Login As</label>
                 <select required>
                     <option value="">Select Role</option>
                     <option value="farmer">Farmer</option>
                     <option value="consumer">Consumer</option>
                 </select>
-            </div>
+            </div> -->
 
             <button type="submit">Login</button>
 
@@ -156,8 +179,7 @@
             e.preventDefault();
             const email = document.getElementById("email").value;
             const pass = document.getElementById("pass").value;
-            const role = document.querySelector("select").value;
-            console.log(email, pass, role);
+            console.log(email, pass);
 
             // Redirect the user back to the index page
             window.location.href = "{% url 'dashboard' %}";

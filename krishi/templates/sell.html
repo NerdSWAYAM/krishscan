@@ -1,78 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+{% load static %}
 
 <head>
     <meta charset="UTF-8">
     <title>Sell Crops</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f8f2;
-            margin: 0;
-            padding: 0;
-        }
-
-        header {
-            background: #2e7d32;
-            color: white;
-            padding: 15px;
-            text-align: center;
-            font-size: 24px;
-        }
-
-        .container {
-            width: 90%;
-            max-width: 800px;
-            margin: 20px auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        input,
-        select,
-        button {
-            width: 100%;
-            padding: 10px;
-            margin: 8px 0;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-
-        button {
-            background: #2e7d32;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #1b5e20;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        table,
-        th,
-        td {
-            border: 1px solid #ddd;
-        }
-
-        th,
-        td {
-            padding: 10px;
-            text-align: center;
-        }
-
-        th {
-            background: #e8f5e9;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'sell.css' %}">
 </head>
 
 <body>
