@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KrishiScan — Marketplace</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; background:#f4f7f0; color:#1e1e1e; }
+
+  /* ─── NAVBAR ─── */
+  .navbar {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 40px; background:#fff; border-bottom:1px solid #dde5d0;
+    position:sticky; top:0; z-index:100;
+  }
+  .navbar .logo { font-size:1.5rem; font-weight:700; color:#2e7d32; }
+  .navbar .logo span { color:#66bb6a; }
+  .nav-links { display:flex; gap:28px; align-items:center; }
+  .nav-links a {
+    text-decoration:none; color:#444; font-size:.9rem; font-weight:500;
+    transition:color .2s;
+  }
+  .nav-links a:hover, .nav-links a.active { color:#2e7d32; }
+  .nav-links .cart-btn {
+    position:relative; background:none; border:none; cursor:pointer; font-size:1.3rem;
+  }
+  .nav-links .cart-btn .badge {
+    position:absolute; top:-6px; right:-10px; background:#e53935; color:#fff;
+    font-size:.65rem; width:18px; height:18px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; font-weight:700;
+  }
+
+  /* ─── HERO STRIP ─── */
+  .hero-strip {
+    background:linear-gradient(135deg,#2e7d32 0%,#66bb6a 100%);
+    color:#fff; padding:48px 40px 40px; text-align:center;
+  }
+  .hero-strip h1 { font-size:2rem; font-weight:700; margin-bottom:8px; }
+  .hero-strip p { font-size:1rem; opacity:.85; max-width:560px; margin:0 auto 24px; }
+
+  /* ─── SEARCH / FILTER BAR ─── */
+  .filter-bar {
+    display:flex; flex-wrap:wrap; gap:12px; justify-content:center;
+    padding:0 40px; margin-top:-24px; position:relative; z-index:10;
+  }
+  .filter-bar input[type="text"] {
+    flex:1 1 320px; max-width:480px; padding:14px 20px; border:none;
+    border-radius:12px; font-size:.95rem; box-shadow:0 4px 20px rgba(0,0,0,.1);
+    outline:none;
+  }
+  .filter-bar select, .filter-bar button {
+    padding:14px 20px; border:none; border-radius:12px; font-size:.9rem;
+    cursor:pointer; box-shadow:0 4px 20px rgba(0,0,0,.1);
+  }
+  .filter-bar select { background:#fff; color:#333; min-width:160px; }
+  .filter-bar .search-btn {
+    background:#2e7d32; color:#fff; font-weight:600; min-width:120px;
+    transition:background .2s;
+  }
+  .filter-bar .search-btn:hover { background:#1b5e20; }
+
+  /* ─── ACTIVE FILTERS ─── */
+  .active-filters {
+    display:flex; flex-wrap:wrap; gap:8px; padding:20px 40px 0;
+    justify-content:center;
+  }
+  .filter-tag {
+    display:inline-flex; align-items:center; gap:6px;
+    background:#e8f5e9; color:#2e7d32; padding:6px 14px;
+    border-radius:20px; font-size:.8rem; font-weight:500;
+  }
+  .filter-tag .remove {
+    cursor:pointer; font-weight:700; font-size:.9rem;
+    opacity:.6; transition:opacity .2s;
+  }
+  .filter-tag .remove:hover { opacity:1; }
+
+  /* ─── GRID LAYOUT ─── */
+  .marketplace { padding:32px 40px 60px; }
+  .section-header {
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:20px;
+  }
+  .section-header h2 { font-size:1.2rem; font-weight:600; }
+  .section-header .results { font-size:.85rem; color:#777; }
+
+  .product-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(260px,1fr));
+    gap:24px;
+  }
+
+  /* ─── PRODUCT CARD ─── */
+  .product-card {
+    background:#fff; border-radius:16px; overflow:hidden;
+    box-shadow:0 2px 12px rgba(0,0,0,.06);
+    transition:transform .25s, box-shadow .25s;
+    display:flex; flex-direction:column;
+  }
+  .product-card:hover {
+    transform:translateY(-4px);
+    box-shadow:0 8px 28px rgba(0,0,0,.1);
+  }
+  .product-card .img-wrap {
+    position:relative; height:190px; background:#e8f5e9;
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+  }
+  .product-card .img-wrap img {
+    width:100%; height:100%; object-fit:cover;
+  }
+  .product-card .img-wrap .badge-organic {
+    position:absolute; top:12px; left:12px;
+    background:#2e7d32; color:#fff; font-size:.7rem;
+    padding:4px 10px; border-radius:20px; font-weight:600;
+  }
+  .product-card .img-wrap .badge-sale {
+    position:absolute; top:12px; right:12px;
+    background:#e53935; color:#fff; font-size:.7rem;
+    padding:4px 10px; border-radius:20px; font-weight:600;
+  }
+  .product-card .img-wrap .wishlist {
+    position:absolute; bottom:12px; right:12px;
+    width:34px; height:34px; border-radius:50%;
+    background:#fff; border:none; cursor:pointer;
+    font-size:1.1rem; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 2px 8px rgba(0,0,0,.12); transition:transform .2s;
+  }
+  .product-card .img-wrap .wishlist:hover { transform:scale(1.15); }
+  .product-card .img-wrap .wishlist.liked { color:#e53935; }
+
+  .card-body { padding:16px 18px 20px; flex:1; display:flex; flex-direction:column; }
+  .card-body .farmer-row {
+    display:flex; align-items:center; gap:8px; margin-bottom:8px;
+  }
+  .farmer-row .avatar {
+    width:28px; height:28px; border-radius:50%; background:#c8e6c9;
+    display:flex; align-items:center; justify-content:center;
+    font-size:.7rem; font-weight:700; color:#2e7d32;
+  }
+  .farmer-row .farmer-name { font-size:.78rem; color:#666; }
+  .farmer-row .rating { margin-left:auto; font-size:.78rem; color:#f9a825; }
+
+  .card-body h3 { font-size:1.05rem; font-weight:600; margin-bottom:4px; }
+  .card-body .crop-meta { font-size:.8rem; color:#888; margin-bottom:12px; }
+  .card-body .crop-meta span { margin-right:12px; }
+
+  .card-body .price-row {
+    display:flex; align-items:baseline; gap:8px; margin-top:auto; margin-bottom:14px;
+  }
+  .price-row .price { font-size:1.25rem; font-weight:700; color:#2e7d32; }
+  .price-row .old-price {
+    font-size:.85rem; color:#aaa; text-decoration:line-through;
+  }
+  .price-row .unit { font-size:.8rem; color:#888; }
+
+  .card-body .qty-row {
+    display:flex; align-items:center; gap:10px; margin-bottom:14px;
+  }
+  .qty-row label { font-size:.8rem; color:#555; }
+  .qty-row .qty-control {
+    display:flex; align-items:center; border:1px solid #ddd; border-radius:8px;
+    overflow:hidden;
+  }
+  .qty-control button {
+    width:32px; height:32px; border:none; background:#f5f5f5;
+    font-size:1rem; cursor:pointer; transition:background .15s;
+  }
+  .qty-control button:hover { background:#e0e0e0; }
+  .qty-control input {
+    width:40px; text-align:center; border:none; border-left:1px solid #ddd;
+    border-right:1px solid #ddd; font-size:.85rem; outline:none;
+  }
+  .qty-row .stock { margin-left:auto; font-size:.75rem; color:#999; }
+
+  .card-body .add-cart {
+    width:100%; padding:12px; border:none; border-radius:10px;
+    background:linear-gradient(135deg,#2e7d32,#43a047);
+    color:#fff; font-size:.9rem; font-weight:600; cursor:pointer;
+    transition:opacity .2s;
+  }
+  .card-body .add-cart:hover { opacity:.9; }
+  .card-body .add-cart.added {
+    background:linear-gradient(135deg,#1b5e20,#2e7d32);
+  }
+
+  /* ─── PAGINATION ─── */
+  .pagination {
+    display:flex; justify-content:center; gap:8px;
+    padding:40px 0 20px;
+  }
+  .pagination button {
+    width:40px; height:40px; border:1px solid #ddd; border-radius:10px;
+    background:#fff; font-size:.9rem; cursor:pointer; transition:all .2s;
+  }
+  .pagination button:hover, .pagination button.active {
+    background:#2e7d32; color:#fff; border-color:#2e7d32;
+  }
+
+  /* ─── CART SIDEBAR ─── */
+  .cart-overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,.35);
+    z-index:200; opacity:0; pointer-events:none; transition:opacity .3s;
+  }
+  .cart-overlay.open { opacity:1; pointer-events:all; }
+  .cart-sidebar {
+    position:fixed; top:0; right:-420px; width:400px; max-width:90vw;
+    height:100%; background:#fff; z-index:201;
+    box-shadow:-4px 0 30px rgba(0,0,0,.12);
+    transition:right .35s ease; display:flex; flex-direction:column;
+  }
+  .cart-sidebar.open { right:0; }
+  .cart-header {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:20px 24px; border-bottom:1px solid #eee;
+  }
+  .cart-header h3 { font-size:1.1rem; font-weight:700; }
+  .cart-header .close-cart {
+    background:none; border:none; font-size:1.4rem; cursor:pointer; color:#555;
+  }
+  .cart-items { flex:1; overflow-y:auto; padding:16px 24px; }
+  .cart-item {
+    display:flex; gap:14px; padding:14px 0;
+    border-bottom:1px solid #f0f0f0;
+  }
+  .cart-item .ci-img {
+    width:60px; height:60px; border-radius:10px; background:#e8f5e9;
+    flex-shrink:0; overflow:hidden;
+  }
+  .cart-item .ci-img img { width:100%; height:100%; object-fit:cover; }
+  .cart-item .ci-info { flex:1; }
+  .cart-item .ci-info h4 { font-size:.9rem; font-weight:600; }
+  .cart-item .ci-info p { font-size:.78rem; color:#777; margin-top:2px; }
+  .cart-item .ci-info .ci-price { font-size:.95rem; font-weight:700; color:#2e7d32; margin-top:4px; }
+  .cart-item .ci-remove {
+    background:none; border:none; color:#ccc; cursor:pointer;
+    font-size:1.1rem; align-self:flex-start; transition:color .2s;
+  }
+  .cart-item .ci-remove:hover { color:#e53935; }
+  .cart-empty { text-align:center; padding:60px 0; color:#aaa; font-size:.95rem; }
+  .cart-footer {
+    padding:20px 24px; border-top:1px solid #eee;
+  }
+  .cart-footer .totals { display:flex; justify-content:space-between; margin-bottom:6px; font-size:.9rem; }
+  .cart-footer .totals.grand { font-weight:700; font-size:1.05rem; margin-top:8px; padding-top:10px; border-top:1px dashed #ddd; }
+  .cart-footer .checkout-btn {
+    width:100%; margin-top:16px; padding:14px;
+    background:linear-gradient(135deg,#2e7d32,#43a047);
+    color:#fff; border:none; border-radius:12px;
+    font-size:1rem; font-weight:600; cursor:pointer;
+    transition:opacity .2s;
+  }
+  .cart-footer .checkout-btn:hover { opacity:.88; }
+
+  /* ─── RESPONSIVE ─── */
+  @media(max-width:768px){
+    .navbar { padding:14px 20px; }
+    .nav-links a { font-size:.8rem; }
+    .hero-strip { padding:36px 20px 32px; }
+    .hero-strip h1 { font-size:1.5rem; }
+    .filter-bar { padding:0 20px; }
+    .marketplace { padding:24px 20px 40px; }
+    .product-grid { grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ NAVBAR ═══ -->
+<nav class="navbar">
+  <div class="logo">Krishi<span>Scan</span></div>
+  <div class="nav-links">
+    <a href="#">Home</a>
+    <a href="#" class="active">Marketplace</a>
+    <a href="#">My Orders</a>
+    <a href="#">Dashboard</a>
+    <button class="cart-btn" id="openCart">
+      🛒
+      <span class="badge" id="cartBadge">3</span>
+    </button>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero-strip">
+  <h1>Farm-Fresh Marketplace</h1>
+  <p>Browse crops harvested within the last 48 hours, sourced directly from verified local farmers across India.</p>
+</section>
+
+<!-- ═══ FILTER BAR ═══ -->
+<div class="filter-bar">
+  <input type="text" id="searchInput" placeholder="Search crops, farmers, regions..." />
+  <select id="categoryFilter">
+    <option value="">All Categories</option>
+    <option value="vegetables">Vegetables</option>
+    <option value="fruits">Fruits</option>
+    <option value="grains">Grains &amp; Cereals</option>
+    <option value="pulses">Pulses &amp; Lentils</option>
+    <option value="spices">Spices</option>
+  </select>
+  <select id="sortFilter">
+    <option value="relevance">Sort: Relevance</option>
+    <option value="price-low">Price: Low → High</option>
+    <option value="price-high">Price: High → Low</option>
+    <option value="rating">Top Rated</option>
+    <option value="newest">Newest First</option>
+  </select>
+  <button class="search-btn" id="searchBtn">Search</button>
+</div>
+
+<!-- ═══ ACTIVE FILTERS ═══ -->
+<div class="active-filters" id="activeFilters">
+  <div class="filter-tag">Organic <span class="remove" onclick="this.parentElement.remove()">✕</span></div>
+  <div class="filter-tag">Within 50 km <span class="remove" onclick="this.parentElement.remove()">✕</span></div>
+</div>
+
+<!-- ═══ MAIN GRID ═══ -->
+<section class="marketplace">
+  <div class="section-header">
+    <h2>Available Crops</h2>
+    <span class="results" id="resultCount">Showing 8 of 124 results</span>
+  </div>
+
+  <div class="product-grid" id="productGrid">
+
+    <!-- CARD 1 -->
+    <div class="product-card">
+      <div class="img-wrap">
+        <img src="https://images.unsplash.com/photo-1518977676601-b53f82ber4gg?w=400&h=300&fit=crop" alt="Tomatoes"
+             onerror="this.style.display='none'" />
+        <span class="badge-organic">🌿 Organic</span>
+        <button class="wishlist" onclick="this.classList.toggle('liked')">♥</button>
+      </div>
+      <div class="card-body">
+        <div class="farmer-row">
+          <div class="avatar">RK</div>
+          <span class="farmer-name">Ramesh Kumar • Nashik</span>
+          <span class="rating">★ 4.8</span>
+        </div>
+        <h3>Fresh Tomatoes</h3>
+        <div class="crop-meta">
+          <span>🕒 Harvested 6h ago</span>
+          <span>📦 12 kg left</span>
+        </div>
+        <div class="price-row">
+          <span class="price">₹42</span>
+          <span class="old-price">₹55</span>
+          <span class="unit">/ kg</span>
+        </div>
+        <div class="qty-row">
+          <label>Qty:</label>
+          <div class="qty-control">
+            <button onclick="changeQty(this,-1)">−</button>
+            <input type="text" value="1" readonly />
+            <button onclick="changeQty(this,1)">+</button>
+          </div>
+          <span class="stock">In stock</span>
+        </div>
+        <button class="add-cart" onclick="addToCart(this)">Add to Cart</button>
+      </div>
+    </div>
+
+    <!-- CARD 2 -->
+    <div class="product-card">
+      <div class="img-wrap">
+        <img src="https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=400&h=300&fit=crop" alt="Basmati Rice"
+             onerror="this.style.display='none'" />
+        <span class="badge-organic">🌿 Organic</span>
+        <button class="wishlist" onclick="this.classList.toggle('liked')">♥</button>
+      </div>
+      <div class="card-body">
+        <div class="farmer-row">
+          <div class="avatar">PS</div>
+          <span class="farmer-name">Priya Sharma • Dehradun</span>
+          <span class="rating">★ 4.9</span>
+        </div>
+        <h3>Basmati Rice (1121)</h3>
+        <div class="crop-meta">
+          <span>🕒 Harvested 18h ago</span>
+          <span>📦 200 kg left</span>
+        </div>
+        <div class="price-row">
+          <span class="price">₹89</span>
+          <span class="unit">/ kg</span>
+        </div>
+        <div class="qty-row">
+          <label>Qty:</label>
+          <div class="qty-control">
+            <button onclick="changeQty(this,-1)">−</button>
+            <input type="text" value="1" readonly />
+            <button onclick="changeQty(this,1)">+</button>
+          </div>
+          <span class="stock">In stock</span>
+        </div>
+        <button class="add-cart" onclick="addToCart(this)">Add to Cart</button>
+      </div>
+    </div>
+
+    <!-- CARD 3 -->
+    <div class="product-card">
+      <div class="img-wrap">
+        <img src="https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400&h=300&fit=crop" alt="Potatoes"
+             onerror="this.style.display='none'" />
+        <span class="badge-sale">20% OFF</span>
+        <button class="wishlist" onclick="this.classList.toggle('liked')">♥</button>
+      </div>
+      <div class="card-body">
+        <div class="farmer-row">
+          <div class="avatar">AJ</div>
+          <span class="farmer-name">Anil Joshi • Agra</span>
+          <span class="rating">★ 4.5</span>
+        </div>
+        <h3>Red Potatoes</h3>
+        <div class="crop-meta">
+          <span>🕒 Harvested 24h ago</span>
+          <span>📦 80 kg left</span>
+        </div>
+        <div class="price-row">
+          <span class="price">₹28</span>
+          <span class="old-price">₹35</span>
+          <span class="unit">/ kg</span>
+        </div>
+        <div class="qty-row">
+          <label>Qty:</label>
+          <div class="qty-control">
+            <button onclick="changeQty(this,-1)">−</button>
+            <input type="text" value="1" readonly />
+            <button onclick="changeQty(this,1)">+</button>
+          </div>
+          <span class="stock">In stock</span>
+        </div>
+        <button class="add-cart" onclick="addToCart(this)">Add to Cart</button>
+      </div>
+    </div>
+
+    <!-- CARD 4 -->
+    <div class="product-card">
+      <div class="img-wrap">
+        <img src="https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=400&h=300&fit=crop" alt="Mangoes"
+             onerror="this.style.display='none'" />
+        <span class="badge-organic">🌿 Organic</span>
+        <span class="badge-sale">Seasonal</span>
+        <button class="wishlist" onclick="this.classList.toggle('liked')">♥</button>
+      </div>
+      <div class="card-body">
+        <div class="farmer-row">
+          <div class="avatar">MN</div>
+          <span class="farmer-name">Meena Naik • Ratnagiri</span>
+          <span class="rating">★ 5.0</span>
+        </div>
+        <h3>Alphonso Mangoes</h3>
+        <div class="crop-meta">
+          <span>🕒 Harvested 4h ago</span>
+          <span>📦 30 dz left</span>
+        </div>
+        <div class="price-row">
+          <span class="price">₹520</span>
+          <span class="unit">/ dozen</span>
+        </div>
+        <div class="qty-row">
+          <label>Qty:</label>
+          <div class="qty-control">
+            <button onclick="changeQty(this,-1)">−</button>
+            <input type="text" value="1" readonly />
+            <button onclick="changeQty(this,1)">+</button>
+          </div>
+          <span class="stock">Low stock</span>
+        </div>
+        <button class="add-cart" onclick="addToCart(this)">Add to Cart</button>
+      </div>
+    </div>
+
+    <!-- CARD 5 -->
+    <div class="product-card">
+      <div class="img-wrap">
+        <img src="https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400&h=300&fit=crop" alt="Green Chillies"
+             onerror="this.style.display='none'" />
+        <button class="wishlist" onclick="this.classList.toggle('liked')">♥</button>
+      </div>
+      <div class="card-body">
+        <div class="farmer-row">
+          <div class="avatar">VR</div>
+          <span class="farmer-name">Venkat Rao • Guntur</span>
+          <span class="rating">★ 4.7</span>
+        </div>
+        <h3>Green Chillies</h3>
+        <div class="crop-meta">
+          <span>🕒 Harvested 10h ago</span>
+          <span>📦 45 kg left</span>
+        </div>
+        <div class="price-row">
+          <span class="price">₹65</span>
+          <span class="unit">/ kg</span>
+        </div>
+        <div class="qty-row">
+          <label>Qty:</label>
+          <div class="qty-control">
+            <button onclick="changeQty(this,-1)">−</button>
+            <input type="text" value="1" readonly />
+            <button onclick="changeQty(this,1)">+</button>
+          </div>
+          <span class="stock">In stock</span>
+        </div>
+        <button class="add-cart" onclick="addToCart(this)">Add to Cart</button>
+      </div>
+    </div>
+
+    <!-- CARD 6 -->
+    <div class="product-card">
+      <div class="img-wrap">
+        <img src="https://images.unsplash.com/photo-1508747703725-719d0c85cdb6?w=400&h=300&fit=crop" alt="Turmeric"
+             onerror="this.style.display='none'" />
+        <span class="badge-organic">🌿 Organic</span>
+        <button class="wishlist" onclick="this.classList.toggle('liked')">♥</button>
+      </div>
+      <div class="card-body">
+        <div class="farmer-row">
+          <div class="avatar">SD</div>
+          <span class="farmer-name">Sunita Devi • Erode</span>
+          <span class="rating">★ 4.6</span>
+        </div>
+        

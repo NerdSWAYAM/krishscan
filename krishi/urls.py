@@ -9,4 +9,5 @@ urlpatterns = [
     # path('kishiscan/', views.kishiscan, name='kishiscan'),
     path('sell/', views.sell, name='sell'),
     path('cart/', views.cart, name='cart'),
+    path('price-tracker/', views.price_tracker, name='price_tracker'),
 ]
