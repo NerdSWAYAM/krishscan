@@ -1,43 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
-
+{% load static %}
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KrishiScan - Sign Up</title>
 
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', Arial, Helvetica, sans-serif;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #b2ddb6, #b3dab4);
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
+            background: url("{% static 'story_hero.png' %}") no-repeat center center fixed;
+            background-size: cover;
+            position: relative;
+        }
+        
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: inherit;
+            filter: blur(10px);
+            z-index: -2;
+        }
+
+        body::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: -1;
         }
 
         .container {
-            background: white;
-            padding: 30px;
-            width: 350px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            border: 2px solid #2e7d32;
+            width: 420px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(15px);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            animation: fadeInContainer 0.8s ease-out;
+            position: relative;
+            max-height: 95vh;
+            overflow-y: auto;
+        }
+        
+        @keyframes fadeInContainer {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Hide scrollbar for container */
+        .container::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
         }
 
         .logo {
-            font-size: 28px;
-            font-weight: bold;
+            font-size: 32px;
+            font-weight: 600;
             color: #2e7d32;
             margin-bottom: 5px;
             text-align: center;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
         }
 
         h2 {
             text-align: center;
             color: #046e0a;
             margin-bottom: 20px;
+            font-weight: 600;
         }
 
         .row {
@@ -52,12 +96,14 @@
         input,
         select {
             width: 100%;
-            padding: 10px;
+            padding: 14px 20px;
             margin: 8px 0;
-            border-radius: 4px;
-            border: 2px solid #2e7d32;
+            border-radius: 30px;
+            border: 1px solid rgba(46, 125, 50, 0.4);
             font-size: 14px;
             box-sizing: border-box;
+            background: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
         }
 
         .location-group {
@@ -76,27 +122,32 @@
         .location-group button {
             width: auto;
             margin: 0;
-            padding: 10px 15px;
-            background: #2e7d32;
+            padding: 14px 18px;
+            background: linear-gradient(135deg, #2e7d32, #1b5e20);
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 30px;
             font-size: 12px;
+            font-weight: 600;
             cursor: pointer;
             white-space: nowrap;
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: 0 4px 10px rgba(46, 125, 50, 0.4);
         }
 
         .location-group button:hover {
-            background: #1b5e20;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(46, 125, 50, 0.6);
         }
 
         input:focus,
         select:focus {
             outline: none;
-            border-color: #1b5e20;
+            border-color: #2e7d32;
+            box-shadow: 0 0 10px rgba(46, 125, 50, 0.3);
+            background: #fff;
         }
 
         .radio-group {
@@ -104,47 +155,55 @@
             flex-direction: row;
             justify-content: space-evenly;
             align-items: center;
-            margin: 8px 0;
-            padding: 10px;
-            border: 2px solid #2e7d32;
-            border-radius: 6px;
+            margin: 10px 0;
+            padding: 12px;
+            border: 1px solid rgba(46, 125, 50, 0.4);
+            border-radius: 30px;
             box-sizing: border-box;
             width: 100%;
+            background: rgba(255, 255, 255, 0.9);
         }
 
         .radio-group label {
             font-size: 14px;
+            font-weight: 600;
             display: flex;
             align-items: center;
             cursor: pointer;
             white-space: nowrap;
+            color: #333;
         }
 
         .radio-group input[type="radio"] {
             width: auto;
             margin: 0 8px 0 0;
             padding: 0;
+            accent-color: #2e7d32;
         }
 
         button {
             width: 100%;
-            padding: 12px;
-            background: #2e7d32;
+            padding: 14px;
+            background: linear-gradient(135deg, #2e7d32, #1b5e20);
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 30px;
             font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            margin-top: 10px;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(46, 125, 50, 0.4);
         }
 
         button:hover {
-            background: #1b5e20;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(46, 125, 50, 0.6);
         }
 
         .login {
             margin-top: 15px;
-            font-size: 13px;
+            font-size: 14px;
             text-align: center;
         }
 
@@ -152,27 +211,90 @@
             color: #2e7d32;
             text-decoration: none;
             text-align: center;
-            font-weight: bold;
-            
+            font-weight: 600;
+            text-transform: uppercase;
+            transition: color 0.3s;
         }
+        
+        .login a:hover {
+            color: #1b5e20;
+        }
+
         .close-btn {
-            font-size: 24px;
-            color: #333;
+            font-size: 28px;
+            color: #666;
             cursor: pointer;
             text-decoration: none;
+            transition: color 0.3s;
         }
+        
+        .close-btn:hover {
+            color: #ff3b30;
+        }
+
         .header-actions {
             display: flex;
             justify-content: flex-end;
+            margin-bottom: -15px;
         }
+
         a, a:visited, a:hover, a:active, a:focus {
             text-decoration: none;
         }
+
         .footer {
-            margin-top: 20px;
+            margin-top: 25px;
             font-size: 12px;
-            color: gray;
+            color: #555;
             text-align: center;
+        }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            width: 300px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.3s;
+        }
+
+        .close-modal:hover {
+            color: #ff3b30;
         }
     </style>
 
@@ -183,15 +305,19 @@
         </div>
         <div class="logo">🌾 KrishiScan</div>
         <h2>Sign Up</h2>
-        <form>
+        <form method="POST" action="{% url 'signup' %}">
+            {% csrf_token %}
             <div class="row">
-                <input type="text" placeholder="First Name" required>
-                <input type="text" placeholder="Last Name" required>
+                <input type="text" name="first_name" placeholder="First Name" required>
+                <input type="text" name="last_name" placeholder="Last Name" required>
             </div>
 
-            <input type="email" placeholder="Email" required>
+            <input type="email" name="email" id="email-input" placeholder="Email" required>
+            <button type="button" id="get-otp">Get OTP</button>
+            <input type="hidden" name="otp" id="otp-hidden">
+            
 
-            <input type="password" placeholder="Password" required>
+            <input type="password" name="password" placeholder="Password" required>
 
             <div class="radio-group">
                 <label><input type="radio" name="role" value="Farmer" required> Farmer</label>
@@ -199,11 +325,11 @@
             </div>
 
             <div class="location-group">
-                <input type="text" id="location-input" placeholder="Location" required>
+                <input type="text" name="location" id="location-input" placeholder="Location" required>
                 <button type="button" id="get-location" title="Get My Location">Get Location</button>
             </div>
 
-            <button>Create Account</button>
+            <button type="submit">Create Account</button>
             <div class="login">
                 <a href="{% url 'login' %}">LOGIN</a>
             </div>
@@ -213,7 +339,58 @@
         </div>
     </div>
     
+    <!-- OTP Modal Overlay -->
+    <div id="otp-modal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3 style="color: #2e7d32; margin-top: 0; margin-bottom: 10px;">Enter OTP</h3>
+            <p style="font-size: 14px; color: #555; text-align: center; margin-top: 0;">Please enter the 4-digit OTP sent to your email.</p>
+            <input type="text" id="otp-input" placeholder="0000" maxlength="4" pattern="\d{4}" style="text-align: center; letter-spacing: 5px; font-size: 20px;">
+            <button type="button" id="verify-otp" style="margin-top: 15px;">Verify OTP</button>
+        </div>
+    </div>
+
     <script>
+        // Modal Logic
+        const getOtpBtn = document.getElementById('get-otp');
+        const otpModal = document.getElementById('otp-modal');
+        const closeModalBtn = document.querySelector('.close-modal');
+        const verifyOtpBtn = document.getElementById('verify-otp');
+        const otpInput = document.getElementById('otp-input');
+        const otpHidden = document.getElementById('otp-hidden');
+        const emailInput = document.getElementById('email-input');
+
+        getOtpBtn.addEventListener('click', () => {
+            if (!emailInput.value) {
+                alert('Please enter your email first.');
+                return;
+            }
+            // The actual OTP sending API call check can be done here / in backend
+            otpModal.style.display = 'flex';
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            otpModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === otpModal) {
+                otpModal.style.display = 'none';
+            }
+        });
+
+        verifyOtpBtn.addEventListener('click', () => {
+            const otpValue = otpInput.value;
+            if (otpValue.length === 4 && !isNaN(otpValue)) {
+                otpHidden.value = otpValue; // Store the OTP in the hidden input for form submission
+                otpModal.style.display = 'none';
+                getOtpBtn.textContent = 'OTP Verified ✓';
+                getOtpBtn.style.backgroundColor = '#1b5e20';
+            } else {
+                alert('Please enter a valid 4-digit OTP.');
+            }
+        });
+
         const button = document.getElementById("get-location");
         const locationInput = document.getElementById("location-input");
 

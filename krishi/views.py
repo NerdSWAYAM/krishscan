@@ -1,9 +1,38 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth.hashers import make_password
+from .models import UserAccount
 
 def home(request):
     return render(request, 'index.html')
 
 def signup(request):
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        role = request.POST.get('role')
+        location = request.POST.get('location')
+        
+        if UserAccount.objects.filter(email=email).exists():
+            messages.error(request, 'Email already registered. Please login.')
+            return redirect('signup')
+            
+        hashed_password = make_password(password)
+
+        new_user = UserAccount(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            password=hashed_password,
+            role=role,
+            location=location
+        )
+        new_user.save()
+        messages.success(request, 'Account created successfully! Please login.')
+        return redirect('login')
+
     return render(request, 'signup.html')
 
 def login(request):
