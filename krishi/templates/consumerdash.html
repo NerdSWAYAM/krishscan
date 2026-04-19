@@ -729,9 +729,13 @@
 
   <div class="sidebar-footer">
     <div class="user-card">
-      <div class="user-avatar">AP</div>
+      <div class="user-avatar">
+        {% if request.session.first_name %}{{ request.session.first_name.0|upper }}{{ request.session.last_name.0|upper }}{% else %}AP{% endif %}
+      </div>
       <div class="user-info">
-        <div class="name">Arjun Patel</div>
+        <div class="name">
+          {% if request.session.first_name %}{{ request.session.first_name }} {{ request.session.last_name }}{% else %}Arjun Patel{% endif %}
+        </div>
         <div class="role">Premium Member</div>
       </div>
       <span style="opacity:0.4;">⋮</span>
@@ -764,7 +768,7 @@
   <!-- PAGE -->
   <div class="page">
     <div class="page-header">
-      <h2>Good evening, Arjun 👋</h2>
+      <h2>Good evening, {% if request.session.first_name %}{{ request.session.first_name }}{% else %}Arjun{% endif %} 👋</h2>
       <p>Fresh harvests are available from 12 farms near Pune today.</p>
     </div>
 

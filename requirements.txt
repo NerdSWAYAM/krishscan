@@ -4,3 +4,7 @@ psycopg2-binary
 dotenv
 requests
 pandas
+torch
+trochvision
+pillow
+timm

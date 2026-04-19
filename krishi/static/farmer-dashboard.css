@@ -1,0 +1,748 @@
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+    }
+
+    body {
+        background-color: #F8FBF8;
+        color: #333;
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    /* --- SIDEBAR --- */
+    .sidebar {
+        width: 280px;
+        background-color: #2D6A4F;
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        padding: 2rem 1.5rem;
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        z-index: 50;
+    }
+
+    .brand {
+        margin-bottom: 3rem;
+        padding-left: 0.5rem;
+    }
+
+    .brand h1 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        margin-bottom: 0.2rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .brand h1::before {
+        content: "🌾";
+        font-size: 1.5rem;
+    }
+
+    .subtitle {
+        font-size: 0.85rem;
+        color: #A3D1B6;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 500;
+    }
+
+    .nav-menu {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        flex: 1;
+    }
+
+    .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0.8rem 1rem;
+        color: #E2F0E5;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+
+    .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+        color: #fff;
+    }
+
+    .nav-link.active {
+        background-color: #40916C;
+        color: #fff;
+    }
+
+    .nav-link.active::before {
+        content: "";
+        position: absolute;
+        left: -1.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 60%;
+        background-color: #95D5B2;
+        border-radius: 0 4px 4px 0;
+    }
+
+    .nav-icon {
+        font-size: 1.2rem;
+    }
+
+    /* Sidebar Profile Pill */
+    .profile-pill {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 1rem;
+        background-color: rgba(0, 0, 0, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        margin-top: auto;
+        text-decoration: none;
+        color: #fff;
+        transition: background 0.2s;
+    }
+
+    .profile-pill:hover {
+        background-color: rgba(0, 0, 0, 0.25);
+    }
+
+    .avatar-initials {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #95D5B2;
+        color: #1B4332;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1rem;
+    }
+    }
+
+    .greeting h2 {
+        font-size: 2.2rem;
+        color: #1B4332;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        margin-bottom: 0.4rem;
+    }
+
+    .greeting p {
+        color: #555;
+        font-size: 1.05rem;
+    }
+
+    .date-badge {
+        background-color: #E2F0E5;
+        color: #2D6A4F;
+        padding: 0.6rem 1.2rem;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Stat Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background-color: #fff;
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 1px solid #EAEAEA;
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        transition: transform 0.2s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+    }
+
+    .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #666;
+        font-weight: 500;
+        font-size: 0.95rem;
+    }
+
+    .stat-icon {
+        font-size: 1.5rem;
+        background: #F8FBF8;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        border: 1px solid #eee;
+    }
+
+    .stat-value {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #111;
+    }
+
+    .stat-subtitle {
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .text-green {
+        color: #2D6A4F;
+    }
+
+    .text-orange {
+        color: #E76F51;
+    }
+
+    .text-red {
+        color: #D62828;
+    }
+
+    /* Panels */
+    .panels-grid {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 2rem;
+    }
+
+    .panel {
+        background-color: #fff;
+        border-radius: 16px;
+        border: 1px solid #EAEAEA;
+        padding: 1.8rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .panel-title {
+        font-size: 1.2rem;
+        color: #1B4332;
+        font-weight: 600;
+    }
+
+    .panel-link {
+        color: #2D6A4F;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .panel-link:hover {
+        text-decoration: underline;
+    }
+
+    /* Disease List */
+    .disease-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .disease-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+        background-color: #F8FBF8;
+        border-radius: 12px;
+        border: 1px solid #f0f0f0;
+    }
+
+    .disease-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .disease-icon {
+        font-size: 2rem;
+    }
+
+    .disease-text h4 {
+        font-size: 1rem;
+        color: #333;
+        margin-bottom: 0.2rem;
+    }
+
+    .disease-text p {
+        font-size: 0.85rem;
+        color: #666;
+    }
+
+    .risk-badge {
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .risk-high {
+        background-color: #FDE8E8;
+        color: #D62828;
+    }
+
+    .risk-med {
+        background-color: #FFF4E5;
+        color: #E76F51;
+    }
+
+    .risk-low {
+        background-color: #E8F5E9;
+        color: #2D6A4F;
+    }
+
+    /* Market Prices */
+    .tabs {
+        display: flex;
+        background: #F8FBF8;
+        border-radius: 8px;
+        padding: 4px;
+        margin-bottom: 1rem;
+    }
+
+    .tab {
+        flex: 1;
+        text-align: center;
+        padding: 0.5rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #666;
+        cursor: pointer;
+        border-radius: 6px;
+    }
+
+    .tab.active {
+        background-color: #2D6A4F;
+        color: #fff;
+    }
+
+    .price-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .price-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .price-item:last-child {
+        border-bottom: none;
+    }
+
+    .crop-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 500;
+        color: #333;
+    }
+
+    .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+
+    .dot.up {
+        background-color: #2D6A4F;
+    }
+
+    .dot.down {
+        background-color: #E76F51;
+    }
+
+    .price-val {
+        font-weight: 700;
+        color: #111;
+    }
+
+    /* Responsive */
+    @media(max-width: 1100px) {
+        .panels-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media(max-width: 768px) {
+        .sidebar {
+            transform: translateX(-100%);
+        }
+
+        .main-content {
+            margin-left: 0;
+        }
+    }
+
+    .profile-text {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .profile-name {
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .profile-role {
+        font-size: 0.8rem;
+        color: #A3D1B6;
+    }
+
+    /* --- MAIN CONTENT --- */
+    .main-content {
+        margin-left: 280px;
+        flex: 1;
+        height: 100vh;
+        overflow-y: auto;
+        position: relative;
+    }
+
+    /* Banner SVG behind header */
+    .banner-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+        z-index: 0;
+        opacity: 0.7;
+        pointer-events: none;
+    }
+
+    .content-wrapper {
+        position: relative;
+        z-index: 10;
+        padding: 3rem 4rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 2.5rem;
+    }
+
+    .greeting h2 {
+        font-size: 2.2rem;
+        color: #1B4332;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        margin-bottom: 0.4rem;
+    }
+
+    .greeting p {
+        color: #555;
+        font-size: 1.05rem;
+    }
+
+    .date-badge {
+        background-color: #E2F0E5;
+        color: #2D6A4F;
+        padding: 0.6rem 1.2rem;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Stat Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background-color: #fff;
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 1px solid #EAEAEA;
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        transition: transform 0.2s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+    }
+
+    .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #666;
+        font-weight: 500;
+        font-size: 0.95rem;
+    }
+
+    .stat-icon {
+        font-size: 1.5rem;
+        background: #F8FBF8;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        border: 1px solid #eee;
+    }
+
+    .stat-value {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #111;
+    }
+
+    .stat-subtitle {
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .text-green {
+        color: #2D6A4F;
+    }
+
+    .text-orange {
+        color: #E76F51;
+    }
+
+    .text-red {
+        color: #D62828;
+    }
+
+    /* Panels */
+    .panels-grid {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 2rem;
+    }
+
+    .panel {
+        background-color: #fff;
+        border-radius: 16px;
+        border: 1px solid #EAEAEA;
+        padding: 1.8rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .panel-title {
+        font-size: 1.2rem;
+        color: #1B4332;
+        font-weight: 600;
+    }
+
+    .panel-link {
+        color: #2D6A4F;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .panel-link:hover {
+        text-decoration: underline;
+    }
+
+    /* Disease List */
+    .disease-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .disease-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+        background-color: #F8FBF8;
+        border-radius: 12px;
+        border: 1px solid #f0f0f0;
+    }
+
+    .disease-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .disease-icon {
+        font-size: 2rem;
+    }
+
+    .disease-text h4 {
+        font-size: 1rem;
+        color: #333;
+        margin-bottom: 0.2rem;
+    }
+
+    .disease-text p {
+        font-size: 0.85rem;
+        color: #666;
+    }
+
+    .risk-badge {
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .risk-high {
+        background-color: #FDE8E8;
+        color: #D62828;
+    }
+
+    .risk-med {
+        background-color: #FFF4E5;
+        color: #E76F51;
+    }
+
+    .risk-low {
+        background-color: #E8F5E9;
+        color: #2D6A4F;
+    }
+
+    /* Market Prices */
+    .tabs {
+        display: flex;
+        background: #F8FBF8;
+        border-radius: 8px;
+        padding: 4px;
+        margin-bottom: 1rem;
+    }
+
+    .tab {
+        flex: 1;
+        text-align: center;
+        padding: 0.5rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #666;
+        cursor: pointer;
+        border-radius: 6px;
+    }
+
+    .tab.active {
+        background-color: #2D6A4F;
+        color: #fff;
+    }
+
+    .price-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .price-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .price-item:last-child {
+        border-bottom: none;
+    }
+
+    .crop-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 500;
+        color: #333;
+    }
+
+    .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+
+    .dot.up {
+        background-color: #2D6A4F;
+    }
+
+    .dot.down {
+        background-color: #E76F51;
+    }
+
+    .price-val {
+        font-weight: 700;
+        color: #111;
+    }
+
+    /* Responsive */
+    @media(max-width: 1100px) {
+        .panels-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media(max-width: 768px) {
+        .sidebar {
+            transform: translateX(-100%);
+        }
+
+        .main-content {
+            margin-left: 0;
+        }
+    }

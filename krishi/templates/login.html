@@ -4,223 +4,511 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KrishiScan Login</title>
-
+    <title>KrishiScan — Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', Arial, Helvetica, sans-serif;
+        :root {
+            --forest: #1a3a1f;
+            --moss: #2d5a27;
+            --sage: #4e8c45;
+            --leaf: #6ab04c;
+            --cream: #f5f0e8;
+            --warm-white: #faf8f4;
+            --gold: #c9a84c;
+            --dark-text: #1a1a1a;
+            --mid-text: #4a4a4a;
+            --light-text: #888;
+            --border: rgba(78, 140, 69, 0.2);
+            --shadow: 0 20px 60px rgba(26, 58, 31, 0.15);
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--cream);
+            overflow: hidden;
+        }
+
+        /* LEFT PANEL — decorative */
+        .left-panel {
+            width: 48%;
+            background: var(--forest);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 50px 52px;
+            overflow: hidden;
+        }
+
+        .left-panel::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url("{% static 'story_hero.png' %}") center/cover no-repeat;
+            opacity: 0.25;
+            z-index: 0;
+        }
+
+        /* Organic mesh overlay */
+        .left-panel::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 80%, rgba(106, 176, 76, 0.18) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 80% at 80% 20%, rgba(201, 168, 76, 0.12) 0%, transparent 55%),
+                linear-gradient(160deg, rgba(26, 58, 31, 0.6) 0%, rgba(45, 90, 39, 0.4) 100%);
+            z-index: 1;
+        }
+
+        .left-content { position: relative; z-index: 2; }
+
+        .brand-mark {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--leaf), var(--gold));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .brand-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--warm-white);
+            letter-spacing: 0.02em;
+        }
+
+        .left-bottom { position: relative; z-index: 2; }
+
+        .hero-headline {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(36px, 4vw, 52px);
+            font-weight: 700;
+            color: var(--warm-white);
+            line-height: 1.15;
+            margin-bottom: 20px;
+        }
+
+        .hero-headline em {
+            font-style: italic;
+            color: var(--gold);
+        }
+
+        .hero-sub {
+            font-size: 15px;
+            color: rgba(245, 240, 232, 0.7);
+            font-weight: 300;
+            line-height: 1.7;
+            max-width: 320px;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 36px;
+            margin-top: 36px;
+        }
+
+        .stat {
+            border-left: 2px solid rgba(106, 176, 76, 0.5);
+            padding-left: 14px;
+        }
+
+        .stat-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--leaf);
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: rgba(245, 240, 232, 0.55);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-top: 4px;
+        }
+
+        /* Decorative circles */
+        .deco-circle {
+            position: absolute;
+            border-radius: 50%;
+            z-index: 1;
+            opacity: 0.06;
+            background: var(--leaf);
+        }
+        .deco-circle.c1 { width: 300px; height: 300px; top: -80px; right: -80px; }
+        .deco-circle.c2 { width: 180px; height: 180px; bottom: 120px; right: 40px; opacity: 0.04; }
+
+        /* RIGHT PANEL — form */
+        .right-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: url("{% static 'story_hero.png' %}") no-repeat center center fixed;
-            background-size: cover;
+            padding: 50px 40px;
+            background: var(--warm-white);
             position: relative;
         }
-        
-        body::before {
-            content: "";
+
+        .close-link {
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: inherit;
-            filter: blur(10px);
-            z-index: -2;
+            top: 28px;
+            right: 32px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(26, 58, 31, 0.06);
+            color: var(--mid-text);
+            font-size: 20px;
+            text-decoration: none;
+            transition: all 0.2s;
         }
 
-        body::after {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.45);
-            z-index: -1;
+        .close-link:hover {
+            background: rgba(26, 58, 31, 0.12);
+            color: var(--forest);
         }
 
-        .container {
-            width: 400px;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(15px);
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            animation: fadeIn 0.8s ease-out;
-            position: relative;
+        .form-card {
+            width: 100%;
+            max-width: 400px;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-header {
+            margin-bottom: 36px;
+        }
+
+        .form-eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--sage);
+            margin-bottom: 8px;
+        }
+
+        .form-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 34px;
+            font-weight: 700;
+            color: var(--dark-text);
+            line-height: 1.1;
+        }
+
+        .form-subtitle {
+            font-size: 14px;
+            color: var(--light-text);
+            margin-top: 8px;
+            font-weight: 400;
+        }
+
+        /* Alert */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 24px;
+            font-size: 13.5px;
+            border-left: 3px solid;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .alert-error {
+            background: #fff5f5;
+            color: #c0392b;
+            border-color: #e74c3c;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
+            from { opacity: 0; transform: translateX(-8px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
-        .logo {
-            font-size: 32px;
-            font-weight: 600;
-            color: #2e7d32;
-            margin-bottom: 25px;
-            text-align: center;
-            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
-        }
-
-        .input-group {
+        /* Field */
+        .field {
             margin-bottom: 20px;
-            text-align: left;
         }
 
-        label {
-            font-size: 14px;
+        .field-label {
+            display: block;
+            font-size: 12px;
             font-weight: 600;
-            color: #333;
-            margin-left: 10px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--mid-text);
+            margin-bottom: 8px;
         }
 
-        input {
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-wrap input {
             width: 100%;
-            padding: 14px 20px;
-            margin-top: 8px;
-            border-radius: 30px;
-            border: 1px solid rgba(46, 125, 50, 0.4);
-            font-size: 14px;
-            background: rgba(255, 255, 255, 0.9);
-            transition: all 0.3s ease;
-        }
-
-        input:focus {
+            padding: 14px 18px;
+            background: var(--cream);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            color: var(--dark-text);
+            transition: all 0.2s;
             outline: none;
-            border-color: #2e7d32;
-            box-shadow: 0 0 10px rgba(46, 125, 50, 0.3);
+            -webkit-appearance: none;
+        }
+
+        .input-wrap input:focus {
+            border-color: var(--sage);
             background: #fff;
+            box-shadow: 0 0 0 3px rgba(78, 140, 69, 0.1);
         }
 
-        button {
-            width: 100%;
-            padding: 14px;
+        .input-wrap input::placeholder { color: #bbb; }
+
+        .eye-toggle {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
             border: none;
-            background: linear-gradient(135deg, #2e7d32, #1b5e20);
-            color: white;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 30px;
             cursor: pointer;
-            margin-top: 15px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(46, 125, 50, 0.4);
+            color: var(--light-text);
+            font-size: 16px;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            transition: color 0.2s;
+            width: auto;
+            margin: 0;
+            box-shadow: none;
         }
 
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(46, 125, 50, 0.6);
+        .eye-toggle:hover {
+            color: var(--sage);
+            transform: translateY(-50%);
+            box-shadow: none;
         }
 
-        .register {
+        .show-pw-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .show-pw-row input[type="checkbox"] {
+            width: 15px;
+            height: 15px;
+            accent-color: var(--sage);
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .show-pw-row label {
+            font-size: 13px;
+            color: var(--mid-text);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        /* CTA Button */
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--moss) 0%, var(--forest) 100%);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            margin-top: 28px;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 20px rgba(26, 58, 31, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--sage), var(--moss));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(26, 58, 31, 0.4); }
+        .btn-primary:hover::before { opacity: 1; }
+        .btn-primary span { position: relative; z-index: 1; }
+        .btn-primary:active { transform: translateY(0); }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 28px 0 0;
+            color: var(--light-text);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .register-row {
+            text-align: center;
             margin-top: 20px;
             font-size: 14px;
-            text-align: center;
+            color: var(--light-text);
         }
 
-        .register a {
-            color: #2e7d32;
-            text-decoration: none;
+        .register-row a {
+            color: var(--moss);
             font-weight: 600;
-            text-transform: uppercase;
-            transition: color 0.3s;
+            text-decoration: none;
+            transition: color 0.2s;
         }
 
-        .register a:hover {
-            color: #1b5e20;
-        }
+        .register-row a:hover { color: var(--forest); }
 
-        .footer {
-            margin-top: 25px;
-            font-size: 12px;
-            color: #555;
+        .footer-note {
+            position: absolute;
+            bottom: 24px;
+            font-size: 11.5px;
+            color: #bbb;
             text-align: center;
         }
-        
-        .close-btn {
-            font-size: 28px;
-            color: #666;
-            cursor: pointer;
-            transition: color 0.3s;
-        }
-        
-        .close-btn:hover {
-            color: #ff3b30;
-        }
-        
-        .header-actions {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: -15px;
-        }
-        
-        a {
-            text-decoration: none;
+
+        @media (max-width: 768px) {
+            .left-panel { display: none; }
+            .right-panel { padding: 40px 24px; }
         }
     </style>
 </head>
-
 <body>
 
-    <div class="container">
-        <!-- <a href="{% url 'home' %}" style="text-decoration:none;">🔙</a> -->
-         <div class="header-actions">
-            <a href="{% url 'home' %}"><span class="close-btn">&times;</span></a>
-         </div>
-        <div class="logo">🌾 KrishiScan</div>
-        <form>
+    <!-- LEFT DECORATIVE PANEL -->
+    <div class="left-panel">
+        <div class="deco-circle c1"></div>
+        <div class="deco-circle c2"></div>
 
-            <div class="input-group">
-                <label>Email</label>
-                <input type="email" placeholder="Enter your email" id="email" required>
+        <div class="left-content">
+            <div class="brand-mark">
+                <div class="brand-icon">🌾</div>
+                <span class="brand-name">KrishiScan</span>
             </div>
-
-            <div class="input-group">
-                <label>Password</label>
-                <input type="password" placeholder="Enter your password" id="pass" required>
-            </div>
-
-            <!-- <div class="input-group">
-                <label>Login As</label>
-                <select required>
-                    <option value="">Select Role</option>
-                    <option value="farmer">Farmer</option>
-                    <option value="consumer">Consumer</option>
-                </select>
-            </div> -->
-
-            <button type="submit">Login</button>
-
-            <div class="register">
-                <a href="{% url 'signup' %}">Register</a>
-            </div>
-
-        </form>
-
-        <div class="footer">
-            © 2026 KrishiScan
         </div>
 
+        <div class="left-bottom">
+            <h1 class="hero-headline">
+                Grow smarter.<br><em>Harvest</em><br>better.
+            </h1>
+            <p class="hero-sub">AI-powered crop disease detection and agricultural intelligence for the modern farmer.</p>
+            <div class="stats-row">
+                <div class="stat">
+                    <div class="stat-num">98%</div>
+                    <div class="stat-label">Detection Accuracy</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-num">40+</div>
+                    <div class="stat-label">Crop Diseases</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-num">12K+</div>
+                    <div class="stat-label">Farmers Helped</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT FORM PANEL -->
+    <div class="right-panel">
+        <a href="{% url 'home' %}" class="close-link">&times;</a>
+
+        <div class="form-card">
+            <div class="form-header">
+                <p class="form-eyebrow">Welcome back</p>
+                <h2 class="form-title">Sign in to<br>KrishiScan</h2>
+                <p class="form-subtitle">Access your farm dashboard and crop insights.</p>
+            </div>
+
+            <form method="POST" action="{% url 'login' %}">
+                {% csrf_token %}
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-error">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+
+                <div class="field">
+                    <label class="field-label" for="email">Email address</label>
+                    <div class="input-wrap">
+                        <input type="email" name="email" id="email" placeholder="you@example.com" required>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="field-label" for="pass">Password</label>
+                    <div class="input-wrap">
+                        <input type="password" name="password" id="pass" placeholder="Enter your password" required>
+                    </div>
+                    <div class="show-pw-row">
+                        <input type="checkbox" id="show-pw" onclick="togglePassword()">
+                        <label for="show-pw">Show password</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary"><span>Sign In &rarr;</span></button>
+            </form>
+
+            <div class="divider">or</div>
+            <div class="register-row">
+                Don't have an account? <a href="{% url 'signup' %}">Create one</a>
+            </div>
+        </div>
+
+        <p class="footer-note">&copy; 2026 KrishiScan. All rights reserved.</p>
     </div>
 
     <script>
-        document.querySelector("form").addEventListener("submit", function (e) {
-            e.preventDefault();
-            const email = document.getElementById("email").value;
-            const pass = document.getElementById("pass").value;
-            console.log(email, pass);
-
-            // Redirect the user back to the index page
-            window.location.href = "{% url 'dashboard' %}";
-        });
+        function togglePassword() {
+            const pwd = document.getElementById("pass");
+            pwd.type = pwd.type === "password" ? "text" : "password";
+        }
     </script>
 </body>
-
 </html>

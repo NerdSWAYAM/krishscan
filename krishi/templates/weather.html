@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KrishiScan - Weather Advisory</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'dashboard_base.css' %}" onerror="this.onerror=null; this.href='';"> 
+    <style>
+        /* Embedding styles copied from Dashboard for consistency since base template doesn't exist yet */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Inter", sans-serif; }
+        body { background-color: #F8FBF8; color: #333; display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: 280px; background-color: #2D6A4F; color: #fff; display: flex; flex-direction: column; padding: 2rem 1.5rem; position: fixed; top: 0; left: 0; height: 100%; z-index: 50; }
+        .brand { margin-bottom: 3rem; padding-left: 0.5rem; }
+        .brand h1 { font-size: 1.8rem; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 0.2rem; display: flex; align-items: center; gap: 10px; }
+        .brand h1::before { content: "🌾"; font-size: 1.5rem; }
+        .subtitle { font-size: 0.85rem; color: #A3D1B6; text-transform: uppercase; letter-spacing: 1px; font-weight: 500; }
+        .nav-menu { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 0.8rem 1rem; color: #E2F0E5; text-decoration: none; border-radius: 8px; font-size: 1rem; font-weight: 500; transition: all 0.2s ease; position: relative; }
+        .nav-link:hover { background-color: rgba(255,255,255,0.05); color: #fff; }
+        .nav-link.active { background-color: #40916C; color: #fff; }
+        .nav-link.active::before { content: ""; position: absolute; left: -1.5rem; top: 50%; transform: translateY(-50%); width: 4px; height: 60%; background-color: #95D5B2; border-radius: 0 4px 4px 0; }
+        .nav-icon { font-size: 1.2rem; }
+        .profile-pill { display: flex; align-items: center; gap: 12px; padding: 1rem; background-color: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; margin-top: auto; text-decoration: none; color: #fff; transition: background 0.2s; }
+        .profile-pill:hover { background-color: rgba(0,0,0,0.25); }
+        .avatar-initials { width: 40px; height: 40px; border-radius: 50%; background-color: #95D5B2; color: #1B4332; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; }
+        .profile-text { display: flex; flex-direction: column; }
+        .profile-name { font-weight: 600; font-size: 0.95rem; }
+        .profile-role { font-size: 0.8rem; color: #A3D1B6; }
+        
+        .main-content { margin-left: 280px; flex: 1; height: 100vh; overflow-y: auto; position: relative; }
+        .banner-bg { position: absolute; top: 0; left: 0; width: 100%; height: 250px; object-fit: cover; z-index: 0; opacity: 0.7; pointer-events: none; }
+        .content-wrapper { position: relative; z-index: 10; padding: 3rem 4rem; max-width: 1400px; margin: 0 auto; }
+        .header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2.5rem; }
+        .greeting h2 { font-size: 2.2rem; color: #1B4332; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 0.4rem; }
+        .greeting p { color: #555; font-size: 1.05rem; }
+
+        .weather-card {
+            background-color: #fff;
+            border-radius: 16px;
+            border: 1px solid #EAEAEA;
+            padding: 3rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        .weather-temp {
+            font-size: 5rem;
+            font-weight: 700;
+            color: #2D6A4F;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+        .weather-desc {
+            font-size: 1.2rem;
+            color: #666;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+        .weather-details {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #eee;
+        }
+        .weather-stat {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .w-val { font-size: 1.5rem; font-weight: 700; color: #111; }
+        .w-label { font-size: 0.9rem; color: #777; font-weight: 500;}
+
+        .advice-panel {
+            background-color: #E8F5E9;
+            border: 1px solid #A3D1B6;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2rem;
+            display: flex;
+            gap: 20px;
+        }
+        .advice-icon { font-size: 3rem; }
+        .advice-content h3 { color: #1B4332; margin-bottom: 10px; font-size: 1.2rem;}
+        .advice-content p { color: #2D6A4F; line-height: 1.6; }
+
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+        <aside class="sidebar" style="overflow-y: auto;">
+        <div class="brand">
+            <h1>KrishiScan</h1>
+            <div class="subtitle">Smart Agriculture</div>
+        </div>
+        
+        <!-- Complete Profile Section -->
+        <div style="background: rgba(0,0,0,0.15); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; text-align: center; border: 1px solid rgba(255,255,255,0.1);">
+            <div style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid #95D5B2; margin: 0 auto 1rem auto; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+                <img src="{% static 'nezuko.jpg' %}" alt="Profile Photo" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://via.placeholder.com/80/1B4332/95D5B2?text=RK'">
+            </div>
+            <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.2rem;">Rajesh Kumar</h3>
+            <div style="color: #95D5B2; font-size: 0.85rem; font-weight: 600; margin-bottom: 1rem;">Verified Farmer</div>
+            
+            <div style="display: flex; flex-direction: column; gap: 8px; text-align: left; font-size: 0.8rem; color: #E2F0E5;">
+                <div style="display: flex; align-items: center; gap: 8px;"><span>📧</span> rajesh@krishiscan.in</div>
+                <div style="display: flex; align-items: center; gap: 8px;"><span>📍</span> Maharashtra, India</div>
+                <div style="display: flex; align-items: center; gap: 8px;"><span>🌱</span> Exp: 8 Years</div>
+            </div>
+        </div>
+
+        <ul class="nav-menu">
+            <li>
+                <a href="{% url 'home' %}" class="nav-link">
+                    <span class="nav-icon">🏠</span> Home
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'dashboard' %}" class="nav-link ">
+                    <span class="nav-icon">📊</span> Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'disease_detect' %}" class="nav-link ">
+                    <span class="nav-icon">🔬</span> Disease Detect
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'price_tracker' %}" class="nav-link ">
+                    <span class="nav-icon">📈</span> Market Prices
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'sell' %}" class="nav-link ">
+                    <span class="nav-icon">🛒</span> Sell/Buy Crops
+                </a>
+            </li>
+        </ul>
+        
+        <div style="margin-top: auto; padding-top: 1rem;">
+            <a href="{% url 'home' %}" class="nav-link" style="color: #FCA5A5; background-color: rgba(239, 68, 68, 0.1);">
+                <span class="nav-icon">🚪</span> Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <object data="{% static 'weather_banner.svg' %}" type="image/svg+xml" class="banner-bg"></object>
+        <div class="content-wrapper">
+            <div class="header-row">
+                <div class="greeting">
+                    <h2>Live Weather Forecast 🌦️</h2>
+                    <p>Precise climatic insights for your area</p>
+                </div>
+            </div>
+
+            <div class="weather-card">
+                <div class="weather-temp">
+                    ☁️ 24°C
+                </div>
+                <div class="weather-desc">Partly Cloudy | Maharashtra, India</div>
+                <div class="weather-details">
+                    <div class="weather-stat">
+                        <span class="w-val">78%</span>
+                        <span class="w-label">Humidity</span>
+                    </div>
+                    <div class="weather-stat">
+                        <span class="w-val">12 km/h</span>
+                        <span class="w-label">Wind</span>
+                    </div>
+                    <div class="weather-stat">
+                        <span class="w-val">20%</span>
+                        <span class="w-label">Precipitation</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="advice-panel">
+                <div class="advice-icon">💡</div>
+                <div class="advice-content">
+                    <h3>Smart Farming Advisory</h3>
+                    <p>Moisture levels are optimal today. Wait another 48 hours before applying heavy irrigation. Good time to begin light pesticide sprays as rain chances are minimal for the next 2 days.</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+</body>
+</html>

@@ -273,10 +273,14 @@
 <nav class="navbar">
   <div class="logo">Krishi<span>Scan</span></div>
   <div class="nav-links">
-    <a href="#">Home</a>
-    <a href="#" class="active">Marketplace</a>
+    <!-- <a href="{% url 'home' %}">Home</a> -->
+    <a href="{% url 'marketplace' %}" class="active">Marketplace</a>
     <a href="#">My Orders</a>
-    <a href="#">Dashboard</a>
+    {% if request.session.role == 'Farmer' %}
+      <a href="{% url 'dashboard' %}">Dashboard</a>
+    {% else %}
+      <a href="{% url 'consumerdash' %}">Dashboard</a>
+    {% endif %}
     <button class="cart-btn" id="openCart">
       🛒
       <span class="badge" id="cartBadge">3</span>
@@ -321,205 +325,107 @@
 <section class="marketplace">
   <div class="section-header">
     <h2>Available Crops</h2>
-    <span class="results" id="resultCount">Showing 8 of 124 results</span>
+    <div style="display: flex; gap: 15px; align-items: center;">
+        <span class="results" id="resultCount">Showing {{ crops.count }} results</span>
+        {% if request.session.role == 'Farmer' %}
+            <a href="{% url 'upload_crop' %}" style="background-color: #2e7d32; color: #fff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: background 0.2s;">+ Upload New Crop</a>
+        {% endif %}
+    </div>
   </div>
 
   <div class="product-grid" id="productGrid">
-
-    <!-- CARD 1 -->
-    <div class="product-card">
-      <div class="img-wrap">
-        <img src="https://images.unsplash.com/photo-1518977676601-b53f82ber4gg?w=400&h=300&fit=crop" alt="Tomatoes"
-             onerror="this.style.display='none'" />
-        <span class="badge-organic">🌿 Organic</span>
-        <button class="wishlist" onclick="this.classList.toggle('liked')">♥</button>
-      </div>
-      <div class="card-body">
-        <div class="farmer-row">
-          <div class="avatar">RK</div>
-          <span class="farmer-name">Ramesh Kumar • Nashik</span>
-          <span class="rating">★ 4.8</span>
+      {% for crop in crops %}
+      <!-- CARD -->
+      <div class="product-card">
+        <div class="img-wrap">
+          <img src="{{ crop.image.url }}" alt="{{ crop.name }}" onerror="this.style.display='none'" />
+          <button class="wishlist" onclick="this.classList.toggle('liked')">♥</button>
         </div>
-        <h3>Fresh Tomatoes</h3>
-        <div class="crop-meta">
-          <span>🕒 Harvested 6h ago</span>
-          <span>📦 12 kg left</span>
-        </div>
-        <div class="price-row">
-          <span class="price">₹42</span>
-          <span class="old-price">₹55</span>
-          <span class="unit">/ kg</span>
-        </div>
-        <div class="qty-row">
-          <label>Qty:</label>
-          <div class="qty-control">
-            <button onclick="changeQty(this,-1)">−</button>
-            <input type="text" value="1" readonly />
-            <button onclick="changeQty(this,1)">+</button>
+        <div class="card-body">
+          <div class="farmer-row">
+            <div class="avatar">{{ crop.farmer.first_name.0|upper }}{{ crop.farmer.last_name.0|upper }}</div>
+            <span class="farmer-name">{{ crop.farmer.first_name }} {{ crop.farmer.last_name }} • {{ crop.farmer.location }}</span>
           </div>
-          <span class="stock">In stock</span>
-        </div>
-        <button class="add-cart" onclick="addToCart(this)">Add to Cart</button>
-      </div>
-    </div>
-
-    <!-- CARD 2 -->
-    <div class="product-card">
-      <div class="img-wrap">
-        <img src="https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=400&h=300&fit=crop" alt="Basmati Rice"
-             onerror="this.style.display='none'" />
-        <span class="badge-organic">🌿 Organic</span>
-        <button class="wishlist" onclick="this.classList.toggle('liked')">♥</button>
-      </div>
-      <div class="card-body">
-        <div class="farmer-row">
-          <div class="avatar">PS</div>
-          <span class="farmer-name">Priya Sharma • Dehradun</span>
-          <span class="rating">★ 4.9</span>
-        </div>
-        <h3>Basmati Rice (1121)</h3>
-        <div class="crop-meta">
-          <span>🕒 Harvested 18h ago</span>
-          <span>📦 200 kg left</span>
-        </div>
-        <div class="price-row">
-          <span class="price">₹89</span>
-          <span class="unit">/ kg</span>
-        </div>
-        <div class="qty-row">
-          <label>Qty:</label>
-          <div class="qty-control">
-            <button onclick="changeQty(this,-1)">−</button>
-            <input type="text" value="1" readonly />
-            <button onclick="changeQty(this,1)">+</button>
+          <h3>{{ crop.name }}</h3>
+          <div class="crop-meta">
+            <span>📦 {{ crop.quantity }} kg left</span>
           </div>
-          <span class="stock">In stock</span>
-        </div>
-        <button class="add-cart" onclick="addToCart(this)">Add to Cart</button>
-      </div>
-    </div>
-
-    <!-- CARD 3 -->
-    <div class="product-card">
-      <div class="img-wrap">
-        <img src="https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400&h=300&fit=crop" alt="Potatoes"
-             onerror="this.style.display='none'" />
-        <span class="badge-sale">20% OFF</span>
-        <button class="wishlist" onclick="this.classList.toggle('liked')">♥</button>
-      </div>
-      <div class="card-body">
-        <div class="farmer-row">
-          <div class="avatar">AJ</div>
-          <span class="farmer-name">Anil Joshi • Agra</span>
-          <span class="rating">★ 4.5</span>
-        </div>
-        <h3>Red Potatoes</h3>
-        <div class="crop-meta">
-          <span>🕒 Harvested 24h ago</span>
-          <span>📦 80 kg left</span>
-        </div>
-        <div class="price-row">
-          <span class="price">₹28</span>
-          <span class="old-price">₹35</span>
-          <span class="unit">/ kg</span>
-        </div>
-        <div class="qty-row">
-          <label>Qty:</label>
-          <div class="qty-control">
-            <button onclick="changeQty(this,-1)">−</button>
-            <input type="text" value="1" readonly />
-            <button onclick="changeQty(this,1)">+</button>
+          <div class="price-row">
+            <span class="price">₹{{ crop.price_per_kg }}</span>
+            <span class="unit">/ kg</span>
           </div>
-          <span class="stock">In stock</span>
-        </div>
-        <button class="add-cart" onclick="addToCart(this)">Add to Cart</button>
-      </div>
-    </div>
-
-    <!-- CARD 4 -->
-    <div class="product-card">
-      <div class="img-wrap">
-        <img src="https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=400&h=300&fit=crop" alt="Mangoes"
-             onerror="this.style.display='none'" />
-        <span class="badge-organic">🌿 Organic</span>
-        <span class="badge-sale">Seasonal</span>
-        <button class="wishlist" onclick="this.classList.toggle('liked')">♥</button>
-      </div>
-      <div class="card-body">
-        <div class="farmer-row">
-          <div class="avatar">MN</div>
-          <span class="farmer-name">Meena Naik • Ratnagiri</span>
-          <span class="rating">★ 5.0</span>
-        </div>
-        <h3>Alphonso Mangoes</h3>
-        <div class="crop-meta">
-          <span>🕒 Harvested 4h ago</span>
-          <span>📦 30 dz left</span>
-        </div>
-        <div class="price-row">
-          <span class="price">₹520</span>
-          <span class="unit">/ dozen</span>
-        </div>
-        <div class="qty-row">
-          <label>Qty:</label>
-          <div class="qty-control">
-            <button onclick="changeQty(this,-1)">−</button>
-            <input type="text" value="1" readonly />
-            <button onclick="changeQty(this,1)">+</button>
+          <div class="qty-row">
+            <label>Qty:</label>
+            <div class="qty-control">
+              <button onclick="changeQty(this,-1)">−</button>
+              <input type="text" value="1" readonly />
+              <button onclick="changeQty(this,1)">+</button>
+            </div>
+            <span class="stock">In stock</span>
           </div>
-          <span class="stock">Low stock</span>
+          <button class="add-cart" onclick="addToCart(this)">Add to Cart</button>
         </div>
-        <button class="add-cart" onclick="addToCart(this)">Add to Cart</button>
       </div>
-    </div>
+      {% empty %}
+      <div style="grid-column: 1 / -1; text-align:center; padding: 40px; color:#777;">
+        <p>No crops available at the moment. Check back later!</p>
+      </div>
+      {% endfor %}
+  </div>
+</section>
 
-    <!-- CARD 5 -->
-    <div class="product-card">
-      <div class="img-wrap">
-        <img src="https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400&h=300&fit=crop" alt="Green Chillies"
-             onerror="this.style.display='none'" />
-        <button class="wishlist" onclick="this.classList.toggle('liked')">♥</button>
-      </div>
-      <div class="card-body">
-        <div class="farmer-row">
-          <div class="avatar">VR</div>
-          <span class="farmer-name">Venkat Rao • Guntur</span>
-          <span class="rating">★ 4.7</span>
-        </div>
-        <h3>Green Chillies</h3>
-        <div class="crop-meta">
-          <span>🕒 Harvested 10h ago</span>
-          <span>📦 45 kg left</span>
-        </div>
-        <div class="price-row">
-          <span class="price">₹65</span>
-          <span class="unit">/ kg</span>
-        </div>
-        <div class="qty-row">
-          <label>Qty:</label>
-          <div class="qty-control">
-            <button onclick="changeQty(this,-1)">−</button>
-            <input type="text" value="1" readonly />
-            <button onclick="changeQty(this,1)">+</button>
-          </div>
-          <span class="stock">In stock</span>
-        </div>
-        <button class="add-cart" onclick="addToCart(this)">Add to Cart</button>
-      </div>
-    </div>
+<!-- ═══ CART SIDEBAR ═══ -->
+<div class="cart-overlay" id="cartSidebar">
+  <div class="cart-header">
+    <h3>Your Cart</h3>
+    <button class="close-cart" id="closeCart">&times;</button>
+  </div>
+</div>
 
-    <!-- CARD 6 -->
-    <div class="product-card">
-      <div class="img-wrap">
-        <img src="https://images.unsplash.com/photo-1508747703725-719d0c85cdb6?w=400&h=300&fit=crop" alt="Turmeric"
-             onerror="this.style.display='none'" />
-        <span class="badge-organic">🌿 Organic</span>
-        <button class="wishlist" onclick="this.classList.toggle('liked')">♥</button>
-      </div>
-      <div class="card-body">
-        <div class="farmer-row">
-          <div class="avatar">SD</div>
-          <span class="farmer-name">Sunita Devi • Erode</span>
-          <span class="rating">★ 4.6</span>
-        </div>
-        
+<script>
+  window.addEventListener('scroll', () => {
+    const nav = document.querySelector('.navbar');
+    if (window.scrollY > 10) nav.classList.add('scrolled');
+    else nav.classList.remove('scrolled');
+  });
+
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  function changeQty(btn, delta) {
+    const input = btn.parentElement.querySelector('input');
+    let val = parseInt(input.value) + delta;
+    if (val < 1) val = 1;
+    input.value = val;
+  }
+
+  function addToCart(btn) {
+    const originalText = btn.innerText;
+    btn.innerText = 'Added! ✓';
+    btn.style.background = '#1b5e20';
+    setTimeout(() => {
+      btn.innerText = originalText;
+      btn.style.background = '';
+    }, 2000);
+  }
+
+  const openCart = document.getElementById('openCart');
+  const closeCart = document.getElementById('closeCart');
+  const cartSidebar = document.getElementById('cartSidebar');
+
+  openCart.addEventListener('click', () => {
+    cartSidebar.classList.add('open');
+  });
+  
+  closeCart.addEventListener('click', () => {
+    cartSidebar.classList.remove('open');
+  });
+</script>
+
+</body>
+</html>

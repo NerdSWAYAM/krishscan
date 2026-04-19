@@ -1,63 +1,201 @@
 <!DOCTYPE html>
 <html lang="en">
 {% load static %}
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Farmer Dashboard</title>
-    <!-- <link rel="stylesheet" href="dashboard.css"> -->
-    <link rel="stylesheet" href="{% static 'dashboard.css' %}">
+    <title>KrishiScan - Smart Agriculture Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'farmer-dashboard.css' %}">
 </head>
 
 <body>
 
-    <!-- NAVBAR -->
-    <header class="navbar">
-        <h2>Dashboard</h2>
-    </header>
-
-    <!-- PROFILE SECTION -->
-    <section class="profile-section">
-
-        <!-- Profile Image -->
-        <div class="profile-img">
-            <img src="{% static 'nezuko.jpg' %}" alt="Profile">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" style="overflow-y: auto;">
+        <div class="brand">
+            <h1>KrishiScan</h1>
+            <div class="subtitle">Smart Agriculture</div>
         </div>
-
-        <!-- User Info -->
-        <div class="profile-info">
-            <p><span class="value">John</span></p>
-            <p>john@example.com</p>
-            <p>India</p>
-        </div>
-
-    </section>
-
-    <section class="crops-section">
-        <h3>Crops Sold</h3>
-
-        <div class="crop-container">
-
-            <div class="crop-card">
-                <img src="{% static 'wheat.png' %}" alt="Crop">
-                <p>wheat</p>
-                <p>₹20/kg</p>
+        
+        <!-- Complete Profile Section -->
+        <div style="background: rgba(0,0,0,0.15); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; text-align: center; border: 1px solid rgba(255,255,255,0.1);">
+            <div style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid #95D5B2; margin: 0 auto 1rem auto; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+                <img src="{% static 'profile.jpg' %}" alt="Profile Photo" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://via.placeholder.com/80/1B4332/95D5B2?text=RK'">
             </div>
-
-            <div class="crop-card">
-                <img src="{% static 'rice.jpg' %}" alt="Crop">
-                <p>rice</p>
-                <p>₹15/kg</p>
-            </div>
-
-            <div class="crop-card">
-                <img src="{% static 'wheat.png' %}" alt="Crop">
-                <p>wheat</p>
-                <p>₹10/kg</p>
+            <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.2rem;">{% if request.session.first_name %}{{ request.session.first_name }} {{ request.session.last_name }}{% else %}User{% endif %}</h3>
+            <div style="color: #95D5B2; font-size: 0.85rem; font-weight: 600; margin-bottom: 1rem;">Verified Farmer</div>
+            
+            <div style="display: flex; flex-direction: column; gap: 8px; text-align: left; font-size: 0.8rem; color: #E2F0E5;">
+                <div style="display: flex; align-items: left; gap: 8px;"><span>📍</span> {% if request.session.location %}{{ request.session.location }}{% else %}India{% endif %}</div>
+                <!-- <div style="display: flex; align-items: center; gap: 8px;"><span>🌱</span> Exp: 8 Years</div> -->
             </div>
         </div>
-    </section>
 
+        <ul class="nav-menu">
+            <!-- <li>
+                <a href="{% url 'home' %}" class="nav-link">
+                    <span class="nav-icon">🏠</span> Home
+                </a>
+            </li> -->
+            <li>
+                <a href="{% url 'dashboard' %}" class="nav-link active">
+                    <span class="nav-icon">📊</span> Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'disease_detect' %}" class="nav-link ">
+                    <span class="nav-icon">🔬</span> Disease Detect
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'price_tracker' %}" class="nav-link ">
+                    <span class="nav-icon">📈</span> Market Prices
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'marketplace' %}" class="nav-link ">
+                    <span class="nav-icon">🛒</span> Sell/Buy Crops
+                </a>
+            </li>
+        </ul>
+        
+        <div style="margin-top: auto; padding-top: 1rem;">
+            <a href="{% url 'home' %}" class="nav-link" style="color: #FCA5A5; background-color: rgba(239, 68, 68, 0.1);">
+                <span class="nav-icon">🚪</span> Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <!-- SVG Video Banner -->
+        <object data="{% static 'dash_banner.svg' %}" type="image/svg+xml" class="banner-bg"></object>
+
+        <div class="content-wrapper">
+            
+            <div class="header-row">
+                <div class="greeting">
+                    <h2>Good morning, {% if request.session.first_name %}{{ request.session.first_name }}{% else %}Rajesh{% endif %} 🌾</h2>
+                    <div style="font-weight: bold; "><span>📧</span> {% if request.session.email %}{{ request.session.email }}{% else %}rajesh@krishiscan.in{% endif %}</div>
+
+                    <!-- <p>Here's your farm overview for today</p> -->
+                </div>
+                <div class="date-badge">
+                    🗓️ 14 Apr 2026
+                </div>
+            </div>
+
+            <!-- STAT CARDS -->
+            <div class="stats-grid">
+                <!-- <div class="stat-card">
+                    <div class="stat-header">
+                        <span>Active Crops</span>
+                        <div class="stat-icon">🌱</div>
+                    </div>
+                    <div class="stat-value">04</div>
+                    <div class="stat-subtitle text-green">↑ 1 new this week</div>
+                </div> -->
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span>Disease Scans</span>
+                        <div class="stat-icon">🔬</div>
+                    </div>
+                    <div class="stat-value">0</div>
+                    <div class="stat-subtitle text-green">No alerts pending</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span>Crops Listed</span>
+                        <div class="stat-icon">🛒</div>
+                    </div>
+                    <div class="stat-value">0</div>
+                    <div class="stat-subtitle text-green">0 orders received</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span>Revenue (₹)</span>
+                        <div class="stat-icon">💰</div>
+                    </div>
+                    <div class="stat-value">0</div>
+                    <div class="stat-subtitle text-green">0 orders received</div>
+                </div>
+            </div>
+
+            <!-- PANELS -->
+            <div class="panels-grid">
+                
+                <!-- Left Panel: Disease Detections -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3 class="panel-title">Recent Disease Detections</h3>
+                        <a href="#" class="panel-link">View All &rarr;</a>
+                    </div>
+                    
+                    <div class="disease-list">
+                        {% for disease in recent_diseases %}
+                        <div class="disease-card">
+                            <div class="disease-info">
+                                <span class="disease-icon">{{ disease.icon }}</span>
+                                <div class="disease-text">
+                                    <h4>{{ disease.crop }}</h4>
+                                    <p>{{ disease.issue }}</p>
+                                </div>
+                            </div>
+                            <div class="risk-badge {{ disease.risk_class }}">{{ disease.risk }}</div>
+                        </div>
+                        {% empty %}
+                        <p style="text-align: center; color: #666;">No recent diseases detected.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Right Panel: Market Prices -->
+                <div class="panel" style="position:relative;">
+                    <div class="panel-header" style="flex-direction:column; gap:10px; align-items:flex-start;">
+                        <h3 class="panel-title">Live Market Prices</h3>
+                        <a href="{% url 'price_tracker' %}" style="display:block; width:100%; text-align:center; background-color:#2D6A4F; color:#fff; padding:12px; border-radius:8px; font-weight:700; text-decoration:none; box-shadow:0 4px 10px rgba(45,106,79,0.3); transition:0.3s; font-size:1.1rem;">📈 Open Market Prices &rarr;</a>
+                    </div>
+
+                    <div class="tabs">
+                        <div class="tab active">Today</div>
+                        <div class="tab">Weekly</div>
+                        <div class="tab">Monthly</div>
+                    </div>
+
+                    <div class="price-list">
+                        {% for price in market_prices %}
+                        <div class="price-item">
+                            <div class="crop-label"><span class="dot {% if price.modal_price|default:0 > price.min_price|default:0 %}up{% else %}down{% endif %}"></span> {{ price.commodity|title }}</div>
+                            <div class="price-val">₹ {{ price.modal_price }} / 100 kg</div>
+                        </div>
+                        {% empty %}
+                        <p style="text-align: center; color: #666;">No market prices available right now.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Simple tab switching logic for the UI
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // Auto-update date to today
+        const dateBadge = document.querySelector('.date-badge');
+        const options = { day: 'numeric', month: 'short', year: 'numeric' };
+        dateBadge.innerHTML = '🗓️ ' + new Date().toLocaleDateString('en-GB', options);
+    </script>
 </body>
-
 </html>
