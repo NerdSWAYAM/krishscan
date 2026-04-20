@@ -2,11 +2,11 @@
     margin: 0px;
     padding: 0;
     box-sizing: border-box;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: 'Inter', sans-serif;
 }
 
 .navbar {
-    background: #2e7d32;
+    background: var(--color-primary-dark);
     color: white;
     padding: 15px 40px;
 }
@@ -26,16 +26,17 @@
     width: 180px;
     height: 180px;
     border-radius: 50%;
-    border: 3px solid #4caf50;
+    border: 3px solid var(--color-primary);
 }
 
 .profile-info {
-    border: 2px solid #ccc;
+    border: 1px solid var(--color-border);
     padding: 30px;
-    border-radius: 10px;
-    background-color: #fcfcfc;
+    border-radius: var(--radius-md);
+    background-color: var(--color-bg-surface);
     margin-left: 40px;
     flex: 1;
+    box-shadow: var(--shadow-sm);
 }
 
 .profile-info p {
@@ -65,11 +66,16 @@
 
 .crop-card {
     width: 200px;
-    background: #fff;
+    background: var(--color-bg-surface);
     padding: 15px;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     text-align: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-md);
+    transition: transform var(--transition-normal);
+}
+.crop-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
 }
 
 .crop-card img {

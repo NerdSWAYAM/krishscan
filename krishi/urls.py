@@ -15,4 +15,6 @@ urlpatterns = [
     path('experts/', views.experts, name='experts'),
     path('upload-crop/', views.upload_crop, name='upload_crop'),
     path('send-otp/', views.send_otp_api, name='send_otp'),
+    path('weather/', views.weather, name='weather'),
+    
 ]

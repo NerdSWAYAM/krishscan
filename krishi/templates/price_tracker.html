@@ -12,29 +12,28 @@
     <link href="https://fonts.googleapis.com/css2?family=Gilda+Display&family=Inter:wght@300;400;500;600&display=swap"
         rel="stylesheet">
     <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'global.css' %}">
     <link rel="stylesheet" href="{% static 'index.css' %}?v=2.0">
+    <link rel="stylesheet" href="{% static 'farmer-sidebar.css' %}">
     <style>
-        body {
-            background-color: #fcfaf8;
-            color: #111;
-        }
+        /* Removed duplicate body styles as they are in farmer-sidebar.css */
 
         .tracker-hero {
             position: relative;
             padding: 8rem 5% 4rem;
-            background: linear-gradient(to bottom, #ffffff 0%, #fcfaf8 100%);
+            background: linear-gradient(to bottom, var(--color-bg-surface) 0%, var(--color-bg-base) 100%);
             text-align: center;
         }
 
         .search-container {
             max-width: 800px;
             margin: 2rem auto;
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            border-radius: 16px;
+            background: var(--color-bg-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
             padding: 2rem;
             backdrop-filter: blur(10px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            box-shadow: var(--shadow-sm);
         }
 
         .search-form {
@@ -57,44 +56,43 @@
             font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 0.1em;
-            color: #555;
+            color: var(--color-text-muted);
             margin-bottom: 0.5rem;
             font-weight: 500;
         }
 
         .search-input {
-            background: #fff;
-            border: 1px solid rgba(0, 0, 0, 0.15);
-            color: #111;
+            background: var(--color-bg-surface);
+            border: 1px solid var(--color-border);
+            color: var(--color-text-main);
             padding: 0.8rem 1rem;
-            border-radius: 8px;
+            border-radius: var(--radius-sm);
             font-family: 'Inter', sans-serif;
             font-size: 1rem;
-            transition: border-color 0.3s, box-shadow 0.3s;
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
         }
 
         .search-input:focus {
             outline: none;
-            border-color: #10b981;
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+            border-color: var(--color-primary);
         }
 
         .btn-search {
-            background-color: #10b981;
+            background-color: var(--color-primary);
             color: #fff;
             border: none;
             padding: 0.9rem 2rem;
-            border-radius: 8px;
+            border-radius: var(--radius-sm);
             font-size: 1rem;
             font-weight: 500;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: background-color var(--transition-fast);
             margin-top: 1.6rem;
             font-family: "Inter", sans-serif;
         }
 
         .btn-search:hover {
-            background-color: #059669;
+            background-color: var(--color-primary-dark);
         }
 
         /* --- CARDS GRID --- */
@@ -109,12 +107,12 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
-            border-bottom: 1px solid rgba(0,0,0,0.1);
+            border-bottom: 1px solid var(--color-border);
             padding-bottom: 1rem;
         }
         
         .results-count {
-            color: #555;
+            color: var(--color-text-muted);
             font-size: 0.95rem;
         }
 
@@ -125,19 +123,18 @@
         }
 
         .market-card {
-            background: #ffffff;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            border-radius: 12px;
+            background: var(--color-bg-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
             padding: 1.5rem;
-            transition: transform 0.3s, background 0.3s, box-shadow 0.3s, border-color 0.3s;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+            transition: transform var(--transition-fast), border-color var(--transition-fast);
+            box-shadow: var(--shadow-sm);
         }
 
         .market-card:hover {
             transform: translateY(-5px);
-            background: #ffffff;
-            border-color: rgba(16, 185, 129, 0.3);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-md);
         }
 
         .market-header {
@@ -150,23 +147,23 @@
         .market-name {
             font-family: 'Gilda Display', serif;
             font-size: 1.4rem;
-            color: #10b981;
+            color: var(--color-primary);
             margin-bottom: 0.2rem;
         }
 
         .market-location {
             font-size: 0.85rem;
-            color: #666;
+            color: var(--color-text-muted);
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
 
         .market-date {
             font-size: 0.8rem;
-            color: #555;
-            background: rgba(0,0,0,0.05);
+            color: var(--color-text-muted);
+            background: var(--color-bg-tint);
             padding: 0.3rem 0.6rem;
-            border-radius: 4px;
+            border-radius: var(--radius-sm);
         }
 
         .price-grid {
@@ -175,7 +172,7 @@
             gap: 1rem;
             margin-top: 1.5rem;
             padding-top: 1.5rem;
-            border-top: 1px solid rgba(0,0,0,0.05);
+            border-top: 1px solid var(--color-border);
         }
 
         .price-item {
@@ -185,7 +182,7 @@
         
         .price-label {
             font-size: 0.75rem;
-            color: #555;
+            color: var(--color-text-muted);
             text-transform: uppercase;
             margin-bottom: 0.3rem;
             font-weight: 500;
@@ -194,33 +191,33 @@
         .price-value {
             font-size: 1.25rem;
             font-weight: 600;
-            color: #111;
+            color: var(--color-text-main);
         }
         
         .price-modal {
             grid-column: span 2;
-            background: rgba(16, 185, 129, 0.05);
+            background: var(--color-bg-tint);
             padding: 1rem;
-            border-radius: 8px;
+            border-radius: var(--radius-sm);
             margin-top: 0.5rem;
-            border: 1px solid rgba(16, 185, 129, 0.15);
+            border: 1px solid var(--color-primary-light);
         }
         
         .price-modal .price-label {
-            color: #10b981;
+            color: var(--color-primary-dark);
         }
         
         .price-modal .price-value {
             font-size: 1.6rem;
-            color: #111;
+            color: var(--color-text-main);
         }
 
         .empty-state {
             text-align: center;
             padding: 4rem 2rem;
-            background: #ffffff;
-            border-radius: 12px;
-            border: 1px dashed rgba(0, 0, 0, 0.15);
+            background: var(--color-bg-surface);
+            border-radius: var(--radius-md);
+            border: 1px dashed var(--color-border);
             margin-top: 2rem;
         }
 
@@ -234,16 +231,10 @@
     </style>
 </head>
 
-<body>
-    <!-- NAVIGATION -->
-    <nav class="navbar scrolled">
-        <a href="{% url 'home' %}" style="text-decoration:none;"><div class="logo">KrishiScan</div></a>
-        <div class="nav-links">
-            <a href="{% url 'dashboard' %}" class="btn-text">Dashboard</a>
-            <a href="{% url 'sell' %}" class="btn-text">Sell</a>
-        </div>
-    </nav>
+<body class="farmer-profile-layout">
+    {% include 'farmer_sidebar.html' %}
 
+    <main class="main-content">
     <div class="tracker-hero">
         <h1 class="cinematic-heading-dark text-center" style="margin-bottom: 0.5rem; font-size: 3rem;">Live Market Prices</h1>
         <p class="cinematic-text-dark mx-auto text-center" style="max-width: 600px;">
@@ -367,6 +358,8 @@
         </div>
         <p class="footer-copyright">&copy; 2026 KrishiScan. Rewriting Agriculture.</p>
     </footer>
+
+    </main>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {

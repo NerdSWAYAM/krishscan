@@ -74,16 +74,32 @@ WSGI_APPLICATION = 'krishiscan.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'krishiscan_db',
+#         'USER': 'postgres',
+#         'PASSWORD': 'levi',
+#         'HOST': 'localhost',
+#         'PORT': '5432'
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'krishiscan_db',
-        'USER': 'postgres',
-        'PASSWORD': 'levi',
-        'HOST': 'localhost',
-        'PORT': '5432'
+        'NAME': 'defaultdb',
+        'USER': 'avnadmin',
+        'PASSWORD': 'AVNS_XrhmCvLWhKTSkiEzprC',
+        'HOST': 'pg-2ba7f605-nerdswayam-83aa.e.aivencloud.com',
+        'PORT': '25423',
+        'OPTIONS': {
+            'sslmode': 'require',
+            'sslrootcert': '/home/swayam/Downloads/ca.pem'
+        },
     }
 }
+
 
 
 # Password validation
@@ -126,10 +142,21 @@ import os
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+
+# EMAIL_HOST_USER = 'nerdswayam@gmail.com'
+# EMAIL_HOST_PASSWORD = 'mmsmeanljfzzzucn'
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+
+EMAIL_HOST = 'email-smtp.eu-north-1.amazonaws.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER = 'nerdswayam@gmail.com'
-EMAIL_HOST_PASSWORD = 'mmsmeanljfzzzucn'
+EMAIL_HOST_USER = 'AKIATJYKPOTDZD4GOFNU'
+EMAIL_HOST_PASSWORD = 'BCw1jqpAnN0nsr7i+1sdXPwVd7SSlVNzUSdNQl9g6uC+'
+
+DEFAULT_FROM_EMAIL = 'noreply@krishiscan.in'

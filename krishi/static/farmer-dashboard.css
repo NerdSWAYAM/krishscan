@@ -6,8 +6,8 @@
     }
 
     body {
-        background-color: #F8FBF8;
-        color: #333;
+        background-color: var(--color-bg-base);
+        color: var(--color-text-main);
         display: flex;
         height: 100vh;
         overflow: hidden;
@@ -16,7 +16,7 @@
     /* --- SIDEBAR --- */
     .sidebar {
         width: 280px;
-        background-color: #2D6A4F;
+        background-color: var(--color-primary-dark);
         color: #fff;
         display: flex;
         flex-direction: column;
@@ -50,7 +50,7 @@
 
     .subtitle {
         font-size: 0.85rem;
-        color: #A3D1B6;
+        color: var(--color-primary-light);
         text-transform: uppercase;
         letter-spacing: 1px;
         font-weight: 500;
@@ -79,12 +79,12 @@
     }
 
     .nav-link:hover {
-        background-color: rgba(255, 255, 255, 0.05);
+        background-color: rgba(255, 255, 255, 0.1);
         color: #fff;
     }
 
     .nav-link.active {
-        background-color: #40916C;
+        background-color: var(--color-primary);
         color: #fff;
     }
 
@@ -96,7 +96,7 @@
         transform: translateY(-50%);
         width: 4px;
         height: 60%;
-        background-color: #95D5B2;
+        background-color: var(--color-primary-light);
         border-radius: 0 4px 4px 0;
     }
 
@@ -127,8 +127,8 @@
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background-color: #95D5B2;
-        color: #1B4332;
+        background-color: var(--color-primary-light);
+        color: var(--color-primary-dark);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -139,7 +139,7 @@
 
     .greeting h2 {
         font-size: 2.2rem;
-        color: #1B4332;
+        color: var(--color-primary-dark);
         font-weight: 700;
         letter-spacing: -0.5px;
         margin-bottom: 0.4rem;
@@ -151,10 +151,10 @@
     }
 
     .date-badge {
-        background-color: #E2F0E5;
-        color: #2D6A4F;
+        /* background-color: white; */
+        color: var(--color-primary-dark);
         padding: 0.6rem 1.2rem;
-        border-radius: 50px;
+        border-radius: 10px;
         font-size: 0.9rem;
         font-weight: 600;
         display: flex;
@@ -171,14 +171,15 @@
     }
 
     .stat-card {
-        background-color: #fff;
-        border-radius: 16px;
+        background-color: var(--color-bg-surface);
+        border-radius: var(--radius-md);
         padding: 1.5rem;
-        border: 1px solid #EAEAEA;
+        border: 1px solid var(--color-border);
+        box-shadow: var(--shadow-sm);
         display: flex;
         flex-direction: column;
         gap: 0.8rem;
-        transition: transform 0.2s;
+        transition: transform 0.2s, box-shadow 0.2s;
     }
 
     .stat-card:hover {
@@ -218,7 +219,7 @@
     }
 
     .text-green {
-        color: #2D6A4F;
+        color: var(--color-primary-dark);
     }
 
     .text-orange {
@@ -237,9 +238,10 @@
     }
 
     .panel {
-        background-color: #fff;
-        border-radius: 16px;
-        border: 1px solid #EAEAEA;
+        background-color: var(--color-bg-surface);
+        border-radius: var(--radius-md);
+        border: 1px solid var(--color-border);
+        box-shadow: var(--shadow-sm);
         padding: 1.8rem;
         display: flex;
         flex-direction: column;
@@ -254,12 +256,12 @@
 
     .panel-title {
         font-size: 1.2rem;
-        color: #1B4332;
+        color: var(--color-primary-dark);
         font-weight: 600;
     }
 
     .panel-link {
-        color: #2D6A4F;
+        color: var(--color-primary);
         text-decoration: none;
         font-size: 0.9rem;
         font-weight: 600;
@@ -281,9 +283,9 @@
         align-items: center;
         justify-content: space-between;
         padding: 1rem;
-        background-color: #F8FBF8;
-        border-radius: 12px;
-        border: 1px solid #f0f0f0;
+        background-color: var(--color-bg-base);
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--color-border);
     }
 
     .disease-info {
@@ -325,15 +327,15 @@
     }
 
     .risk-low {
-        background-color: #E8F5E9;
-        color: #2D6A4F;
+        background-color: var(--color-bg-tint);
+        color: var(--color-primary-dark);
     }
 
     /* Market Prices */
     .tabs {
         display: flex;
-        background: #F8FBF8;
-        border-radius: 8px;
+        background: var(--color-bg-base);
+        border-radius: var(--radius-sm);
         padding: 4px;
         margin-bottom: 1rem;
     }
@@ -350,7 +352,7 @@
     }
 
     .tab.active {
-        background-color: #2D6A4F;
+        background-color: var(--color-primary);
         color: #fff;
     }
 
@@ -387,7 +389,7 @@
     }
 
     .dot.up {
-        background-color: #2D6A4F;
+        background-color: var(--color-primary);
     }
 
     .dot.down {
@@ -482,10 +484,10 @@
     }
 
     .date-badge {
-        background-color: #E2F0E5;
+        /* background-color: #E2F0E5; */
         color: #2D6A4F;
         padding: 0.6rem 1.2rem;
-        border-radius: 50px;
+        /* border-radius: 15px; */
         font-size: 0.9rem;
         font-weight: 600;
         display: flex;

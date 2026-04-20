@@ -1,13 +1,16 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
-{% load static %}
+
 <head>
     <meta charset="UTF-8">
     <title>Crop Marketplace</title>
+    <link rel="stylesheet" href="{% static 'global.css' %}">
     <link rel="stylesheet" href="{% static 'cart.css' %}">
 </head>
 
 <body>
+    {% include 'navbar.html' %}
 
     <h1>🌾 Crop Marketplace</h1>
 

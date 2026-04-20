@@ -5,21 +5,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KrishiScan — Login</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'global.css' %}">
     <style>
         :root {
-            --forest: #1a3a1f;
-            --moss: #2d5a27;
-            --sage: #4e8c45;
-            --leaf: #6ab04c;
-            --cream: #f5f0e8;
-            --warm-white: #faf8f4;
-            --gold: #c9a84c;
-            --dark-text: #1a1a1a;
-            --mid-text: #4a4a4a;
-            --light-text: #888;
-            --border: rgba(78, 140, 69, 0.2);
-            --shadow: 0 20px 60px rgba(26, 58, 31, 0.15);
+            --forest: var(--color-primary-dark);
+            --moss: var(--color-primary);
+            --sage: var(--color-primary);
+            --leaf: var(--color-primary-light);
+            --cream: var(--color-bg-base);
+            --warm-white: var(--color-bg-surface);
+            --gold: var(--color-accent);
+            --dark-text: var(--color-text-main);
+            --mid-text: var(--color-text-muted);
+            --light-text: var(--color-text-muted);
+            --border: var(--color-border);
+            --shadow: var(--shadow-lg);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -27,7 +28,7 @@
         body {
             min-height: 100vh;
             display: flex;
-            font-family: 'DM Sans', sans-serif;
+            font-family: 'Inter', sans-serif;
             background: var(--cream);
             overflow: hidden;
         }
@@ -272,8 +273,8 @@
             padding: 14px 18px;
             background: var(--cream);
             border: 1.5px solid var(--border);
-            border-radius: 12px;
-            font-family: 'DM Sans', sans-serif;
+            border-radius: var(--radius-md);
+            font-family: 'Inter', sans-serif;
             font-size: 15px;
             color: var(--dark-text);
             transition: all 0.2s;
@@ -343,15 +344,15 @@
             background: linear-gradient(135deg, var(--moss) 0%, var(--forest) 100%);
             color: #fff;
             border: none;
-            border-radius: 12px;
-            font-family: 'DM Sans', sans-serif;
+            border-radius: var(--radius-md);
+            font-family: 'Inter', sans-serif;
             font-size: 15px;
             font-weight: 600;
             letter-spacing: 0.02em;
             cursor: pointer;
             margin-top: 28px;
             transition: all 0.25s ease;
-            box-shadow: 0 4px 20px rgba(26, 58, 31, 0.3);
+            box-shadow: var(--shadow-md);
             position: relative;
             overflow: hidden;
         }

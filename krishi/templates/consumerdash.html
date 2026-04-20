@@ -1,39 +1,41 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>KrishiScan — Consumer Dashboard</title>
+<link rel="stylesheet" href="{% static 'global.css' %}">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600&display=swap');
 
   :root {
-    --green-900: #1a3a2a;
-    --green-700: #2d6a4f;
-    --green-500: #40916c;
-    --green-300: #74c69d;
-    --green-100: #d8f3dc;
-    --green-50: #f0faf3;
+    --green-900: var(--color-primary-dark);
+    --green-700: var(--color-primary-dark);
+    --green-500: var(--color-primary);
+    --green-300: var(--color-primary-light);
+    --green-100: var(--color-bg-tint);
+    --green-50: var(--color-bg-base);
     --earth-700: #7f5539;
     --earth-500: #b08968;
     --earth-100: #f5ebe0;
-    --sun-500: #f4a261;
+    --sun-500: var(--color-accent);
     --sun-300: #f7c59f;
-    --red-500: #e63946;
+    --red-500: var(--color-accent);
     --white: #ffffff;
-    --gray-50: #f8f9fa;
-    --gray-100: #e9ecef;
+    --gray-50: var(--color-bg-base);
+    --gray-100: var(--color-border);
     --gray-200: #dee2e6;
     --gray-400: #adb5bd;
-    --gray-600: #6c757d;
-    --gray-800: #343a40;
-    --gray-900: #212529;
-    --radius: 12px;
-    --radius-sm: 8px;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-    --shadow-lg: 0 10px 30px rgba(0,0,0,0.1);
-    --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    --gray-600: var(--color-text-muted);
+    --gray-800: var(--color-text-main);
+    --gray-900: #111;
+    --radius: var(--radius-md);
+    --radius-sm: var(--radius-sm);
+    --shadow-sm: var(--shadow-sm);
+    --shadow-md: var(--shadow-md);
+    --shadow-lg: var(--shadow-lg);
+    --transition: all var(--transition-normal);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -255,7 +257,7 @@
   .cart-count {
     position: absolute;
     top: -2px; right: -4px;
-    background: var(--green-700);
+    background: var(--green-500);
     color: white;
     font-size: 0.6rem;
     font-weight: 700;
@@ -458,19 +460,19 @@
   }
 
   .btn-add {
-    background: var(--green-700);
+    background: var(--green-500);
     color: var(--white);
     border: none;
-    padding: 6px 14px;
-    border-radius: 6px;
+    padding: 8px 14px;
+    border-radius: var(--radius-sm);
     font-size: 0.78rem;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     transition: var(--transition);
     font-family: inherit;
   }
 
-  .btn-add:hover { background: var(--green-500); }
+  .btn-add:hover { background: var(--green-700); }
 
   /* SEASONAL PICKS */
   .seasonal-item {
@@ -525,7 +527,7 @@
   .order-id {
     font-family: 'Courier New', monospace;
     font-size: 0.78rem;
-    color: var(--green-700);
+    color: var(--green-500);
     font-weight: 600;
     min-width: 90px;
   }

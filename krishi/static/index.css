@@ -7,8 +7,8 @@
 
 body {
     font-family: "Inter", sans-serif;
-    background-color: #000;
-    color: #fff;
+    background-color: var(--color-bg-base);
+    color: var(--color-text-main);
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
 }
@@ -40,7 +40,7 @@ h4,
 
 .cinematic-heading-dark {
     font-size: clamp(2.5rem, 4vw, 3.5rem);
-    color: #111;
+    color: var(--color-primary-dark);
     margin-bottom: 1rem;
 }
 
@@ -48,19 +48,19 @@ h4,
     font-size: clamp(1.1rem, 2vw, 1.5rem);
     line-height: 1.6;
     max-width: 600px;
-    opacity: 0.9;
+    color: var(--color-text-main);
 }
 
 .cinematic-text {
     font-size: clamp(1.05rem, 1.5vw, 1.25rem);
     line-height: 1.7;
     max-width: 500px;
-    opacity: 0.85;
+    color: var(--color-text-main);
 }
 
 .cinematic-text-dark {
     font-size: 1.2rem;
-    color: #555;
+    color: var(--color-text-muted);
 }
 
 .chapter-label {
@@ -68,7 +68,7 @@ h4,
     letter-spacing: 0.15em;
     font-size: 0.85rem;
     margin-bottom: 1.5rem;
-    color: #10b981;
+    color: var(--color-primary);
     font-weight: 600;
 }
 
@@ -98,16 +98,17 @@ h4,
 
 .navbar.scrolled {
     padding: 1rem 5%;
-    background: rgba(10, 10, 10, 0.95);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
 }
 
 .logo {
     font-family: "Gilda Display", serif;
     font-size: 1.5rem;
     font-weight: bold;
-    color: #fff;
+    color: var(--color-primary-dark);
     letter-spacing: 0.05em;
 }
 
@@ -118,33 +119,36 @@ h4,
 }
 
 .btn-text {
-    color: #fff;
+    color: var(--color-text-main);
     text-decoration: none;
     font-size: 0.95rem;
     padding: 0.6rem 1.2rem;
-    border-radius: 50px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
     transition: all 0.3s ease;
 }
 
 .btn-text:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-color: #fff;
+    background-color: var(--color-bg-tint);
+    color: var(--color-primary-dark);
+    border-color: var(--color-bg-tint);
 }
 
 .btn-filled {
-    background-color: #10b981;
+    background-color: var(--color-primary);
     color: #fff;
     text-decoration: none;
     padding: 0.6rem 1.4rem;
-    border-radius: 50px;
+    border-radius: var(--radius-sm);
     font-size: 0.95rem;
     font-weight: 500;
     transition: background-color 0.3s ease;
+    box-shadow: var(--shadow-sm);
 }
 
 .btn-filled:hover {
-    background-color: #059669;
+    background-color: var(--color-accent);
+    color: var(--color-text-main);
 }
 
 /* --- STORY SECTIONS (CSS SCROLLTELLING) --- */
@@ -182,23 +186,23 @@ h4,
 
 .gradient-bottom {
     background: linear-gradient(to top,
-            rgba(0, 0, 0, 0.9) 0%,
-            rgba(0, 0, 0, 0.5) 60%,
-            rgba(0, 0, 0, 0.2) 100%);
+            rgba(255, 255, 255, 0.9) 0%,
+            rgba(255, 255, 255, 0.6) 60%,
+            rgba(255, 255, 255, 0.2) 100%);
 }
 
 .gradient-left {
     background: linear-gradient(to right,
-            rgba(0, 0, 0, 0.95) 0%,
-            rgba(0, 0, 0, 0.6) 50%,
-            rgba(0, 0, 0, 0.2) 100%);
+            rgba(255, 255, 255, 0.95) 0%,
+            rgba(255, 255, 255, 0.6) 50%,
+            rgba(255, 255, 255, 0.2) 100%);
 }
 
 .gradient-right {
     background: linear-gradient(to left,
-            rgba(0, 0, 0, 0.95) 0%,
-            rgba(0, 0, 0, 0.6) 50%,
-            rgba(0, 0, 0, 0.2) 100%);
+            rgba(255, 255, 255, 0.95) 0%,
+            rgba(255, 255, 255, 0.6) 50%,
+            rgba(255, 255, 255, 0.2) 100%);
 }
 
 .content-container {
@@ -243,7 +247,7 @@ h4,
     font-size: 1rem;
     font-family: "Gilda Display", serif;
     letter-spacing: 0.1em;
-    opacity: 0.8;
+    color: var(--color-primary-dark);
     animation: bounce 2s infinite ease-in-out;
 }
 
@@ -275,8 +279,7 @@ h4,
 
 /* --- ROLES SECTION --- */
 .roles-section {
-    background-color: #fcfaf8;
-    /* Soft warm paper tone */
+    background-color: var(--color-bg-tint);
     padding: 8rem 5%;
     position: relative;
     z-index: 10;
@@ -299,13 +302,11 @@ h4,
     display: block;
     text-decoration: none;
     color: inherit;
-    border-radius: 16px;
+    border-radius: var(--radius-md);
     overflow: hidden;
-    background: #fff;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-    transition:
-        transform 0.4s ease,
-        box-shadow 0.4s ease;
+    background: var(--color-bg-surface);
+    box-shadow: var(--shadow-md);
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
 
 .role-img {
@@ -316,8 +317,8 @@ h4,
 }
 
 .role-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-hover);
 }
 
 .role-card:hover .role-img {
@@ -332,17 +333,17 @@ h4,
 .role-title {
     font-size: 1.75rem;
     margin-bottom: 0.5rem;
-    color: #111;
+    color: var(--color-primary-dark);
 }
 
 .role-content p {
-    color: #666;
+    color: var(--color-text-muted);
     font-size: 1.05rem;
 }
 
 /* --- FOOTER --- */
 .footer {
-    background-color: #111;
+    background-color: var(--color-primary-dark);
     color: #fff;
     padding: 4rem 5%;
     text-align: center;
@@ -357,15 +358,15 @@ h4,
 }
 
 .footer-content p {
-    color: #888;
+    color: #d1d5db;
     margin-bottom: 2rem;
 }
 
 .footer-copyright {
-    border-top: 1px solid #333;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
     padding-top: 2rem;
     font-size: 0.9rem;
-    color: #555;
+    color: #9ca3af;
 }
 
 /* --- RESPONSIVE FIXES --- */
@@ -385,7 +386,7 @@ h4,
     .gradient-left,
     .gradient-right {
         background: linear-gradient(to top,
-                rgba(0, 0, 0, 0.9) 0%,
-                rgba(0, 0, 0, 0.4) 100%);
+                rgba(255, 255, 255, 0.9) 0%,
+                rgba(255, 255, 255, 0.4) 100%);
     }
 }

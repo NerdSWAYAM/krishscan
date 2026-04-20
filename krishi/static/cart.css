@@ -1,23 +1,25 @@
     body {
-        font-family: Arial;
-        background: #f4f8f2;
+        font-family: 'Inter', sans-serif;
+        background: var(--color-bg-base);
         margin: 0;
         padding: 20px;
+        color: var(--color-text-main);
     }
 
     h1 {
         text-align: center;
-        color: #2e7d32;
+        color: var(--color-primary-dark);
     }
 
     .products,
     .cart {
         max-width: 800px;
         margin: 20px auto;
-        background: white;
+        background: var(--color-bg-surface);
         padding: 15px;
-        border-radius: 10px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--color-border);
     }
 
     .item {
@@ -25,18 +27,21 @@
         justify-content: space-between;
         margin: 10px 0;
         padding: 10px;
-        border-bottom: 1px solid #ddd;
+        border-bottom: 1px solid var(--color-border);
     }
 
     button {
-        background: #2e7d32;
+        background: var(--color-primary);
         color: white;
         border: none;
-        padding: 6px 10px;
-        border-radius: 5px;
+        padding: 8px 12px;
+        border-radius: var(--radius-sm);
         cursor: pointer;
+        font-weight: 600;
+        transition: background-color var(--transition-fast);
     }
 
     button:hover {
-        background: #1b5e20;
+        background: var(--color-accent);
+        color: var(--color-text-main);
     }

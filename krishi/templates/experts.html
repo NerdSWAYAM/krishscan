@@ -6,34 +6,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KrishiScan - Expert Consultation</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'global.css' %}">
     <style>
         /* Base styles */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Inter", sans-serif; }
-        body { background-color: #F8FBF8; color: #333; display: flex; height: 100vh; overflow: hidden; }
-        .sidebar { width: 280px; background-color: #2D6A4F; color: #fff; display: flex; flex-direction: column; padding: 2rem 1.5rem; position: fixed; top: 0; left: 0; height: 100%; z-index: 50; }
+        body { background-color: var(--color-bg-base); color: var(--color-text-main); display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: 280px; background-color: var(--color-primary-dark); color: #fff; display: flex; flex-direction: column; padding: 2rem 1.5rem; position: fixed; top: 0; left: 0; height: 100%; z-index: 50; }
         .brand { margin-bottom: 3rem; padding-left: 0.5rem; }
         .brand h1 { font-size: 1.8rem; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 0.2rem; display: flex; align-items: center; gap: 10px; }
         .brand h1::before { content: "🌾"; font-size: 1.5rem; }
-        .subtitle { font-size: 0.85rem; color: #A3D1B6; text-transform: uppercase; letter-spacing: 1px; font-weight: 500; }
+        .subtitle { font-size: 0.85rem; color: var(--color-primary-light); text-transform: uppercase; letter-spacing: 1px; font-weight: 500; }
         .nav-menu { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
-        .nav-link { display: flex; align-items: center; gap: 12px; padding: 0.8rem 1rem; color: #E2F0E5; text-decoration: none; border-radius: 8px; font-size: 1rem; font-weight: 500; transition: all 0.2s ease; position: relative; }
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 0.8rem 1rem; color: var(--color-bg-base); text-decoration: none; border-radius: var(--radius-sm); font-size: 1rem; font-weight: 500; transition: all var(--transition-fast); position: relative; }
         .nav-link:hover { background-color: rgba(255,255,255,0.05); color: #fff; }
-        .nav-link.active { background-color: #40916C; color: #fff; }
-        .nav-link.active::before { content: ""; position: absolute; left: -1.5rem; top: 50%; transform: translateY(-50%); width: 4px; height: 60%; background-color: #95D5B2; border-radius: 0 4px 4px 0; }
+        .nav-link.active { background-color: var(--color-primary); color: #fff; }
+        .nav-link.active::before { content: ""; position: absolute; left: -1.5rem; top: 50%; transform: translateY(-50%); width: 4px; height: 60%; background-color: var(--color-primary-light); border-radius: 0 4px 4px 0; }
         .nav-icon { font-size: 1.2rem; }
-        .profile-pill { display: flex; align-items: center; gap: 12px; padding: 1rem; background-color: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; margin-top: auto; text-decoration: none; color: #fff; transition: background 0.2s; }
+        .profile-pill { display: flex; align-items: center; gap: 12px; padding: 1rem; background-color: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-md); margin-top: auto; text-decoration: none; color: #fff; transition: background var(--transition-fast); }
         .profile-pill:hover { background-color: rgba(0,0,0,0.25); }
-        .avatar-initials { width: 40px; height: 40px; border-radius: 50%; background-color: #95D5B2; color: #1B4332; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; }
+        .avatar-initials { width: 40px; height: 40px; border-radius: 50%; background-color: var(--color-primary-light); color: var(--color-primary-dark); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; }
         .profile-text { display: flex; flex-direction: column; }
         .profile-name { font-weight: 600; font-size: 0.95rem; }
-        .profile-role { font-size: 0.8rem; color: #A3D1B6; }
+        .profile-role { font-size: 0.8rem; color: var(--color-primary-light); }
         
         .main-content { margin-left: 280px; flex: 1; height: 100vh; overflow-y: auto; position: relative; }
         .banner-bg { position: absolute; top: 0; left: 0; width: 100%; height: 250px; object-fit: cover; z-index: 0; opacity: 0.8; pointer-events: none; }
         .content-wrapper { position: relative; z-index: 10; padding: 3rem 4rem; max-width: 1400px; margin: 0 auto; }
         .header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2.5rem; }
-        .greeting h2 { font-size: 2.2rem; color: #1B4332; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 0.4rem; }
-        .greeting p { color: #555; font-size: 1.05rem; }
+        .greeting h2 { font-size: 2.2rem; color: var(--color-primary-dark); font-weight: 700; letter-spacing: -0.5px; margin-bottom: 0.4rem; }
+        .greeting p { color: var(--color-text-muted); font-size: 1.05rem; }
 
         /* Expert UI */
         .expert-grid {
@@ -42,56 +43,40 @@
             gap: 2rem;
         }
         .expert-card {
-            background-color: #fff;
-            border-radius: 16px;
-            border: 1px solid #EAEAEA;
+            background-color: var(--color-bg-surface);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-border);
             padding: 2rem;
             text-align: center;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.03);
-            transition: transform 0.2s;
+            box-shadow: var(--shadow-sm);
+            transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
         }
-        .expert-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(45, 106, 79, 0.1); border-color: #A3D1B6;}
+        .expert-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); border-color: var(--color-primary-light);}
         .exp-avatar {
             font-size: 4rem;
             margin-bottom: 1rem;
         }
-        .exp-name { font-size: 1.2rem; font-weight: 700; color: #111; margin-bottom: 5px; }
-        .exp-spec { color: #40916C; font-size: 0.9rem; font-weight: 600; margin-bottom: 15px; }
-        .exp-desc { color: #666; font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px; }
+        .exp-name { font-size: 1.2rem; font-weight: 700; color: var(--color-text-main); margin-bottom: 5px; }
+        .exp-spec { color: var(--color-primary); font-size: 0.9rem; font-weight: 600; margin-bottom: 15px; }
+        .exp-desc { color: var(--color-text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px; }
         .btn-call {
             display: inline-block;
-            background-color: #2D6A4F;
+            background-color: var(--color-primary-dark);
             color: #fff;
             padding: 0.8rem 1.5rem;
-            border-radius: 8px;
+            border-radius: var(--radius-sm);
             text-decoration: none;
             font-weight: 600;
-            transition: background 0.2s;
+            transition: background var(--transition-fast);
         }
-        .btn-call:hover { background-color: #1B4332; }
+        .btn-call:hover { background-color: var(--color-primary); }
 
     </style>
 </head>
 <body>
 
     <!-- SIDEBAR -->
-    <aside class="sidebar">
-        <div class="brand">
-            <h1>KrishiScan</h1>
-            <div class="subtitle">Smart Agriculture</div>
-        </div>
-        <ul class="nav-menu">
-            <li><a href="{% url 'dashboard' %}" class="nav-link"><span class="nav-icon">📊</span> Dashboard</a></li>
-            <li><a href="{% url 'disease_detect' %}" class="nav-link"><span class="nav-icon">🔬</span> Disease Detect</a></li>
-            <li><a href="{% url 'price_tracker' %}" class="nav-link"><span class="nav-icon">📈</span> Market Prices</a></li>
-            <li><a href="{% url 'sell' %}" class="nav-link"><span class="nav-icon">🛒</span> Sell Crops</a></li>
-            <li><a href="{% url 'experts' %}" class="nav-link active"><span class="nav-icon">👨‍🌾</span> Experts</a></li>
-        </ul>
-        <a href="{% url 'login' %}" class="profile-pill">
-            <div class="avatar-initials">RK</div>
-            <div class="profile-text"><span class="profile-name">Rajesh Kumar</span><span class="profile-role">Farmer</span></div>
-        </a>
-    </aside>
+    {% include 'farmer_sidebar.html' %}
 
     <!-- MAIN CONTENT -->
     <main class="main-content">

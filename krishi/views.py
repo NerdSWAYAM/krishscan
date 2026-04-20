@@ -23,7 +23,11 @@ def signup(request):
             
         stored_otp = EmailOTP.objects.filter(email=email).order_by('-created_at').first()
         if not stored_otp or stored_otp.otp != user_otp:
-            messages.error(request, 'Invalid or expired OTP.')
+            messages.error(request, 'Invalid OTP.')
+            return redirect('signup')
+            
+        if not stored_otp.is_valid():
+            messages.error(request, 'OTP has expired. Please request a new one.')
             return redirect('signup')
             
         hashed_password = make_password(password)
@@ -83,6 +87,9 @@ def login(request):
 def marketplace(request):
     crops = Crop.objects.all().order_by('-created_at')
     return render(request, 'marketplace.html', {'crops': crops})
+
+def weather(request):
+    return render(request, 'weather.html')
 
 def upload_crop(request):
     if request.session.get('role') != 'Farmer':
@@ -310,30 +317,45 @@ from django.core.mail import send_mail
 from django.conf import settings
 from .models import EmailOTP
 
+from django.core.mail import EmailMultiAlternatives
+
 def send_otp_api(request):
-    if request.method == "POST":
+    if request.method == 'POST':
         try:
             data = json.loads(request.body)
             email = data.get('email')
-        except:
-            email = request.POST.get('email')
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'message': 'Invalid JSON format'})
             
         if not email:
-            return JsonResponse({'success': False, 'message': 'Email required'}, status=400)
+            return JsonResponse({'success': False, 'message': 'Email is required'})
             
         otp = str(random.randint(1000, 9999))
-        EmailOTP.objects.create(email=email, otp=otp)
         
+        EmailOTP.objects.create(email=email, otp=otp)
+
+        subject = "Verify your email"
+        from_email = "noreply@krishiscan.in"
+        to = [email]
+
+        text_content = f"Your OTP is {otp}. Valid for 5 minutes."
+
+        html_content = f"""
+        <h2>Email Verification</h2>
+        <p>Your OTP is:</p>
+        <h1 style="color:#59AC77; text-weight:bold; ">{otp}</h1>
+        <p>This OTP is valid for 5 minutes.</p>
+        <center>
+            <h2>From Team - <span style="color:#59AC77;">KrishiScan</span></h2>
+        </center>
+        """
+
+        msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+        msg.attach_alternative(html_content, "text/html")
         try:
-            send_mail(
-                'KrishiScan - Verify Your Account',
-                f'Your verification code is: {otp}',
-                settings.EMAIL_HOST_USER,
-                [email],
-                fail_silently=False,
-            )
+            msg.send()
             return JsonResponse({'success': True, 'message': 'OTP sent successfully'})
         except Exception as e:
-            return JsonResponse({'success': False, 'message': str(e)}, status=500)
-            
-    return JsonResponse({'success': False, 'message': 'Invalid request'}, status=400)
+            return JsonResponse({'success': False, 'message': str(e)})
+
+    return JsonResponse({'success': False, 'message': 'Invalid request method'})
