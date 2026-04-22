@@ -1,0 +1,195 @@
+{% extends 'farmer_base.html' %}
+{% load static %}
+
+{% block title %}KrishiScan - Crop History & Orders{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        margin-bottom: 32px;
+        background: linear-gradient(135deg, var(--color-bg), var(--color-surface));
+        border-radius: 24px;
+        border: 1px solid var(--color-border);
+        padding: 40px 32px;
+        text-align: center;
+    }
+
+    .page-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 32px;
+        color: var(--color-deep-forest);
+        margin-bottom: 12px;
+    }
+
+    .page-subtitle {
+        color: var(--color-text-muted);
+        font-size: 16px;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .table-container {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 4px 12px rgba(58,111,67,0.06);
+        border: 1px solid var(--color-border);
+        margin-bottom: 40px;
+        overflow-x: auto;
+    }
+
+    .section-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 24px;
+        color: var(--color-deep-forest);
+        margin-bottom: 24px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: 'DM Sans', sans-serif;
+    }
+
+    .data-table th, .data-table td {
+        padding: 16px;
+        text-align: left;
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .data-table th {
+        color: var(--color-deep-forest);
+        font-weight: 700;
+        background: var(--color-bg);
+        text-transform: uppercase;
+        font-size: 12px;
+        letter-spacing: 0.05em;
+    }
+
+    .data-table tbody tr:hover {
+        background-color: #F7FBF8;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .status-sold {
+        background: #E8F5EC;
+        color: #3A6F43;
+    }
+
+    .status-pending {
+        background: #FFF4E5;
+        color: #B26A00;
+    }
+
+    .status-cancelled {
+        background: #FFD5D5;
+        color: #7B2020;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Crop History & Orders</h1>
+    <p class="page-subtitle">Track your uploaded crops and monitor orders from consumers in real-time.</p>
+</div>
+
+<div class="table-container">
+    <h2 class="section-title">Consumer Orders</h2>
+    {% if orders %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Crop</th>
+                <th>Consumer</th>
+                <th>Quantity</th>
+                <th>Total Price</th>
+                <th>Status</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>#{{ order.id }}</td>
+                <td style="font-weight: 600;">{{ order.crop.name }}</td>
+                <td>
+                    {{ order.consumer.first_name }} {{ order.consumer.last_name }}<br>
+                    <small style="color: var(--color-text-muted);">{{ order.consumer.email }}</small>
+                </td>
+                <td>{{ order.quantity }} kg</td>
+                <td>₹{{ order.total_price }}</td>
+                <td>
+                    {% if order.status == 'Sold' %}
+                        <span class="status-badge status-sold">Sold</span>
+                    {% elif order.status == 'Pending' %}
+                        <span class="status-badge status-pending">Pending</span>
+                    {% else %}
+                        <span class="status-badge status-cancelled">Cancelled</span>
+                    {% endif %}
+                </td>
+                <td style="color: var(--color-text-muted);">{{ order.created_at|date:"M d, Y" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div style="text-align: center; padding: 40px; color: var(--color-text-muted);">
+        <div style="font-size: 48px; margin-bottom: 16px;">📦</div>
+        <p>No orders have been placed for your crops yet.</p>
+    </div>
+    {% endif %}
+</div>
+
+<div class="table-container">
+    <h2 class="section-title">Your Uploaded Crops</h2>
+    {% if crops %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Crop Image</th>
+                <th>Name</th>
+                <th>Initial Quantity</th>
+                <th>Price / kg</th>
+                <th>Upload Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for crop in crops %}
+            <tr>
+                <td>
+                    {% if crop.image %}
+                        <img src="{{ crop.image.url }}" alt="{{ crop.name }}" style="width: 48px; height: 48px; border-radius: 8px; object-fit: cover;">
+                    {% else %}
+                        <div style="width: 48px; height: 48px; border-radius: 8px; background: #E8F5EC; display: flex; align-items: center; justify-content: center; font-size: 24px;">🌾</div>
+                    {% endif %}
+                </td>
+                <td style="font-weight: 600; font-size: 16px;">{{ crop.name }}</td>
+                <td>{{ crop.quantity }} kg</td>
+                <td>₹{{ crop.price_per_kg }}</td>
+                <td style="color: var(--color-text-muted);">{{ crop.created_at|date:"M d, Y" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div style="text-align: center; padding: 40px; color: var(--color-text-muted);">
+        <div style="font-size: 48px; margin-bottom: 16px;">🌾</div>
+        <p>You haven't uploaded any crops yet. <a href="{% url 'upload_crop' %}" style="color: var(--color-primary); font-weight: 600;">Upload one now</a>.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

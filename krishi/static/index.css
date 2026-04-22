@@ -7,7 +7,7 @@
 
 body {
     font-family: "Inter", sans-serif;
-    background-color: var(--color-bg-base);
+    /* background-color: var(--color-bg-base); */
     color: var(--color-text-main);
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
@@ -105,9 +105,9 @@ h4,
 }
 
 .logo {
-    font-family: "Gilda Display", serif;
-    font-size: 1.5rem;
-    font-weight: bold;
+    font-family: "Grenze Gotisch", serif;
+    font-size: 2rem;
+    font-weight: 600;
     color: var(--color-primary-dark);
     letter-spacing: 0.05em;
 }
@@ -142,13 +142,15 @@ h4,
     border-radius: var(--radius-sm);
     font-size: 0.95rem;
     font-weight: 500;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
     box-shadow: var(--shadow-sm);
+    border: 1px solid transparent;
 }
 
 .btn-filled:hover {
-    background-color: var(--color-accent);
-    color: var(--color-text-main);
+    background-color: var(--color-bg-tint);
+    color: var(--color-primary-dark);
+    border-color: var(--color-bg-tint);
 }
 
 /* --- STORY SECTIONS (CSS SCROLLTELLING) --- */
@@ -313,6 +315,7 @@ h4,
     height: 350px;
     background-size: cover;
     background-position: center;
+    border-radius: 20px;
     transition: transform 0.6s ease;
 }
 
@@ -389,4 +392,104 @@ h4,
                 rgba(255, 255, 255, 0.9) 0%,
                 rgba(255, 255, 255, 0.4) 100%);
     }
+}
+/* --- FEATURES SECTION --- */
+.features-section {
+    height: auto;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 8rem 0;
+}
+
+.features-section .content-container {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    margin: 0 auto;
+}
+
+.features-section .cinematic-heading,
+.features-section .cinematic-text {
+    color: var(--color-text-primary, #1C2E20);
+    /* text-shadow: 0 2px 10px rgba(255, 255, 255, 0.8); */
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+    text-align: left;
+    width: 100%;
+}
+
+.feature-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    padding: 2rem;
+    border-radius: 14px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.feature-number {
+    font-family: "Gilda Display", serif;
+    font-size: 3.5rem;
+    color: var(--color-primary);
+    opacity: 0.15;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-weight: bold;
+    z-index: 0;
+    line-height: 1;
+}
+
+.feature-icon {
+    width: 50px;
+    height: 50px;
+    background-color: var(--color-success-bg, #E8F5EC);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    color: var(--color-deep-forest, #3A6F43);
+    position: relative;
+    z-index: 1;
+}
+
+.feature-icon svg {
+    width: 24px;
+    height: 24px;
+    stroke-width: 2;
+}
+
+.feature-title {
+    font-family: "Inter", sans-serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text-primary, #1C2E20);
+    margin-bottom: 0.75rem;
+    position: relative;
+    z-index: 1;
+}
+
+.feature-desc {
+    font-size: 0.95rem;
+    color: var(--color-text-muted, #6B8A72);
+    line-height: 1.6;
+    position: relative;
+    z-index: 1;
 }

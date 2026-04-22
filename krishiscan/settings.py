@@ -74,31 +74,31 @@ WSGI_APPLICATION = 'krishiscan.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'krishiscan_db',
-#         'USER': 'postgres',
-#         'PASSWORD': 'levi',
-#         'HOST': 'localhost',
-#         'PORT': '5432'
-#     }
-# }
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'defaultdb',
-        'USER': 'avnadmin',
-        'PASSWORD': 'AVNS_XrhmCvLWhKTSkiEzprC',
-        'HOST': 'pg-2ba7f605-nerdswayam-83aa.e.aivencloud.com',
-        'PORT': '25423',
-        'OPTIONS': {
-            'sslmode': 'require',
-            'sslrootcert': '/home/swayam/Downloads/ca.pem'
-        },
+        'NAME': 'krishiscan_db',
+        'USER': 'postgres',
+        'PASSWORD': 'levi',
+        'HOST': 'localhost',
+        'PORT': '5432'
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'defaultdb',
+#         'USER': 'avnadmin',
+#         'PASSWORD': 'AVNS_XrhmCvLWhKTSkiEzprC',
+#         'HOST': 'pg-2ba7f605-nerdswayam-83aa.e.aivencloud.com',
+#         'PORT': '25423',
+#         'OPTIONS': {
+#             'sslmode': 'require',
+#             'sslrootcert': '/home/swayam/Downloads/ca.pem'
+#         },
+#     }
+# }
 
 
 

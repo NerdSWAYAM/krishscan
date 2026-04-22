@@ -13,7 +13,7 @@
         rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'global.css' %}">
-    <link rel="stylesheet" href="{% static 'index.css' %}?v=2.0">
+    <link rel="stylesheet" href="{% static 'index.css' %}">
 </head>
 
 <body>
@@ -31,10 +31,10 @@
         <div class="background-image" style="background-image: url('{% static 'story_hero.png' %}');"></div>
         <div class="overlay gradient-bottom"></div>
         <div class="content-container center-content fade-in-on-scroll">
-            <h1 class="cinematic-title">The Heartbeat<br>of the Land.</h1>
-            <p class="cinematic-subtitle">Every dawn, millions of farmers wake up to cultivate the food that sustains
+            <h1 class="cinematic-title">KRISHI - The backbone<br>of the India.</h1>
+            <!-- <p class="cinematic-subtitle">Every dawn, millions of farmers wake up to cultivate the food that sustains
                 us. It is a story as old as time, rooted in hard work and pure soil.</p>
-            <div class="scroll-down">Scroll to discover the journey &darr;</div>
+            <div class="scroll-down">Scroll to discover the journey &darr;</div> -->
         </div>
     </div>
 
@@ -43,16 +43,16 @@
         <div class="background-image" style="background-image: url('{% static 'story_disconnect.png' %}');"></div>
         <div class="overlay gradient-left"></div>
         <div class="content-container left-content fade-in-on-scroll">
-            <p class="chapter-label">Chapter 01 &mdash; The Disconnect</p>
+            <!-- <p class="chapter-label">Chapter 01 &mdash; The Disconnect</p> -->
             <h2 class="cinematic-heading">Lost in the<br>Marketplace.</h2>
             <p class="cinematic-text">For decades, this pure harvest has been tangled in a chaotic web of
                 intermediaries. The farmer loses their rightful profit, and by the time it reaches you, the food has
-                lost days of its priceless freshness. The connection is broken.</p>
+                lost days of its priceless freshness.</p>
         </div>
     </div>
 
     <!-- STORY SECTION 3: THE DIRECT HARVEST -->
-    <div class="story-section">
+    <!-- <div class="story-section">
         <div class="background-image" style="background-image: url('{% static 'story_process.png' %}');"></div>
         <div class="overlay gradient-right"></div>
         <div class="content-container right-content fade-in-on-scroll">
@@ -62,18 +62,66 @@
                 bypass the chaos and list their harvest instantly. No middlemen. Just the farmer, their crop, and fair
                 valuation.</p>
         </div>
-    </div>
+    </div> -->
 
-    <!-- STORY SECTION 4: THE SHARED TABLE -->
-    <div class="story-section">
-        <div class="background-image" style="background-image: url('{% static 'story_solution.png' %}');"></div>
+    <!-- FEATURES SECTION -->
+    <div class="story-section features-section">
+        <div class="background-image" style="background-image: url('{% static 'wheat.png' %}');"></div>
         <div class="overlay gradient-bottom"></div>
-        <div class="content-container center-content-bottom fade-in-on-scroll">
-            <p class="chapter-label">Chapter 03 &mdash; The Destination</p>
-            <h2 class="cinematic-heading text-center">To Your Family's Table.</h2>
-            <p class="cinematic-text text-center mx-auto">When the chain is unbroken, everyone wins. You receive vividly
-                fresh, traceable, organic food at authentic prices, while directly supporting the families who grew it.
-            </p>
+        <div class="content-container center-content fade-in-on-scroll" style="max-width: 1200px;">
+            <h2 class="cinematic-heading text-center" style="margin-bottom: 0.5rem;">Powerful Features</h2>
+            <p class="cinematic-text text-center mx-auto" style="margin-bottom: 2rem;">Discover what makes KrishiScan the ultimate tool for farmers and consumers.</p>
+            
+            <div class="features-grid">
+                <!-- Feature 1 -->
+                <div class="feature-card">
+                    <div class="feature-number">01</div>
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Disease Detection</h3>
+                    <p class="feature-desc">Scan your crops and instantly detect diseases with our advanced AI model.</p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="feature-card">
+                    <div class="feature-number">02</div>
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Real-Time Prices</h3>
+                    <p class="feature-desc">Access up-to-date market prices to ensure you always get a fair valuation.</p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="feature-card">
+                    <div class="feature-number">03</div>
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Nearest Farmer</h3>
+                    <p class="feature-desc">Connect consumers directly to the closest farmers through smart recommendations.</p>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="feature-card">
+                    <div class="feature-number">04</div>
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">User Friendly</h3>
+                    <p class="feature-desc">An intuitive and easy-to-use interface designed for everyone, everywhere.</p>
+                </div>
+            </div>
         </div>
     </div>
 

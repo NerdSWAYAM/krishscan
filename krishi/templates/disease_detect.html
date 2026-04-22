@@ -1,140 +1,349 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'farmer_base.html' %}
 {% load static %}
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KrishiScan - Disease Detection</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'global.css' %}">
-    <style>
-        /* Base styles */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Inter", sans-serif; }
-        body { background-color: var(--color-bg-base); color: var(--color-text-main); display: flex; height: 100vh; overflow: hidden; }
-        .sidebar { width: 280px; background-color: var(--color-primary-dark); color: #fff; display: flex; flex-direction: column; padding: 2rem 1.5rem; position: fixed; top: 0; left: 0; height: 100%; z-index: 50; }
-        .brand { margin-bottom: 3rem; padding-left: 0.5rem; }
-        .brand h1 { font-size: 1.8rem; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 0.2rem; display: flex; align-items: center; gap: 10px; }
-        .brand h1::before { content: "🌾"; font-size: 1.5rem; }
-        .subtitle { font-size: 0.85rem; color: var(--color-primary-light); text-transform: uppercase; letter-spacing: 1px; font-weight: 500; }
-        .nav-menu { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
-        .nav-link { display: flex; align-items: center; gap: 12px; padding: 0.8rem 1rem; color: var(--color-bg-base); text-decoration: none; border-radius: var(--radius-sm); font-size: 1rem; font-weight: 500; transition: all var(--transition-fast); position: relative; }
-        .nav-link:hover { background-color: rgba(255,255,255,0.05); color: #fff; }
-        .nav-link.active { background-color: var(--color-primary); color: #fff; }
-        .nav-link.active::before { content: ""; position: absolute; left: -1.5rem; top: 50%; transform: translateY(-50%); width: 4px; height: 60%; background-color: var(--color-primary-light); border-radius: 0 4px 4px 0; }
-        .nav-icon { font-size: 1.2rem; }
-        .profile-pill { display: flex; align-items: center; gap: 12px; padding: 1rem; background-color: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-md); margin-top: auto; text-decoration: none; color: #fff; transition: background var(--transition-fast); }
-        .profile-pill:hover { background-color: rgba(0,0,0,0.25); }
-        .avatar-initials { width: 40px; height: 40px; border-radius: 50%; background-color: var(--color-primary-light); color: var(--color-primary-dark); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; }
-        .profile-text { display: flex; flex-direction: column; }
-        .profile-name { font-weight: 600; font-size: 0.95rem; }
-        .profile-role { font-size: 0.8rem; color: var(--color-primary-light); }
-        
-        .main-content { margin-left: 280px; flex: 1; height: 100vh; overflow-y: auto; position: relative; }
-        .banner-bg { position: absolute; top: 0; left: 0; width: 100%; height: 250px; object-fit: cover; z-index: 0; opacity: 0.8; pointer-events: none; }
-        .content-wrapper { position: relative; z-index: 10; padding: 3rem 4rem; max-width: 1400px; margin: 0 auto; }
-        .header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2.5rem; }
-        .greeting h2 { font-size: 2.2rem; color: var(--color-primary-dark); font-weight: 700; letter-spacing: -0.5px; margin-bottom: 0.4rem; }
-        .greeting p { color: var(--color-text-muted); font-size: 1.05rem; }
 
-        /* Disease Detect UI */
-        .upload-card {
-            background-color: var(--color-bg-surface);
-            border-radius: var(--radius-md);
-            border: 1px solid var(--color-border);
-            padding: 4rem 2rem;
-            text-align: center;
-            box-shadow: var(--shadow-sm);
-            max-width: 800px;
-            margin: 0 auto;
-            border: 2px dashed var(--color-primary-light);
-            cursor: pointer;
-            transition: all var(--transition-fast);
-        }
-        .upload-card:hover {
-            background-color: var(--color-bg-base);
-            border-color: var(--color-primary);
-        }
-        .upload-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-        }
-        .upload-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--color-primary-dark);
-            margin-bottom: 10px;
-        }
-        .upload-desc {
-            color: var(--color-text-muted);
-            margin-bottom: 20px;
-        }
-        .btn-upload {
-            background-color: var(--color-primary-dark);
-            color: #fff;
-            padding: 1rem 2rem;
-            border-radius: var(--radius-sm);
-            font-weight: 600;
-            font-size: 1rem;
-            border: none;
-            cursor: pointer;
-        }
-        .btn-upload:hover { background-color: var(--color-primary); }
+{% block title %}KrishiScan - Scan Crop{% endblock %}
 
-    </style>
-</head>
-<body>
+{% block extra_css %}
+<style>
+    .page-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
 
-    <!-- SIDEBAR -->
-    {% include 'farmer_sidebar.html' %}
+    .page-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 36px;
+        color: var(--color-deep-forest);
+        margin-bottom: 12px;
+    }
 
+    .page-subtitle {
+        color: var(--color-text-muted);
+        font-size: 16px;
+        max-width: 600px;
+        margin: 0 auto;
+    }
 
-    <!-- End of nav bar -->
-    <main class="main-content">
-        <object data="{% static 'disease_banner.svg' %}" type="image/svg+xml" class="banner-bg"></object>
-        <div class="content-wrapper">
-            <div class="header-row">
-                <div class="greeting">
-                    <h2>Disease Detection</h2>
-                    <p>Upload a photo of your crop to instantly identify potential risks.</p>
-                </div>
-            </div>
+    /* Upload Zone */
+    .upload-zone {
+        background: var(--color-surface);
+        border: 2px dashed var(--color-primary);
+        border-radius: 24px;
+        padding: 60px 20px;
+        text-align: center;
+        transition: all var(--transition-card);
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
 
-            <form method="POST" enctype="multipart/form-data" id="diseaseForm" action="{% url 'disease_detect' %}">
-                {% csrf_token %}
-                <input type="file" id="file-upload" name="image" accept="image/*" style="display: none;" onchange="document.getElementById('diseaseForm').submit(); document.getElementById('loading').style.display='block';">
-                <input type="file" id="camera-upload" name="image" accept="image/*" capture="environment" style="display: none;" onchange="document.getElementById('diseaseForm').submit(); document.getElementById('loading').style.display='block';">
-                
-                <div class="upload-card">
-                    <div class="upload-icon">📷</div>
-                    <div class="upload-title">Choose Upload Method</div>
-                    <p class="upload-desc">Select an image from your device or open your camera to scan a crop.</p>
-                    <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1rem;">
-                        <button type="button" class="btn-upload" onclick="document.getElementById('file-upload').click()">📂 Upload File</button>
-                        <button type="button" class="btn-upload" onclick="document.getElementById('camera-upload').click()">📸 Open Camera</button>
-                    </div>
-                </div>
-            </form>
+    .upload-zone:hover {
+        background: var(--color-bg);
+        border-color: var(--color-deep-forest);
+    }
 
-            <div id="loading" style="display: none; text-align: center; margin-top: 2rem;">
-                <p style="font-size: 1.2rem; font-weight: bold; color: var(--color-primary-dark);">Analyzing image... please wait. 🔬</p>
-            </div>
+    .upload-icon {
+        font-size: 64px;
+        margin-bottom: 24px;
+        display: inline-block;
+        animation: float 3s ease-in-out infinite;
+    }
 
-            {% if result %}
-            <div style="margin-top: 2rem; padding: 2rem; background-color: var(--color-bg-surface); border-radius: var(--radius-md); border: 1px solid var(--color-border); box-shadow: var(--shadow-sm); text-align: center; max-width: 800px; margin-left: auto; margin-right: auto;">
-                {% if result.error %}
-                    <h3 style="color: #D62828;">Error Analyzing Image</h3>
-                    <p>{{ result.error }}</p>
-                {% else %}
-                    <h3 style="font-size: 1.8rem; color: var(--color-primary-dark); margin-bottom: 10px;">Analysis Complete</h3>
-                    <p style="font-size: 1.2rem; margin-bottom: 5px;"><strong>Detected Condition:</strong> {{ result.disease }}</p>
-                    <p style="font-size: 1.1rem; color: {% if result.confidence > 80 %}var(--color-primary-dark){% else %}var(--color-accent){% endif %};">
-                        <strong>Confidence Score:</strong> {{ result.confidence|floatformat:2 }}%
-                    </p>
-                {% endif %}
-            </div>
-            {% endif %}
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+
+    .upload-text {
+        font-family: 'Playfair Display', serif;
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--color-deep-forest);
+        margin-bottom: 12px;
+    }
+
+    .upload-subtext {
+        color: var(--color-text-muted);
+        margin-bottom: 32px;
+    }
+
+    .upload-actions {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+    }
+
+    /* Result Split View */
+    .result-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        margin-top: 40px;
+        animation: fadeUpIn 0.5s ease;
+    }
+
+    .image-preview {
+        background: var(--color-surface);
+        border-radius: 20px;
+        padding: 16px;
+        border: 1px solid var(--color-border);
+        box-shadow: 0 8px 24px rgba(58, 111, 67, 0.06);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 400px;
+        position: relative;
+    }
+
+    .image-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 12px;
+    }
+
+    .diagnosis-card {
+        background: var(--color-surface);
+        border-radius: 20px;
+        padding: 40px;
+        border: 1px solid var(--color-border);
+        box-shadow: 0 8px 24px rgba(58, 111, 67, 0.06);
+    }
+
+    .diagnosis-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 32px;
+    }
+
+    .disease-name {
+        font-family: 'Playfair Display', serif;
+        font-size: 32px;
+        color: var(--color-deep-forest);
+        margin-bottom: 8px;
+    }
+
+    .health-score-ring {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Playfair Display', serif;
+        font-size: 24px;
+        font-weight: 700;
+        position: relative;
+    }
+
+    .health-score-ring.healthy {
+        background: conic-gradient(var(--color-primary) 95%, #E8F5EC 0);
+        color: var(--color-deep-forest);
+    }
+
+    .health-score-ring.warning {
+        background: conic-gradient(#F59E0B 75%, #FEF3C7 0);
+        color: #B45309;
+    }
+
+    .health-score-ring.danger {
+        background: conic-gradient(var(--color-soft-alert) 88%, var(--color-light-blush) 0);
+        color: var(--color-error-text);
+    }
+
+    .health-score-ring::before {
+        content: "";
+        position: absolute;
+        inset: 8px;
+        background: var(--color-surface);
+        border-radius: 50%;
+    }
+
+    .health-score-ring span {
+        position: relative;
+        z-index: 2;
+    }
+
+    .confidence-section {
+        margin-bottom: 32px;
+    }
+
+    .confidence-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--color-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 8px;
+    }
+
+    .confidence-bar-bg {
+        width: 100%;
+        height: 8px;
+        background: var(--color-bg);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .confidence-bar-fill {
+        height: 100%;
+        background: var(--color-primary);
+        border-radius: 4px;
+    }
+
+    .action-steps h4 {
+        font-family: 'Playfair Display', serif;
+        font-size: 20px;
+        margin-bottom: 16px;
+    }
+
+    .step-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .step-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 16px;
+        font-size: 15px;
+    }
+
+    .step-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: #E8F5EC;
+        color: var(--color-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    @media (max-width: 900px) {
+        .result-container { grid-template-columns: 1fr; }
+        .image-preview { min-height: 300px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">AI Crop Disease Detection</h1>
+    <p class="page-subtitle">Upload a photo of your crop to instantly identify potential risks and get actionable treatment recommendations.</p>
+</div>
+
+<form method="POST" enctype="multipart/form-data" id="diseaseForm" action="{% url 'disease_detect' %}">
+    {% csrf_token %}
+    <input type="file" id="file-upload" name="image" accept="image/*" style="display: none;" onchange="submitForm()">
+    <input type="file" id="camera-upload" name="image" accept="image/*" capture="environment" style="display: none;" onchange="submitForm()">
+    
+    <div class="upload-zone" id="uploadZone">
+        <div class="upload-icon">🌾</div>
+        <div class="upload-text">Drag & Drop Crop Image Here</div>
+        <p class="upload-subtext">Supports JPG, PNG (Max 5MB). Ensure the affected area is clearly visible.</p>
+        <div class="upload-actions">
+            <button type="button" class="btn btn-primary" onclick="document.getElementById('file-upload').click()">Browse Files</button>
+            <button type="button" class="btn btn-secondary" onclick="document.getElementById('camera-upload').click()">Open Camera</button>
         </div>
-    </main>
+    </div>
+</form>
 
-</body>
-</html>
+<div id="loadingIndicator" style="display: none; text-align: center; margin-top: 40px;">
+    <div style="width: 48px; height: 48px; border: 4px solid #E8F5EC; border-top-color: var(--color-primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px;"></div>
+    <h3 style="font-family: 'Playfair Display', serif; color: var(--color-deep-forest);">Analyzing Image...</h3>
+    <p style="color: var(--color-text-muted);">Our AI is scanning for over 40+ known diseases.</p>
+</div>
+
+<style>
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+</style>
+
+{% if result %}
+<div class="result-container" id="resultView">
+    <div class="image-preview">
+        <!-- Assuming the view might pass the uploaded image URL later. For now using a placeholder to demonstrate the split view layout -->
+        <img src="https://images.unsplash.com/photo-1599839619722-39751411ea63?q=80&w=800&auto=format&fit=crop" alt="Uploaded Crop Image">
+        <div style="position: absolute; top: 24px; left: 24px;">
+            <span class="badge badge-info">Uploaded Image</span>
+        </div>
+    </div>
+
+    <div class="diagnosis-card">
+        {% if result.error %}
+            <div class="alert alert-error">
+                <strong>Analysis Failed:</strong> {{ result.error }}
+            </div>
+            <button class="btn btn-secondary" onclick="window.history.back()">Try Again</button>
+        {% else %}
+            <div class="diagnosis-header">
+                <div>
+                    <span class="badge {% if result.confidence > 80 %}badge-success{% else %}badge-warning{% endif %}" style="margin-bottom: 12px;">Analysis Complete</span>
+                    <h2 class="disease-name">{{ result.disease|default:"Healthy Crop" }}</h2>
+                    <p style="color: var(--color-text-muted);">Detected primarily on leaves</p>
+                </div>
+                
+                <!-- Determine health score class based on mock logic -->
+                {% with score=result.confidence|default:95 %}
+                <div class="health-score-ring {% if score > 85 %}danger{% elif score > 60 %}warning{% else %}healthy{% endif %}">
+                    <span>{{ score|floatformat:0 }}</span>
+                </div>
+                {% endwith %}
+            </div>
+
+            <div class="confidence-section">
+                <div class="confidence-label">
+                    <span>AI Confidence Score</span>
+                    <span>{{ result.confidence|default:95|floatformat:1 }}%</span>
+                </div>
+                <div class="confidence-bar-bg">
+                    <div class="confidence-bar-fill" style="width: {{ result.confidence|default:95 }}%; {% if result.confidence > 80 %}background: var(--color-soft-alert);{% endif %}"></div>
+                </div>
+            </div>
+
+            <div class="action-steps">
+                <h4>Recommended Actions</h4>
+                <ul class="step-list">
+                    <li>
+                        <div class="step-icon">1</div>
+                        <div><strong>Isolate the area:</strong> Prevent the spread by isolating the affected plants immediately.</div>
+                    </li>
+                    <li>
+                        <div class="step-icon">2</div>
+                        <div><strong>Apply Fungicide:</strong> Use a copper-based fungicide to treat the spots.</div>
+                    </li>
+                    <li>
+                        <div class="step-icon">3</div>
+                        <div><strong>Improve Ventilation:</strong> Ensure proper spacing between plants to reduce humidity.</div>
+                    </li>
+                </ul>
+            </div>
+
+            <div style="margin-top: 32px; display: flex; gap: 16px;">
+                <button class="btn btn-primary" style="flex: 1;">Save Report</button>
+                <button class="btn btn-secondary" style="flex: 1;">Consult Expert</button>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<script>
+    function submitForm() {
+        document.getElementById('uploadZone').style.display = 'none';
+        const resultView = document.getElementById('resultView');
+        if (resultView) resultView.style.display = 'none';
+        document.getElementById('loadingIndicator').style.display = 'block';
+        document.getElementById('diseaseForm').submit();
+    }
+</script>
+{% endblock %}

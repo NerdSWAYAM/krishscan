@@ -39,3 +39,14 @@ class EmailOTP(models.Model):
 
     def is_valid(self):
         return timezone.now() < self.created_at + timedelta(minutes=5)
+
+class Order(models.Model):
+    crop = models.ForeignKey(Crop, on_delete=models.CASCADE, related_name='orders')
+    consumer = models.ForeignKey(UserAccount, on_delete=models.CASCADE, related_name='orders')
+    quantity = models.DecimalField(max_digits=10, decimal_places=2) # in kg
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=50, choices=[('Pending', 'Pending'), ('Sold', 'Sold'), ('Cancelled', 'Cancelled')], default='Sold')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Order {self.id} - {self.crop.name} by {self.consumer.first_name}"

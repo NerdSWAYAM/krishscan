@@ -127,8 +127,10 @@ def consumer(request):
 from django.core.cache import cache
 
 def dashboard(request):
-    import os
+    # import os
     import requests
+    from django.utils import timezone
+    from .models import Crop, Order
     
     API_KEY = os.getenv("API_KEY", "579b464db66ec23bdd0000014221d4e33efb481147dfeea08b43d410")
     RESOURCE_ID = os.getenv("RESOURCE_ID", "9ef84268-d588-465a-a308-a864a43d0070")
@@ -155,34 +157,51 @@ def dashboard(request):
             print("Error fetching data:", e)
             market_prices = []
 
-    # Mock dynamic data for disease detections (since there is no model yet)
-    recent_diseases = [
-        {
-            "icon": "🍅",
-            "crop": "Tomato Leaf",
-            "issue": "Early Blight detected in Sector 4.",
-            "risk": "High Risk",
-            "risk_class": "risk-high"
-        },
-        {
-            "icon": "🌽",
-            "crop": "Corn Stalk",
-            "issue": "Signs of rust spotted during last scan.",
-            "risk": "Medium Risk",
-            "risk_class": "risk-med"
-        },
-        {
-            "icon": "🥔",
-            "crop": "Potato Field",
-            "issue": "Scan complete. No issues found.",
-            "risk": "Healthy",
-            "risk_class": "risk-low"
+    # Fetch Real-Time Weather
+    weather_data = None
+    try:
+        location = request.session.get('location', 'Bangalore')
+        w_url = "https://api.openweathermap.org/data/2.5/weather"
+        w_params = {
+            "q": location,
+            "appid": "8b8b14cc886cfa025bf91a1b6eb972e0",
+            "units": "metric"
         }
-    ]
+        res = requests.get(w_url, params=w_params, timeout=5)
+        if res.status_code == 200:
+            w_data = res.json()
+            weather_data = {
+                'temp': w_data['main']['temp'],
+                'feels_like': w_data['main']['feels_like'],
+                'humidity': w_data['main']['humidity'],
+                'wind_speed': w_data['wind']['speed'],
+                'description': w_data['weather'][0]['description'].capitalize(),
+                'icon': w_data['weather'][0]['icon'],
+                'city': w_data['name']
+            }
+    except Exception as e:
+        print("Error fetching weather:", e)
+
+    # Crop Stats
+    user_id = request.session.get('user_id')
+    if user_id:
+        crops_uploaded = Crop.objects.filter(farmer_id=user_id).count()
+        crops_sold_count = Crop.objects.filter(farmer_id=user_id, orders__status='Sold').distinct().count()
+        crops_unsold_count = crops_uploaded - crops_sold_count
+        crops_sold = crops_sold_count  # Keep existing variable name if used elsewhere
+    else:
+        crops_uploaded = 0
+        crops_sold_count = 0
+        crops_unsold_count = 0
+        crops_sold = 0
 
     context = {
         'market_prices': market_prices,
-        'recent_diseases': recent_diseases,
+        'weather_data': weather_data,
+        'crops_uploaded': crops_uploaded,
+        'crops_sold': crops_sold,
+        'crops_sold_count': crops_sold_count,
+        'crops_unsold_count': crops_unsold_count,
     }
     return render(request, 'dashboard.html', context)
 
@@ -359,3 +378,25 @@ def send_otp_api(request):
             return JsonResponse({'success': False, 'message': str(e)})
 
     return JsonResponse({'success': False, 'message': 'Invalid request method'})
+
+def crop_history(request):
+    user_id = request.session.get('user_id')
+    role = request.session.get('role')
+    
+    if not user_id or role != 'Farmer':
+        messages.error(request, 'Please log in as a farmer to view crop history.')
+        return redirect('login')
+        
+    from .models import Crop, Order
+    
+    # Fetch all crops uploaded by this farmer
+    crops = Crop.objects.filter(farmer_id=user_id).order_by('-created_at')
+    
+    # Fetch all orders related to this farmer's crops
+    orders = Order.objects.filter(crop__farmer_id=user_id).select_related('crop', 'consumer').order_by('-created_at')
+    
+    context = {
+        'crops': crops,
+        'orders': orders
+    }
+    return render(request, 'crop_history.html', context)
