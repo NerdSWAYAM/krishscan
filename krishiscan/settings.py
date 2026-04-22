@@ -88,11 +88,11 @@ DATABASES = {
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'defaultdb',
-#         'USER': 'avnadmin',
-#         'PASSWORD': 'AVNS_XrhmCvLWhKTSkiEzprC',
-#         'HOST': 'pg-2ba7f605-nerdswayam-83aa.e.aivencloud.com',
-#         'PORT': '25423',
+#         'NAME': os.getenv('DB_NAME','defaultdb'),
+#         'USER': os.getenv('DB_USER','avnadmin'),
+#         'PASSWORD': os.getenv('DB_PASSWORD','AVNS_XrhmCvLWhKTSkiEzprC'),
+#         'HOST': os.getenv('DB_HOST','pg-2ba7f605-nerdswayam-83aa.e.aivencloud.com'),
+#         'PORT': os.getenv('DB_PORT','25423'),
 #         'OPTIONS': {
 #             'sslmode': 'require',
 #             'sslrootcert': '/home/swayam/Downloads/ca.pem'
