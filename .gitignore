@@ -5,3 +5,6 @@ __pycache__/*
 
 .env
 main.py
+.env
+__pycache__/
+*.pyc
