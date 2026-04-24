@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KrishiScan - Wishlist & Cart</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'global.css' %}">
+    <style>
+        body {
+            background-color: var(--color-bg-base);
+            font-family: 'DM Sans', sans-serif;
+            color: var(--color-text-main);
+        }
+
+        .cart-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 24px;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 32px;
+            align-items: start;
+        }
+
+        .cart-header {
+            margin-bottom: 24px;
+        }
+
+        .cart-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 36px;
+            color: var(--color-deep-forest);
+            margin-bottom: 8px;
+        }
+
+        .cart-subtitle {
+            color: var(--color-text-muted);
+            font-size: 16px;
+        }
+
+        /* Items List */
+        .cart-items {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .cart-item {
+            background: #fff;
+            border: 1px solid var(--color-border);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            gap: 24px;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        .item-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 12px;
+            object-fit: cover;
+            background: var(--color-bg-surface);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+
+        .item-details {
+            flex: 1;
+        }
+
+        .item-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--color-deep-forest);
+            margin-bottom: 4px;
+        }
+
+        .item-farmer {
+            font-size: 13px;
+            color: var(--color-text-muted);
+            margin-bottom: 12px;
+        }
+
+        .item-price {
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--color-primary);
+        }
+
+        .item-qty {
+            font-size: 14px;
+            color: var(--color-text-main);
+            background: var(--color-bg);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .item-actions {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 12px;
+            position: relative;
+        }
+
+        .btn-remove {
+            background-color: #ef4444;
+            color: #fee2e2;
+            border: 1px solid #fca5a5;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-remove:hover {
+            background-color: #fca5a5;
+            color: #b91c1c;
+            transform: translateY(-1px);
+        }
+
+        .line-total {
+            font-family: 'Inter', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--color-deep-forest);
+        }
+
+        /* Order Summary */
+        .order-summary {
+            background: #fff;
+            border: 1px solid var(--color-border);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            position: sticky;
+            top: 100px;
+        }
+
+        .summary-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            color: var(--color-deep-forest);
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            font-size: 15px;
+            color: var(--color-text-muted);
+        }
+
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 2px dashed var(--color-border);
+            font-family: 'Inter', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--color-deep-forest);
+        }
+
+        .btn-checkout {
+            width: 100%;
+            padding: 16px;
+            background: var(--color-primary);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 24px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-checkout:hover {
+            background: var(--color-deep-forest);
+            transform: translateY(-2px);
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 60px 20px;
+            background: #fff;
+            border-radius: 16px;
+            border: 1px dashed var(--color-border);
+        }
+
+        @media (max-width: 900px) {
+            .cart-container {
+                grid-template-columns: 1fr;
+            }
+
+            .cart-item {
+                flex-direction: column;
+                text-align: center;
+                gap: 16px;
+            }
+
+            .item-actions {
+                align-items: center;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="cart-container">
+        <!-- Cart Items -->
+        <div>
+            <div class="cart-header">
+                <h1 class="cart-title">Your Wishlist</h1>
+                <p class="cart-subtitle">Review your selected farm-fresh produce before checkout.</p>
+            </div>
+
+            {% if cart_items %}
+            <div class="cart-items">
+                {% for item in cart_items %}
+                <div class="cart-item">
+                    {% if item.crop.image %}
+                    <img src="{{ item.crop.image.url }}" alt="{{ item.crop.name }}" class="item-image">
+                    {% else %}
+                    <div class="item-image">🌾</div>
+                    {% endif %}
+
+                    <div class="item-details">
+                        <div class="item-name">{{ item.crop.name }}</div>
+                        <div class="item-farmer">Sold by: {{ item.crop.farmer.first_name }} {{
+                            item.crop.farmer.last_name }}</div>
+                        <div class="item-price">₹{{ item.crop.price_per_kg }} / kg</div>
+                    </div>
+
+                    <div class="item-actions">
+                        <button class="btn-remove" onclick="removeItem({{ item.crop.id }})"
+                            title="Remove item">Remove</button>
+                        <div class="line-total">₹{{ item.line_total|floatformat:2 }}</div>
+                        <div class="item-qty">Quantity: {{ item.quantity|floatformat:1 }} kg</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-cart">
+                <div style="font-size: 64px; margin-bottom: 16px;">🛒</div>
+                <h2
+                    style="font-family: 'Playfair Display', serif; font-size: 24px; color: var(--color-deep-forest); margin-bottom: 8px;">
+                    Your Wishlist is Empty</h2>
+                <p style="color: var(--color-text-muted); margin-bottom: 24px;">Looks like you haven't added any fresh
+                    produce yet.</p>
+                <a href="{% url 'marketplace' %}" class="btn-checkout"
+                    style="display: inline-block; width: auto; padding: 12px 24px; text-decoration: none;">Browse
+                    Market</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Order Summary -->
+        <div class="order-summary">
+            <h2 class="summary-title">Order Summary</h2>
+
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span>₹{{ grand_total|floatformat:2 }}</span>
+            </div>
+            <div class="summary-row">
+                <span>Platform Fee</span>
+                <span style="color: var(--color-primary);">Free</span>
+            </div>
+            <div class="summary-row">
+                <span>Delivery Estimate</span>
+                <span>Calculated at checkout</span>
+            </div>
+
+            <div class="summary-total">
+                <span>Total</span>
+                <span>₹{{ grand_total|floatformat:2 }}</span>
+            </div>
+
+            <button class="btn-checkout" {% if not cart_items %}disabled style="opacity: 0.5; cursor: not-allowed;"
+                {%endif %}>
+                Proceed to Payment
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function removeItem(cropId) {
+            fetch('/api/remove-from-wishlist/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ crop_id: cropId })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                });
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+
+</html>

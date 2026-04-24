@@ -49,6 +49,7 @@ def signup(request):
         request.session['last_name'] = new_user.last_name
         request.session['email'] = new_user.email
         request.session['location'] = new_user.location
+        request.session['coordinates'] = new_user.coordinates
         
         messages.success(request, 'Account created successfully!')
         return redirect('marketplace')
@@ -71,6 +72,7 @@ def login(request):
                 request.session['last_name'] = user.last_name
                 request.session['email'] = user.email
                 request.session['location'] = user.location
+                request.session['coordinates'] = user.coordinates
                 
                 # Redirect based on role if needed, or marketplace by default
                 if user.role == 'Farmer':
@@ -122,12 +124,54 @@ def upload_crop(request):
     return render(request, 'upload_crop.html')
 
 def consumer(request):
-    return render(request, 'consumerdash.html')
+    import requests
+    from django.core.cache import cache
+    import os
+    from .models import Order
+
+    # Fetch Real-Time Market Price
+    API_KEY = os.getenv("API_KEY", "579b464db66ec23bdd0000014221d4e33efb481147dfeea08b43d410")
+    RESOURCE_ID = os.getenv("RESOURCE_ID", "9ef84268-d588-465a-a308-a864a43d0070")
+    
+    url = f"https://api.data.gov.in/resource/{RESOURCE_ID}"
+    
+    params = {
+        "api-key": API_KEY,
+        "format": "json",
+        "limit": 5
+    }
+    
+    cache_key = 'dashboard_market_prices'
+    market_prices = cache.get(cache_key)
+    
+    if market_prices is None:
+        try:
+            response = requests.get(url, params=params, timeout=5)
+            response.raise_for_status()
+            data = response.json()
+            market_prices = data.get('records', [])
+            cache.set(cache_key, market_prices, 60 * 60)
+        except requests.exceptions.RequestException as e:
+            print("Error fetching data:", e)
+            market_prices = []
+
+    # Fetch Recent Orders
+    user_id = request.session.get('user_id')
+    if user_id:
+        recent_orders = Order.objects.filter(consumer_id=user_id).select_related('crop').order_by('-created_at')[:5]
+    else:
+        recent_orders = []
+
+    context = {
+        'market_prices': market_prices,
+        'recent_orders': recent_orders,
+    }
+    return render(request, 'consumerdash.html', context)
 
 from django.core.cache import cache
 
 def dashboard(request):
-    # import os
+    import os
     import requests
     from django.utils import timezone
     from .models import Crop, Order
@@ -160,13 +204,21 @@ def dashboard(request):
     # Fetch Real-Time Weather
     weather_data = None
     try:
-        location = request.session.get('location', 'Bangalore')
         w_url = "https://api.openweathermap.org/data/2.5/weather"
         w_params = {
-            "q": location,
-            "appid": "8b8b14cc886cfa025bf91a1b6eb972e0",
+            "appid": os.getenv("WEATHER_API", "ddd2be8826cfdca0b5ed7bea91f2c640"),
             "units": "metric"
         }
+        
+        coordinates = request.session.get('coordinates')
+        if coordinates:
+            lat, lon = coordinates.split(',')
+            w_params['lat'] = lat.strip()
+            w_params['lon'] = lon.strip()
+        else:
+            location = request.session.get('location', 'Bangalore')
+            w_params['q'] = location.split(',')[0] if location else 'Bangalore'
+            
         res = requests.get(w_url, params=w_params, timeout=5)
         if res.status_code == 200:
             w_data = res.json()
@@ -189,11 +241,13 @@ def dashboard(request):
         crops_sold_count = Crop.objects.filter(farmer_id=user_id, orders__status='Sold').distinct().count()
         crops_unsold_count = crops_uploaded - crops_sold_count
         crops_sold = crops_sold_count  # Keep existing variable name if used elsewhere
+        uploaded_crops = Crop.objects.filter(farmer_id=user_id).order_by('-created_at')
     else:
         crops_uploaded = 0
         crops_sold_count = 0
         crops_unsold_count = 0
         crops_sold = 0
+        uploaded_crops = []
 
     context = {
         'market_prices': market_prices,
@@ -202,6 +256,7 @@ def dashboard(request):
         'crops_sold': crops_sold,
         'crops_sold_count': crops_sold_count,
         'crops_unsold_count': crops_unsold_count,
+        'uploaded_crops': uploaded_crops,
     }
     return render(request, 'dashboard.html', context)
 
@@ -210,6 +265,101 @@ def sell(request):
 
 def cart(request):
     return render(request, 'cart.html')
+
+def add_to_wishlist(request):
+    import json
+    from django.http import JsonResponse
+    from .models import Crop
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            crop_id = str(data.get('crop_id'))
+            quantity = float(data.get('quantity'))
+            
+            if 'wishlist' not in request.session:
+                request.session['wishlist'] = {}
+                
+            wishlist = request.session['wishlist']
+            
+            crop = Crop.objects.get(id=int(crop_id))
+            if quantity > crop.quantity:
+                return JsonResponse({'success': False, 'message': 'Requested quantity exceeds available stock.'})
+            
+            wishlist[crop_id] = quantity
+            request.session.modified = True
+            
+            return JsonResponse({'success': True, 'message': 'Added to wishlist!'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+    return JsonResponse({'success': False, 'message': 'Invalid request'})
+
+def remove_from_wishlist(request):
+    import json
+    from django.http import JsonResponse
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            crop_id = str(data.get('crop_id'))
+            
+            if 'wishlist' in request.session and crop_id in request.session['wishlist']:
+                del request.session['wishlist'][crop_id]
+                request.session.modified = True
+                
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+    return JsonResponse({'success': False, 'message': 'Invalid request'})
+
+
+def remove_crop(request):
+    import json
+    from django.http import JsonResponse
+    from .models import Crop
+
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            crop_id = data.get('crop_id')
+            user_id = request.session.get('user_id')
+
+            if not user_id:
+                return JsonResponse({'success': False, 'message': 'Authentication required.'}, status=403)
+
+            crop = Crop.objects.get(id=int(crop_id), farmer_id=user_id)
+            crop.delete()
+            return JsonResponse({'success': True})
+        except Crop.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Crop not found or not owned by you.'}, status=404)
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+
+    return JsonResponse({'success': False, 'message': 'Invalid request'})
+
+
+def wishlist_view(request):
+    from .models import Crop
+    wishlist = request.session.get('wishlist', {})
+    cart_items = []
+    grand_total = 0
+    
+    for crop_id, qty in wishlist.items():
+        try:
+            crop = Crop.objects.get(id=int(crop_id))
+            line_total = float(crop.price_per_kg) * float(qty)
+            grand_total += line_total
+            cart_items.append({
+                'crop': crop,
+                'quantity': float(qty),
+                'line_total': line_total
+            })
+        except Crop.DoesNotExist:
+            continue
+            
+    context = {
+        'cart_items': cart_items,
+        'grand_total': grand_total
+    }
+    return render(request, 'wishlist.html', context)
 
 # _disease_model = None
 
@@ -357,13 +507,14 @@ def send_otp_api(request):
         from_email = "noreply@krishiscan.in"
         to = [email]
 
-        text_content = f"Your OTP is {otp}. Valid for 5 minutes."
+        text_content = f"Your OTP is {otp}. Valid for 5 minutes. (Please check your spam folder if you do not see this email)"
 
         html_content = f"""
         <h2>Email Verification</h2>
         <p>Your OTP is:</p>
         <h1 style="color:#59AC77; text-weight:bold; ">{otp}</h1>
         <p>This OTP is valid for 5 minutes.</p>
+        <p><small>(Please check your spam folder if you do not see this email)</small></p>
         <center>
             <h2>From Team - <span style="color:#59AC77;">KrishiScan</span></h2>
         </center>

@@ -532,13 +532,14 @@
         .modal-overlay.open { display: flex; }
 
         .modal-box {
-            background: var(--warm-white);
+            background: var(--color-bg);
             border-radius: 20px;
-            padding: 36px 32px;
-            width: 340px;
+            padding: 40px 32px;
+            width: 360px;
             box-shadow: 0 30px 80px rgba(26, 58, 31, 0.35);
             animation: modalIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
             position: relative;
+            text-align: center;
         }
 
         @keyframes modalIn {
@@ -564,24 +565,24 @@
         .modal-close:hover { color: #e74c3c; transform: none; box-shadow: none; }
 
         .modal-icon {
-            width: 52px;
-            height: 52px;
+            width: 56px;
+            height: 56px;
             background: linear-gradient(135deg, rgba(106, 176, 76, 0.15), rgba(78, 140, 69, 0.1));
             border: 1px solid rgba(106, 176, 76, 0.3);
-            border-radius: 14px;
+            border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-            margin-bottom: 16px;
+            font-size: 26px;
+            margin: 0 auto 16px auto;
         }
 
         .modal-title {
             font-family: 'Playfair Display', serif;
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 700;
             color: var(--dark-text);
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
 
         .modal-sub {
@@ -623,7 +624,7 @@
         .btn-verify {
             width: 100%;
             padding: 14px;
-            background: linear-gradient(135deg, var(--moss), var(--forest));
+            background: var(--moss);
             color: #fff;
             border: none;
             border-radius: var(--radius-sm);

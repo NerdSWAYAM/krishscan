@@ -20,9 +20,13 @@
 
         .tracker-hero {
             position: relative;
-            padding: 8rem 5% 4rem;
-            background: linear-gradient(to bottom, var(--color-bg-surface) 0%, var(--color-bg-base) 100%);
+            padding: 2rem 4%;
+            background: var(--color-bg-surface);
             text-align: center;
+            color: var(--color-primary-dark);
+            /* border-bottom-left-radius: 20px; */
+            /* border-bottom-right-radius: 20px; */
+            margin-bottom: 2rem;
         }
 
         .search-container {
@@ -92,7 +96,7 @@
         }
 
         .btn-search:hover {
-            background-color: var(--color-primary-dark);
+            background-color: var(--color-deep-forest);
         }
 
         /* --- CARDS GRID --- */
@@ -231,13 +235,13 @@
     </style>
 </head>
 
-<body class="farmer-profile-layout">
-    {% include 'farmer_sidebar.html' %}
+<body>
+    {% include 'navbar.html' %}
 
-    <main class="main-content">
+    <main>
     <div class="tracker-hero">
-        <h1 class="cinematic-heading-dark text-center" style="margin-bottom: 0.5rem; font-size: 3rem;">Live Market Prices</h1>
-        <p class="cinematic-text-dark mx-auto text-center" style="max-width: 600px;">
+        <h1 class="cinematic-heading-dark text-center" style="margin-bottom: 0.5rem; font-size: 5rem; color: var(--color-deep-forest);">Live Market Prices</h1>
+        <p class="cinematic-text-dark mx-auto text-center" style="max-width: 600px; color: var(--color-primary);">
             Access real-time Mandi figures across India to ensure you always get the fair value for your harvest.
         </p>
 

@@ -7,7 +7,7 @@
 <style>
     .hero-banner {
         position: relative;
-        background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary));
+        background: var(--color-primary);
         border-radius: 20px;
         padding: 48px;
         color: #fff;
@@ -198,110 +198,62 @@
 {% block content %}
 <div class="hero-banner">
     <div class="hero-content">
-        <div class="hero-eyebrow">Fresh & Local</div>
-        <h2 class="hero-title">Seasonal Harvest Collection</h2>
-        <p class="hero-subtitle">Discover farm-fresh organic produce, directly from the growers who care for the land. Skip the middleman and support local agriculture.</p>
+        <div class="hero-eyebrow">Consumer Dashboard</div>
+        <h2 class="hero-title">Welcome back, {{ request.session.first_name }}!</h2>
+        <p class="hero-subtitle">
+            📧 {{ request.session.email }}<br>
+            📍 {{ request.session.location }}
+        </p>
         <a href="{% url 'marketplace' %}" class="btn btn-primary" style="background: #fff; color: var(--color-deep-forest);">Shop Seasonal Produce</a>
     </div>
-</div>
-
-<h3 class="section-title">Browse by Category</h3>
-<div class="category-grid">
-    <a href="#" class="category-card">
-        <div class="category-icon">🥬</div>
-        <div class="category-name">Vegetables</div>
-    </a>
-    <a href="#" class="category-card">
-        <div class="category-icon">🍎</div>
-        <div class="category-name">Fruits</div>
-    </a>
-    <a href="#" class="category-card">
-        <div class="category-icon">🌾</div>
-        <div class="category-name">Grains</div>
-    </a>
-    <a href="#" class="category-card">
-        <div class="category-icon">🌿</div>
-        <div class="category-name">Spices</div>
-    </a>
-    <a href="#" class="category-card">
-        <div class="category-icon">🍯</div>
-        <div class="category-name">Pantry</div>
-    </a>
-    <a href="#" class="category-card">
-        <div class="category-icon">🌻</div>
-        <div class="category-name">Seeds</div>
-    </a>
 </div>
 
 <div class="split-section">
     <div class="card">
         <h3 class="section-title">Recent Orders</h3>
         <div class="orders-list">
-            <div class="order-item">
-                <div class="order-details">
-                    <div class="order-icon">📦</div>
-                    <div class="order-meta">
-                        <h4>Organic Tomatoes & Basil</h4>
-                        <p>Order #ORD-8943 • Delivered</p>
+            {% if recent_orders %}
+                {% for order in recent_orders %}
+                <div class="order-item">
+                    <div class="order-details">
+                        <div class="order-icon">📦</div>
+                        <div class="order-meta">
+                            <h4>{{ order.crop.name }} ({{ order.quantity }}kg)</h4>
+                            <p>Order #ORD-{{ order.id }} • {{ order.status }}</p>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="badge badge-{% if order.status == 'Delivered' %}success{% elif order.status == 'Pending' %}warning{% else %}info{% endif %}">₹ {{ order.total_price }}</span>
                     </div>
                 </div>
-                <div>
-                    <span class="badge badge-success">₹ 450</span>
-                </div>
-            </div>
-            <div class="order-item">
-                <div class="order-details">
-                    <div class="order-icon">📦</div>
-                    <div class="order-meta">
-                        <h4>Fresh Wheat Grains (10kg)</h4>
-                        <p>Order #ORD-8912 • In Transit</p>
-                    </div>
-                </div>
-                <div>
-                    <span class="badge badge-info">₹ 1200</span>
-                </div>
-            </div>
-            <div class="order-item">
-                <div class="order-details">
-                    <div class="order-icon">📦</div>
-                    <div class="order-meta">
-                        <h4>Assorted Root Vegetables</h4>
-                        <p>Order #ORD-8850 • Delivered</p>
-                    </div>
-                </div>
-                <div>
-                    <span class="badge badge-success">₹ 320</span>
-                </div>
-            </div>
+                {% endfor %}
+            {% else %}
+                <p style="color: var(--color-text-muted); font-size: 14px;">No recent orders found.</p>
+            {% endif %}
         </div>
     </div>
 
     <div class="card">
-        <h3 class="section-title">Recommended Farmers</h3>
+        <h3 class="section-title">Real-Time Market Prices</h3>
         <div class="farmers-list">
-            <div class="farmer-card">
-                <div class="farmer-avatar">RP</div>
-                <div class="farmer-info">
-                    <h4>Rajesh Patel Farm</h4>
-                    <p>📍 Maharashtra • 4.9 ★</p>
+            {% if market_prices %}
+                {% for record in market_prices %}
+                <div class="farmer-card">
+                    <!-- <div class="farmer-avatar" style="background: var(--color-primary-light);">📊</div> -->
+                    <div class="farmer-info">
+                        <h4>{{ record.commodity }}</h4>
+                        <p>📍 {{ record.market }}, {{ record.state }}</p>
+                    </div>
+                    <div style="margin-left: auto;">
+                        <span class="badge badge-success">₹{{ record.modal_price }}/Q</span>
+                    </div>
                 </div>
-            </div>
-            <div class="farmer-card">
-                <div class="farmer-avatar" style="background: var(--color-deep-forest);">SK</div>
-                <div class="farmer-info">
-                    <h4>Sunita's Organic</h4>
-                    <p>📍 Gujarat • 4.8 ★</p>
-                </div>
-            </div>
-            <div class="farmer-card">
-                <div class="farmer-avatar" style="background: var(--color-soft-alert); color: var(--color-error-text);">MV</div>
-                <div class="farmer-info">
-                    <h4>Malwa Valley Greens</h4>
-                    <p>📍 Madhya Pradesh • 5.0 ★</p>
-                </div>
-            </div>
+                {% endfor %}
+            {% else %}
+                <p style="color: var(--color-text-muted); font-size: 14px;">Unable to fetch market prices at the moment.</p>
+            {% endif %}
         </div>
-        <a href="#" class="btn btn-secondary" style="width: 100%; margin-top: 8px;">View All Farmers</a>
+        <a href="{% url 'price_tracker' %}" class="btn btn-secondary" style="width: 90%; margin-top: 8px;">View Detailed Market Prices</a>
     </div>
 </div>
 {% endblock %}

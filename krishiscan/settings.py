@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -142,21 +146,28 @@ import os
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
 
-# EMAIL_HOST_USER = 'nerdswayam@gmail.com'
-# EMAIL_HOST_PASSWORD = 'mmsmeanljfzzzucn'
-
+### --- SMTP Email setup
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-EMAIL_HOST = 'email-smtp.eu-north-1.amazonaws.com'
+EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER = 'AKIATJYKPOTDZD4GOFNU'
-EMAIL_HOST_PASSWORD = 'BCw1jqpAnN0nsr7i+1sdXPwVd7SSlVNzUSdNQl9g6uC+'
+EMAIL_HOST_USER = 'nerdswayam@gmail.com'
+EMAIL_HOST_PASSWORD = os.getenv('SMTP_APP_PASS')
 
-DEFAULT_FROM_EMAIL = 'noreply@krishiscan.in'
+DEFAULT_FROM_EMAIL = 'nerdswayam@gmail.com'
+
+
+### --- AWS SES Email setup (Didn't gave acess :( 
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+# EMAIL_HOST = 'email-smtp.eu-north-1.amazonaws.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+
+# EMAIL_HOST_USER = 'AKIATJYKPOTDZD4GOFNU'
+# EMAIL_HOST_PASSWORD = 'BCw1jqpAnN0nsr7i+1sdXPwVd7SSlVNzUSdNQl9g6uC+'
+
+# DEFAULT_FROM_EMAIL = 'noreply@krishiscan.in'
