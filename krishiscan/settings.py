@@ -171,3 +171,7 @@ DEFAULT_FROM_EMAIL = 'nerdswayam@gmail.com'
 # EMAIL_HOST_PASSWORD = 'BCw1jqpAnN0nsr7i+1sdXPwVd7SSlVNzUSdNQl9g6uC+'
 
 # DEFAULT_FROM_EMAIL = 'noreply@krishiscan.in'
+
+
+RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID")
+RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET")

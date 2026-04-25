@@ -314,11 +314,13 @@
     <div class="card stat-card">
         <div class="stat-icon"><img src="{% static 'upload-minimalistic-svgrepo-com.svg' %}" alt="upload-icon"
                 height="30"></div>
+        <div class="stat-label">Crops Uploaded</div>
+
         <div>
             <div class="stat-value"
-                style="font-size: {% if crops_uploaded > 0 %}32px{% else %}16px{% endif %}; color: {% if crops_uploaded > 0 %}var(--color-deep-forest){% else %}#e74c3c{% endif %};">
-                {% if crops_uploaded > 0 %}{{ crops_uploaded }}{% else %}Not uploaded exception{% endif %}</div>
-            <div class="stat-label">Crops Uploaded</div>
+                style="font-size: {% if crops_uploaded > 0 %}32px{% else %}16px{% endif %}; color: {% if crops_uploaded > 0 %}var(--color-deep-forest){% else %}#969997{% endif %};">
+                {% if crops_uploaded > 0 %}{{ crops_uploaded }}{% else %}You have not uploaded any crops yet!{% endif %}
+            </div>
         </div>
     </div>
 
@@ -452,28 +454,30 @@
                 data: {
                     labels: ['Sold', 'Unsold'],
                     datasets: [{
-                        data: [{{ crops_sold_count|default:"0" }}, {{ crops_unsold_count|default:"0" }}],
-                        backgroundColor: ['#59AC77', '#E8F5EC'],
-                        borderColor: ['#3A6F43', '#59AC77'],
-                        borderWidth: 1
+                        data: [{{ crops_sold_count|default: "0"
+                    }}, {{ crops_unsold_count|default: "0" }
+    }],
+        backgroundColor: ['#59AC77', '#E8F5EC'],
+        borderColor: ['#3A6F43', '#59AC77'],
+        borderWidth: 1
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                font: {
-                                    family: "'DM Sans', sans-serif"
-                                },
-                                usePointStyle: true,
-                                padding: 20
-                            }
-                        }
-                    }
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    font: {
+                        family: "'DM Sans', sans-serif"
+                    },
+                    usePointStyle: true,
+                    padding: 20
                 }
+            }
+        }
+    }
             });
         }
     });

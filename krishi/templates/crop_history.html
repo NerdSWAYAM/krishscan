@@ -148,7 +148,7 @@
     </table>
     {% else %}
     <div style="text-align: center; padding: 40px; color: var(--color-text-muted);">
-        <div style="font-size: 48px; margin-bottom: 16px;">📦</div>
+        <div style="font-size: 48px; margin-bottom: 16px;"><img src="{% static 'box-svgrepo-com (1).svg' %}" alt="order-box" style="height: 100px; width: 100px; margin: 50px auto; align-items: center; justify-content: center; display: flex;"></div>
         <p>No orders have been placed for your crops yet.</p>
     </div>
     {% endif %}
@@ -187,7 +187,7 @@
     </table>
     {% else %}
     <div style="text-align: center; padding: 40px; color: var(--color-text-muted);">
-        <div style="font-size: 48px; margin-bottom: 16px;">🌾</div>
+        <div style="font-size: 48px; margin-bottom: 16px;"><img src="{% static 'upload-minimalistic-svgrepo-com.svg' %}" alt="order-box" style="height: 100px; width: 100px; margin: 50px auto; align-items: center; justify-content: center; display: flex;"></div>
         <p>You haven't uploaded any crops yet. <a href="{% url 'upload_crop' %}" style="color: var(--color-primary); font-weight: 600;">Upload one now</a>.</p>
     </div>
     {% endif %}

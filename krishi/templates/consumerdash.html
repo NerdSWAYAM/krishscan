@@ -7,13 +7,13 @@
 <style>
     .hero-banner {
         position: relative;
-        background: var(--color-primary);
+        background: var(--color-surface);
         border-radius: 20px;
         padding: 48px;
-        color: #fff;
+        color: var(--color-text-primary);
         margin-bottom: 40px;
         overflow: hidden;
-        box-shadow: 0 8px 24px rgba(58, 111, 67, 0.2);
+        box-shadow: 0 0 10px 0 var(--color-border);
     }
 
     .hero-banner::before {
@@ -46,12 +46,12 @@
         font-size: 42px;
         line-height: 1.1;
         margin-bottom: 16px;
-        color: #fff;
+        color: var(--color-deep-forest);
     }
 
     .hero-subtitle {
         font-size: 16px;
-        color: rgba(255, 255, 255, 0.85);
+        color: var(--color-text-primary);
         margin-bottom: 24px;
         line-height: 1.6;
     }
@@ -198,13 +198,13 @@
 {% block content %}
 <div class="hero-banner">
     <div class="hero-content">
-        <div class="hero-eyebrow">Consumer Dashboard</div>
+        <!-- <div class="hero-eyebrow"></div> -->
         <h2 class="hero-title">Welcome back, {{ request.session.first_name }}!</h2>
         <p class="hero-subtitle">
-            📧 {{ request.session.email }}<br>
-            📍 {{ request.session.location }}
+            <img src="{% static 'mail-svgrepo-com.svg' %}" style="height: 20px; width: 20px;"> {{ request.session.email }}<br>
+            <img src="{% static 'location-pin-svgrepo-com.svg' %}" style="height: 20px; width: 20px;"> {{ request.session.location }}
         </p>
-        <a href="{% url 'marketplace' %}" class="btn btn-primary" style="background: #fff; color: var(--color-deep-forest);">Shop Seasonal Produce</a>
+        <a href="{% url 'marketplace' %}" class="btn btn-primary" style="background: var(--color-primary); color: var(--color-bg);">Shop Seasonal Produce</a>
     </div>
 </div>
 
@@ -216,7 +216,7 @@
                 {% for order in recent_orders %}
                 <div class="order-item">
                     <div class="order-details">
-                        <div class="order-icon">📦</div>
+                        <div class="order-icon"><img src="{% static 'box--svgrepo-com.svg' %}" alt="order box" style="height: 20px; width: 20px;"></div>
                         <div class="order-meta">
                             <h4>{{ order.crop.name }} ({{ order.quantity }}kg)</h4>
                             <p>Order #ORD-{{ order.id }} • {{ order.status }}</p>
@@ -228,7 +228,9 @@
                 </div>
                 {% endfor %}
             {% else %}
-                <p style="color: var(--color-text-muted); font-size: 14px;">No recent orders found.</p>
+                
+                <img src="{% static 'box-svgrepo-com (1).svg' %}" alt="order-box" style="height: 200px; width: 200px; margin: 100px auto; align-items: center; justify-content: center; display: flex;">
+                <p style="color: var(--color-text-muted); font-size: 18px; text-align: center; margin-top: 100px;">No recent orders found.</p>
             {% endif %}
         </div>
     </div>
@@ -239,7 +241,6 @@
             {% if market_prices %}
                 {% for record in market_prices %}
                 <div class="farmer-card">
-                    <!-- <div class="farmer-avatar" style="background: var(--color-primary-light);">📊</div> -->
                     <div class="farmer-info">
                         <h4>{{ record.commodity }}</h4>
                         <p>📍 {{ record.market }}, {{ record.state }}</p>
