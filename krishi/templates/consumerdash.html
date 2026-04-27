@@ -189,6 +189,17 @@
         gap: 4px;
     }
 
+    .price-badge {
+        background: #FFFFFF;
+        color: #000000;
+        font-size: 16px;
+        font-weight: 700;
+        padding: 6px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--color-border);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
     @media (max-width: 900px) {
         .split-section { grid-template-columns: 1fr; }
     }
@@ -216,14 +227,20 @@
                 {% for order in recent_orders %}
                 <div class="order-item">
                     <div class="order-details">
-                        <div class="order-icon"><img src="{% static 'box--svgrepo-com.svg' %}" alt="order box" style="height: 20px; width: 20px;"></div>
+                        <div class="order-icon">
+                            {% if order.crop.image %}
+                                <img src="{{ order.crop.image.url }}" alt="{{ order.crop.name }}" style="height: 100%; width: 100%; object-fit: cover; border-radius: 12px;">
+                            {% else %}
+                                <img src="{% static 'box--svgrepo-com.svg' %}" alt="order box" style="height: 20px; width: 20px;">
+                            {% endif %}
+                        </div>
                         <div class="order-meta">
                             <h4>{{ order.crop.name }} ({{ order.quantity }}kg)</h4>
                             <p>Order #ORD-{{ order.id }} • {{ order.status }}</p>
                         </div>
                     </div>
                     <div>
-                        <span class="badge badge-{% if order.status == 'Delivered' %}success{% elif order.status == 'Pending' %}warning{% else %}info{% endif %}">₹ {{ order.total_price }}</span>
+                        <span class="price-badge">₹ {{ order.amount }}</span>
                     </div>
                 </div>
                 {% endfor %}
@@ -236,25 +253,27 @@
     </div>
 
     <div class="card">
-        <h3 class="section-title">Real-Time Market Prices</h3>
+        <h3 class="section-title">Recently Connected Farmers</h3>
         <div class="farmers-list">
-            {% if market_prices %}
-                {% for record in market_prices %}
+            {% if recent_farmers %}
+                {% for farmer in recent_farmers %}
                 <div class="farmer-card">
+                    <div class="farmer-avatar">
+                        {{ farmer.first_name|slice:":1"|upper }}{{ farmer.last_name|slice:":1"|upper }}
+                    </div>
                     <div class="farmer-info">
-                        <h4>{{ record.commodity }}</h4>
-                        <p>📍 {{ record.market }}, {{ record.state }}</p>
+                        <h4>{{ farmer.first_name }} {{ farmer.last_name }}</h4>
+                        <p>📍 {{ farmer.location }}</p>
                     </div>
                     <div style="margin-left: auto;">
-                        <span class="badge badge-success">₹{{ record.modal_price }}/Q</span>
+                        <a href="{% url 'chat_view' farmer.id %}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px; text-decoration: none; color: #3A6F43; background: #F7FBF8; border: 1px solid rgba(58,111,67,0.2);">Chat</a>
                     </div>
                 </div>
                 {% endfor %}
             {% else %}
-                <p style="color: var(--color-text-muted); font-size: 14px;">Unable to fetch market prices at the moment.</p>
+                <p style="color: var(--color-text-muted); font-size: 14px; text-align: center; margin-top: 20px;">No recent connections.</p>
             {% endif %}
         </div>
-        <a href="{% url 'price_tracker' %}" class="btn btn-secondary" style="width: 90%; margin-top: 8px;">View Detailed Market Prices</a>
     </div>
 </div>
 {% endblock %}

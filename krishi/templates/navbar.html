@@ -115,13 +115,136 @@
 
     .notification-dot {
         position: absolute;
-        top: 0px;
+        top: 4px;
         right: 2px;
         width: 8px;
         height: 8px;
-        background-color: #FDAAAA;
+        background-color: #E74C3C;
         border-radius: 50%;
         border: 1px solid #FFF;
+        display: none;
+    }
+
+    .notification-count {
+        position: absolute;
+        top: -6px;
+        right: -10px;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 5px;
+        font-size: 11px;
+        line-height: 18px;
+        color: #FFF;
+        background: #E74C3C;
+        border-radius: 999px;
+        display: none;
+        text-align: center;
+        font-weight: 700;
+    }
+
+    .notification-dropdown {
+        position: absolute;
+        top: calc(100% + 12px);
+        right: 0;
+        width: 320px;
+        max-height: 420px;
+        background: #FFFFFF;
+        border: 1px solid rgba(58, 111, 67, 0.16);
+        border-radius: 16px;
+        box-shadow: 0 16px 40px rgba(38, 82, 33, 0.12);
+        overflow: hidden;
+        display: none;
+        flex-direction: column;
+        z-index: 2000;
+    }
+
+    .notification-dropdown.show {
+        display: flex;
+    }
+
+    .notification-dropdown-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 16px;
+        border-bottom: 1px solid rgba(58, 111, 67, 0.08);
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        color: #1C2E20;
+    }
+
+    .notification-dropdown-header a {
+        font-size: 12px;
+        color: #3A6F43;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .notification-items {
+        max-height: 300px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .notification-item {
+        padding: 14px 16px;
+        border-bottom: 1px solid rgba(58, 111, 67, 0.06);
+        transition: background 0.2s ease;
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .notification-item:hover {
+        background: #F6FBF6;
+    }
+
+    .notification-item.unread {
+        background: #F7F9F7;
+    }
+
+    .notification-title {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        color: #1C2E20;
+    }
+
+    .notification-message {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 13px;
+        color: #4F5F4A;
+        line-height: 1.4;
+    }
+
+    .notification-time {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 11px;
+        color: #8D9B86;
+    }
+
+    .notification-empty {
+        padding: 24px 16px;
+        text-align: center;
+        color: #6B8A72;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 13px;
+    }
+
+    .notification-view-all {
+        display: block;
+        padding: 12px 16px;
+        text-align: center;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 13px;
+        color: #3A6F43;
+        text-decoration: none;
+        border-top: 1px solid rgba(58, 111, 67, 0.08);
+        background: #F7FBF8;
     }
 
     .avatar-wrapper {
@@ -305,7 +428,8 @@
             class="nav-link {% if request.resolver_match.url_name == 'marketplace' %}active{% endif %}">Browse</a>
         <a href="{% url 'price_tracker' %}"
             class="nav-link {% if request.resolver_match.url_name == 'price_tracker' %}active{% endif %}">Market Prices</a>
-        <!-- <a href="#" class="nav-link">Orders</a> -->
+        <a href="{% url 'my_orders' %}"
+            class="nav-link {% if request.resolver_match.url_name == 'my_orders' %}active{% endif %}">Orders</a>
         <!-- <a href="#" class="nav-link">Farmers</a> -->
         <!-- <a href="{% url 'wishlist' %}"
             class="nav-link {% if request.resolver_match.url_name == 'wishlist' %}active{% endif %}">Wishlist</a> -->
@@ -322,12 +446,24 @@
         <div class="role-badge consumer">Consumer</div>
         {% endif %}
 
-        <div class="notification-bell">
+        <div class="notification-bell" id="notificationBell">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
             </svg>
-            <div class="notification-dot"></div>
+            <div class="notification-dot" id="notificationDot"></div>
+            <span class="notification-count" id="notificationCount"></span>
+        </div>
+
+        <div class="notification-dropdown" id="notificationDropdown">
+            <div class="notification-dropdown-header">
+                <span>Notifications</span>
+                <a href="#" id="markAllRead">Mark all read</a>
+            </div>
+            <div class="notification-items" id="notificationItems">
+                <div class="notification-empty">Loading notifications…</div>
+            </div>
+            <a href="{% url 'marketplace' %}" class="notification-view-all">View all notifications</a>
         </div>
 
         <div class="avatar-wrapper">
@@ -337,8 +473,13 @@
             <div class="avatar-dropdown" id="avatarDropdown">
                 <a href="#" class="dropdown-item">Profile</a>
                 <!-- <a href="#" class="dropdown-item">Settings</a> -->
+                {% if request.session.role == 'Farmer' %}
+                <a href="/wallet/" class="dropdown-item">Wallet</a>
+                <a href="{% url 'dashboard' %}#recent-chats" class="dropdown-item">Chats</a>
+                {% else %}
                 <a href="/wishlist/" class="dropdown-item">Wishlist</a>
-                <a href="/orders/" class="dropdown-item">MyOrders</a>
+                <a href="{% url 'my_orders' %}" class="dropdown-item">MyOrders</a>
+                {% endif %}
                 <a href="/login/" class="dropdown-item" style="color: #C0392B;">Logout</a>
             </div>
         </div>
@@ -369,6 +510,9 @@
             class="mobile-nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">Profile</a>
         <a href="{% url 'price_tracker' %}"
             class="mobile-nav-item {% if request.resolver_match.url_name == 'price_tracker' %}active{% endif %}">Market Prices</a>
+        <a href="{% url 'wallet' %}"
+            class="mobile-nav-item {% if request.resolver_match.url_name == 'wallet' %}active{% endif %}">Wallet</a>
+        <a href="{% url 'dashboard' %}#recent-chats" class="mobile-nav-item">Chats</a>
         <!-- <a href="#" class="mobile-nav-item">Reports</a> -->
         {% else %}
         <a href="{% url 'consumerdash' %}"
@@ -377,7 +521,8 @@
             class="mobile-nav-item {% if request.resolver_match.url_name == 'marketplace' %}active{% endif %}">Browse</a>
         <a href="{% url 'price_tracker' %}"
             class="mobile-nav-item {% if request.resolver_match.url_name == 'price_tracker' %}active{% endif %}">Market Prices</a>
-        <a href="#" class="mobile-nav-item">Orders</a>
+        <a href="{% url 'my_orders' %}"
+            class="mobile-nav-item {% if request.resolver_match.url_name == 'my_orders' %}active{% endif %}">Orders</a>
         <a href="#" class="mobile-nav-item">Farmers</a>
         <a href="{% url 'wishlist' %}"
             class="mobile-nav-item {% if request.resolver_match.url_name == 'wishlist' %}active{% endif %}">Wishlist</a>
@@ -405,11 +550,116 @@
         // Avatar Dropdown Toggle
         const avatarCircle = document.getElementById('avatarCircle');
         const avatarDropdown = document.getElementById('avatarDropdown');
+        const notificationBell = document.getElementById('notificationBell');
+        const notificationDropdown = document.getElementById('notificationDropdown');
+        const notificationItems = document.getElementById('notificationItems');
+        const notificationDot = document.getElementById('notificationDot');
+        const notificationCount = document.getElementById('notificationCount');
+        const markAllRead = document.getElementById('markAllRead');
+
+        const getCookie = (name) => {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        };
+
+        const updateNotificationBadge = (count) => {
+            if (!notificationDot || !notificationCount) return;
+            if (count > 0) {
+                notificationDot.style.display = 'block';
+                notificationCount.style.display = 'block';
+                notificationCount.textContent = count > 9 ? '9+' : count;
+            } else {
+                notificationDot.style.display = 'none';
+                notificationCount.style.display = 'none';
+            }
+        };
+
+        const renderNotifications = (items) => {
+            if (!notificationItems) return;
+            notificationItems.innerHTML = '';
+
+            if (!items.length) {
+                notificationItems.innerHTML = '<div class="notification-empty">You have no new notifications.</div>';
+                return;
+            }
+
+            items.forEach((item) => {
+                const link = item.link || '#';
+                const anchor = document.createElement('a');
+                anchor.href = link;
+                anchor.className = `notification-item ${item.is_read ? '' : 'unread'}`;
+                anchor.innerHTML = `
+                    <div class="notification-title">${item.title}</div>
+                    <div class="notification-message">${item.message}</div>
+                    <div class="notification-time">${item.time}</div>
+                `;
+                notificationItems.appendChild(anchor);
+            });
+        };
+
+        const loadNotifications = async () => {
+            try {
+                const response = await fetch('/api/notifications/fetch/');
+                const data = await response.json();
+                if (data.success) {
+                    renderNotifications(data.notifications);
+                    updateNotificationBadge(data.unread_count);
+                } else {
+                    notificationItems.innerHTML = '<div class="notification-empty">Unable to load notifications at this time.</div>';
+                }
+            } catch (err) {
+                if (notificationItems) {
+                    notificationItems.innerHTML = '<div class="notification-empty">Unable to load notifications at this time.</div>';
+                }
+            }
+        };
+
+        const markNotificationsRead = async () => {
+            try {
+                await fetch('/api/notifications/mark-read/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken') || ''
+                    }
+                });
+                updateNotificationBadge(0);
+            } catch (err) {
+                console.warn('Unable to mark notifications read', err);
+            }
+        };
 
         if (avatarCircle && avatarDropdown) {
             avatarCircle.addEventListener('click', function (e) {
                 e.stopPropagation();
                 avatarDropdown.classList.toggle('show');
+                if (notificationDropdown && notificationDropdown.classList.contains('show')) {
+                    notificationDropdown.classList.remove('show');
+                }
+            });
+        }
+
+        if (notificationBell && notificationDropdown) {
+            notificationBell.addEventListener('click', function (e) {
+                e.stopPropagation();
+                notificationDropdown.classList.toggle('show');
+                if (avatarDropdown && avatarDropdown.classList.contains('show')) {
+                    avatarDropdown.classList.remove('show');
+                }
+                if (notificationDropdown.classList.contains('show')) {
+                    markNotificationsRead();
+                }
+            });
+        }
+
+        if (markAllRead) {
+            markAllRead.addEventListener('click', function (e) {
+                e.preventDefault();
+                markNotificationsRead();
+                const unreadItems = notificationItems.querySelectorAll('.notification-item.unread');
+                unreadItems.forEach((item) => item.classList.remove('unread'));
             });
         }
 
@@ -430,10 +680,15 @@
             if (avatarDropdown && avatarDropdown.classList.contains('show')) {
                 avatarDropdown.classList.remove('show');
             }
+            if (notificationDropdown && notificationDropdown.classList.contains('show') && !notificationDropdown.contains(e.target) && !notificationBell.contains(e.target)) {
+                notificationDropdown.classList.remove('show');
+            }
             if (mobileDrawer && mobileDrawer.classList.contains('open') && !mobileDrawer.contains(e.target)) {
                 mobileDrawer.classList.remove('open');
                 if (mobileMenuBtn) mobileMenuBtn.classList.remove('active');
             }
         });
+
+        loadNotifications();
     });
 </script>

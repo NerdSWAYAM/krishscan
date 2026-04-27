@@ -9,3 +9,5 @@ trochvision
 pillow
 timm
 razorpay
+tensorflow-cpu
+huggingface_hubcryptography

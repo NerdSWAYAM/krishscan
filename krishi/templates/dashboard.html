@@ -363,7 +363,8 @@
                 <div style="display: flex; align-items: center; gap: 16px;">
                     <div
                         style="font-size: 28px; width: 48px; height: 48px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-                        🌡️</div>
+                        <img src="{% static 'temperature-svgrepo-com.svg' %}" alt="Feels like icon" style="width: 30px; height: 30px;">
+                        </div>
                     <div>
                         <div style="font-weight: 600; color: var(--color-deep-forest); font-size: 16px;">Feels Like
                         </div>
@@ -374,7 +375,8 @@
                 <div style="display: flex; align-items: center; gap: 16px;">
                     <div
                         style="font-size: 28px; width: 48px; height: 48px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-                        💧</div>
+                        <img src="{% static 'humidity-svgrepo-com.svg' %}" alt="Humidity icon" style="width: 30px; height: 30px;">
+                        </div>
                     <div>
                         <div style="font-weight: 600; color: var(--color-deep-forest); font-size: 16px;">Humidity</div>
                         <div style="color: var(--color-text-muted); font-size: 15px;">{{ weather_data.humidity }}%</div>
@@ -383,7 +385,8 @@
                 <div style="display: flex; align-items: center; gap: 16px;">
                     <div
                         style="font-size: 28px; width: 48px; height: 48px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-                        💨</div>
+                        <img src="{% static 'wind-svgrepo-com.svg' %}" alt="Wind icon" style="width: 30px; height: 30px;">
+                        </div>
                     <div>
                         <div style="font-weight: 600; color: var(--color-deep-forest); font-size: 16px;">Wind Speed
                         </div>
@@ -428,17 +431,43 @@
         {% endif %}
     </div>
 
-    <div style="background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 12px rgba(58,111,67,0.06); border: 1px solid var(--color-border); cursor: pointer; transition: transform 0.2s; display: flex; flex-direction: column; align-items: center;"
-        onclick="window.location.href='{% url 'crop_history' %}'" onmouseover="this.style.transform='translateY(-4px)'"
-        onmouseout="this.style.transform='translateY(0)'">
-        <h3 class="section-title" style="margin-top: 0; margin-bottom: 16px; align-self: flex-start;">Crop Status
-            Overview</h3>
-        <div style="position: relative; width: 100%; max-width: 250px; aspect-ratio: 1; margin: auto;">
-            <canvas id="cropStatusChart"></canvas>
+    <div style="grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+        <div style="background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 12px rgba(58,111,67,0.06); border: 1px solid var(--color-border); cursor: pointer; transition: transform 0.2s; display: flex; flex-direction: column; align-items: center;"
+            onclick="window.location.href='{% url 'crop_history' %}'" onmouseover="this.style.transform='translateY(-4px)'"
+            onmouseout="this.style.transform='translateY(0)'">
+            <h3 class="section-title" style="margin-top: 0; margin-bottom: 16px; align-self: flex-start;">Crop Status
+                Overview</h3>
+            <div style="position: relative; width: 100%; max-width: 250px; aspect-ratio: 1; margin: auto;">
+                <canvas id="cropStatusChart"></canvas>
+            </div>
+            <div
+                style="text-align: center; margin-top: 16px; font-size: 14px; color: var(--color-text-muted); font-weight: 500;">
+                Click to view detailed crop & order history
+            </div>
         </div>
-        <div
-            style="text-align: center; margin-top: 16px; font-size: 14px; color: var(--color-text-muted); font-weight: 500;">
-            Click to view detailed crop & order history
+
+        <div class="card" id="recent-chats" style="padding: 24px; border-radius: 20px; border: 1px solid var(--color-border); background: var(--color-surface);">
+            <h3 class="section-title">Recently Connected Consumers</h3>
+            <div class="farmers-list" style="display: flex; flex-direction: column; gap: 12px;">
+                {% if recent_consumers %}
+                    {% for consumer in recent_consumers %}
+                    <div class="farmer-card" style="display: flex; align-items: center; gap: 16px; padding: 16px; background: var(--color-bg); border-radius: 12px; border: 1px solid var(--color-border);">
+                        <div class="farmer-avatar" style="width: 50px; height: 50px; border-radius: 50%; background: var(--color-primary); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 600; font-size: 18px;">
+                            {{ consumer.first_name|slice:":1"|upper }}{{ consumer.last_name|slice:":1"|upper }}
+                        </div>
+                        <div class="farmer-info">
+                            <h4 style="margin: 0 0 4px 0; font-size: 15px; font-family: 'DM Sans', sans-serif;">{{ consumer.first_name }} {{ consumer.last_name }}</h4>
+                            <p style="margin: 0; font-size: 13px; color: var(--color-text-muted);">📍 {{ consumer.location }}</p>
+                        </div>
+                        <div style="margin-left: auto;">
+                            <a href="{% url 'chat_view' consumer.id %}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px; text-decoration: none; color: #3A6F43; background: #F7FBF8; border: 1px solid rgba(58,111,67,0.2);">Chat</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="color: var(--color-text-muted); font-size: 14px; text-align: center; padding: 20px;">No recent connections.</p>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>

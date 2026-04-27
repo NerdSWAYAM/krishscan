@@ -1,6 +1,5 @@
 from django.urls import path
 from . import views
-# from .email import SendOTPView, VerifyOTPView
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -10,6 +9,7 @@ urlpatterns = [
     path('sell/', views.sell, name='sell'),
     path('cart/', views.cart, name='cart'),
     path('wishlist/', views.wishlist_view, name='wishlist'),
+    path('orders/', views.my_orders, name='my_orders'),
     path('api/add-to-wishlist/', views.add_to_wishlist, name='add_to_wishlist'),
     path('api/remove-from-wishlist/', views.remove_from_wishlist, name='remove_from_wishlist'),
     path('api/remove-crop/', views.remove_crop, name='remove_crop'),
@@ -20,8 +20,16 @@ urlpatterns = [
     path('experts/', views.experts, name='experts'),
     path('upload-crop/', views.upload_crop, name='upload_crop'),
     path('send-otp/', views.send_otp_api, name='send_otp'),
-    # path('verify-otp/', VerifyOTPView.as_view(), name='verify_otp'),
     path('weather/', views.weather, name='weather'),
     path('crop-history/', views.crop_history, name='crop_history'),
-    
-]
+    # UPI Payment endpoints
+    path('api/create-checkout/', views.create_checkout, name='create_checkout'),
+    path('api/submit-payment/', views.submit_payment, name='submit_payment'),
+    path('api/verify-order-item/', views.verify_order_item, name='verify_order_item'),
+    path('wallet/', views.wallet_view, name='wallet'),
+    path('chat/<int:user_id>/', views.chat_view, name='chat_view'),
+    path('api/chat/send/', views.send_message_api, name='send_message_api'),
+    path('api/chat/fetch/', views.fetch_messages_api, name='fetch_messages_api'),
+    path('api/notifications/fetch/', views.fetch_notifications_api, name='fetch_notifications_api'),
+    path('api/notifications/mark-read/', views.mark_notifications_read_api, name='mark_notifications_read_api'),
+]
