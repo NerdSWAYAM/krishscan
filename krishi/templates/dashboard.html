@@ -254,6 +254,10 @@
         font-size: 20px;
     }
 
+    .date-time-display {
+        min-width: 150px;
+    }
+
     @media (max-width: 1024px) {
         .stats-row {
             grid-template-columns: repeat(2, 1fr);
@@ -269,6 +273,10 @@
             flex-direction: column;
             gap: 24px;
             text-align: center;
+        }
+
+        .date-time-display {
+            text-align: center !important;
         }
 
         .stats-row {
@@ -437,8 +445,8 @@
             onmouseout="this.style.transform='translateY(0)'">
             <h3 class="section-title" style="margin-top: 0; margin-bottom: 16px; align-self: flex-start;">Crop Status
                 Overview</h3>
-            <div style="position: relative; width: 100%; max-width: 250px; aspect-ratio: 1; margin: auto;">
-                <canvas id="cropStatusChart"></canvas>
+            <div style="position: relative; width: 100%; max-width: 250px; height: 250px; margin: auto;">
+                <canvas id="cropStatusChart" width="250" height="250" style="display: block; max-width: 100%;"></canvas>
             </div>
             <div
                 style="text-align: center; margin-top: 16px; font-size: 14px; color: var(--color-text-muted); font-weight: 500;">
@@ -475,40 +483,52 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     // Initialize Crop Status Pie Chart
-    document.addEventListener('DOMContentLoaded', function () {
+    let cropStatusChartInstance = null;
+    
+    function initializeCropChart() {
         const ctx = document.getElementById('cropStatusChart');
         if (ctx) {
-            new Chart(ctx, {
+            const soldCount = parseInt('{{ crops_sold_count|default:"0" }}');
+            const unsoldCount = parseInt('{{ crops_unsold_count|default:"0" }}');
+            
+            // Destroy existing chart if it exists
+            if (cropStatusChartInstance) {
+                cropStatusChartInstance.destroy();
+            }
+            
+            cropStatusChartInstance = new Chart(ctx, {
                 type: 'pie',
                 data: {
                     labels: ['Sold', 'Unsold'],
                     datasets: [{
-                        data: [{{ crops_sold_count|default: "0"
-                    }}, {{ crops_unsold_count|default: "0" }
-    }],
-        backgroundColor: ['#59AC77', '#E8F5EC'],
-        borderColor: ['#3A6F43', '#59AC77'],
-        borderWidth: 1
+                        data: [soldCount, unsoldCount],
+                        backgroundColor: ['#59AC77', '#E8F5EC'],
+                        borderColor: ['#3A6F43', '#59AC77'],
+                        borderWidth: 1
                     }]
                 },
-        options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                position: 'bottom',
-                labels: {
-                    font: {
-                        family: "'DM Sans', sans-serif"
-                    },
-                    usePointStyle: true,
-                    padding: 20
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    family: "'DM Sans', sans-serif"
+                                },
+                                usePointStyle: true,
+                                padding: 20
+                            }
+                        }
+                    }
                 }
-            }
-        }
-    }
             });
         }
+    }
+    
+    document.addEventListener('DOMContentLoaded', function () {
+        initializeCropChart();
     });
 
     function removeCrop(cropId) {

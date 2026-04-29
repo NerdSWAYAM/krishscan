@@ -124,18 +124,18 @@
         <tbody>
             {% for order in orders %}
             <tr>
-                <td>#{{ order.id }}</td>
+                <td>#{{ order.order.id }}</td>
                 <td style="font-weight: 600;">{{ order.crop.name }}</td>
                 <td>
-                    {{ order.consumer.first_name }} {{ order.consumer.last_name }}<br>
-                    <small style="color: var(--color-text-muted);">{{ order.consumer.email }}</small>
+                    {{ order.order.consumer.first_name }} {{ order.order.consumer.last_name }}<br>
+                    <small style="color: var(--color-text-muted);">{{ order.order.consumer.email }}</small>
                 </td>
                 <td>{{ order.quantity }} kg</td>
-                <td>₹{{ order.total_price }}</td>
+                <td>₹{{ order.amount }}</td>
                 <td>
-                    {% if order.status == 'Sold' %}
+                    {% if order.status == 'verified' %}
                         <span class="status-badge status-sold">Sold</span>
-                    {% elif order.status == 'Pending' %}
+                    {% elif order.status == 'pending' %}
                         <span class="status-badge status-pending">Pending</span>
                     {% else %}
                         <span class="status-badge status-cancelled">Cancelled</span>

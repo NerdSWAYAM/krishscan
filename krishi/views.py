@@ -118,8 +118,18 @@ def marketplace(request):
         
     if user_coords:
         crop_list.sort(key=lambda x: (x.distance is None, x.distance))
+    
+    # Get user's wishlist
+    wishlist = {}
+    user_id = request.session.get('user_id')
+    if user_id:
+        try:
+            user = UserAccount.objects.get(id=user_id)
+            wishlist = user.wishlist or {}
+        except UserAccount.DoesNotExist:
+            wishlist = {}
         
-    return render(request, 'marketplace.html', {'crops': crop_list})
+    return render(request, 'marketplace.html', {'crops': crop_list, 'wishlist': wishlist})
 
 def weather(request):
     return render(request, 'weather.html')
@@ -313,17 +323,22 @@ def add_to_wishlist(request):
             crop_id = str(data.get('crop_id'))
             quantity = float(data.get('quantity'))
             
-            if 'wishlist' not in request.session:
-                request.session['wishlist'] = {}
-                
-            wishlist = request.session['wishlist']
+            user_id = request.session.get('user_id')
+            if not user_id:
+                return JsonResponse({'success': False, 'message': 'Not logged in'})
+            user = UserAccount.objects.get(id=user_id)
+            
+            wishlist = user.wishlist if user.wishlist else {}
+            if not isinstance(wishlist, dict):
+                wishlist = {}
             
             crop = Crop.objects.get(id=int(crop_id))
             if quantity > crop.quantity:
                 return JsonResponse({'success': False, 'message': 'Requested quantity exceeds available stock.'})
             
             wishlist[crop_id] = quantity
-            request.session.modified = True
+            user.wishlist = wishlist
+            user.save(update_fields=['wishlist'])
             
             return JsonResponse({'success': True, 'message': 'Added to wishlist!'})
         except Exception as e:
@@ -338,9 +353,16 @@ def remove_from_wishlist(request):
             data = json.loads(request.body)
             crop_id = str(data.get('crop_id'))
             
-            if 'wishlist' in request.session and crop_id in request.session['wishlist']:
-                del request.session['wishlist'][crop_id]
-                request.session.modified = True
+            user_id = request.session.get('user_id')
+            if not user_id:
+                return JsonResponse({'success': False, 'message': 'Not logged in'})
+            user = UserAccount.objects.get(id=user_id)
+            
+            wishlist = user.wishlist if user.wishlist else {}
+            if crop_id in wishlist:
+                del wishlist[crop_id]
+                user.wishlist = wishlist
+                user.save(update_fields=['wishlist'])
                 
             return JsonResponse({'success': True})
         except Exception as e:
@@ -385,7 +407,13 @@ def remove_crop(request):
 
 def wishlist_view(request):
     from .models import Crop
-    wishlist = request.session.get('wishlist', {})
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return redirect('login')
+    user = UserAccount.objects.get(id=user_id)
+    wishlist = user.wishlist
+    if not isinstance(wishlist, dict):
+        wishlist = {}
     cart_items = []
     farmer_groups = {}
     grand_total = 0
@@ -400,7 +428,12 @@ def wishlist_view(request):
             pass
 
     # Optimization: Get all crops in wishlist with one query
-    crop_ids = [int(cid) for cid in wishlist.keys()]
+    crop_ids = []
+    for cid in wishlist.keys():
+        try:
+            crop_ids.append(int(cid))
+        except (ValueError, TypeError):
+            pass
     crops = {c.id: c for c in Crop.objects.select_related('farmer').filter(id__in=crop_ids)}
     
     for crop_id_str, qty in wishlist.items():
@@ -779,6 +812,11 @@ def verify_order_item(request):
         item.status = 'verified'
         item.save()
 
+        # Deduct crop stock now that payment is verified
+        crop = item.crop
+        crop.quantity -= item.quantity
+        crop.save()
+
         # Credit farmer wallet
         farmer = item.farmer
         farmer.wallet_balance += item.amount
@@ -801,10 +839,6 @@ def verify_order_item(request):
         item.status = 'rejected'
         item.save()
         
-        # Restore crop stock
-        crop = item.crop
-        crop.quantity += item.quantity
-        crop.save()
         if hasattr(item, 'payment'):
             item.payment.status = 'rejected'
             item.payment.save()
@@ -822,6 +856,10 @@ def verify_order_item(request):
     statuses = set(order.items.values_list('status', flat=True))
     if statuses == {'verified'}:
         order.status = 'completed'
+        # Clear consumer's wishlist when order is fully completed
+        consumer = order.consumer
+        consumer.wishlist = {}
+        consumer.save(update_fields=['wishlist'])
     elif 'verified' in statuses or 'paid' in statuses:
         order.status = 'partial'
     else:
@@ -844,11 +882,13 @@ def create_checkout(request):
     if not user_id:
         return JsonResponse({'success': False, 'message': 'Not authenticated'})
 
-    wishlist = request.session.get('wishlist', {})
+    consumer = UserAccount.objects.get(id=user_id)
+    wishlist = consumer.wishlist if consumer.wishlist else {}
+    if not isinstance(wishlist, dict):
+        wishlist = {}
+    
     if not wishlist:
         return JsonResponse({'success': False, 'message': 'Wishlist is empty'})
-
-    consumer = UserAccount.objects.get(id=user_id)
 
     # Validate all farmers have UPI IDs before creating anything
     for crop_id, qty in wishlist.items():
@@ -881,9 +921,7 @@ def create_checkout(request):
                 status='pending'
             )
 
-            # Deduct stock immediately upon order creation
-            crop.quantity -= float(qty)
-            crop.save()
+            # Note: Stock will be deducted only after farmer verifies payment
 
             if farmer.id not in farmer_groups:
                 farmer_groups[farmer.id] = {
@@ -913,11 +951,6 @@ def create_checkout(request):
             f"&tn=KrishiScan_Order_{order.id}"
         )
         fg['upi_link'] = upi_link
-
-    # Clear wishlist after order creation
-    if 'wishlist' in request.session:
-        del request.session['wishlist']
-        request.session.modified = True
 
     return JsonResponse({
         'success': True,
