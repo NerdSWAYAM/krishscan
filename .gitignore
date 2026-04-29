@@ -9,3 +9,4 @@ main.py
 __pycache__/
 *.pyc
 ./media/
+MLmodels/resnet50_transfer_best.h5
