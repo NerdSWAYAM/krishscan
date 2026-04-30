@@ -1,0 +1,580 @@
+{% extends 'farmer_base.html' %}
+{% load static %}
+
+{% block title %}My Orders – KrishiScan{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ── Page Header ── */
+    .orders-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 36px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+    .orders-header-left h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 32px;
+        color: #1C2E20;
+        margin: 0 0 6px 0;
+    }
+    .orders-header-left p {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        color: #6B8A72;
+        margin: 0;
+    }
+    .refresh-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #F7FBF8;
+        border: 1px solid rgba(58,111,67,.15);
+        border-radius: 10px;
+        padding: 10px 18px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        color: #3A6F43;
+        cursor: pointer;
+        transition: all .2s;
+        text-decoration: none;
+    }
+    .refresh-btn:hover { background: #EBF5EE; border-color: #59AC77; }
+
+    /* ── Summary Chips ── */
+    .summary-row {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 32px;
+        flex-wrap: wrap;
+    }
+    .summary-chip {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #fff;
+        border: 1px solid rgba(58,111,67,.12);
+        border-radius: 14px;
+        padding: 14px 22px;
+        box-shadow: 0 2px 8px rgba(58,111,67,.05);
+        flex: 1;
+        min-width: 140px;
+    }
+    .summary-chip .chip-icon {
+        width: 40px; height: 40px;
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+    }
+    .chip-icon.green  { background: #E8F5EC; }
+    .chip-icon.amber  { background: #FFF8E1; }
+    .chip-icon.blue   { background: #E3F2FD; }
+    .chip-icon.red    { background: #FFEBEE; }
+    .summary-chip .chip-val {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 22px;
+        font-weight: 700;
+        color: #1C2E20;
+        line-height: 1;
+    }
+    .summary-chip .chip-lbl {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 12px;
+        color: #6B8A72;
+        margin-top: 2px;
+    }
+
+    /* ── Filter Tabs ── */
+    .filter-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 28px;
+        overflow-x: auto;
+        padding-bottom: 4px;
+    }
+    .filter-tab {
+        padding: 8px 20px;
+        border-radius: 20px;
+        border: 1px solid rgba(58,111,67,.18);
+        background: #fff;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        color: #6B8A72;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all .2s;
+        user-select: none;
+    }
+    .filter-tab.active, .filter-tab:hover {
+        background: #3A6F43;
+        color: #fff;
+        border-color: #3A6F43;
+    }
+
+    /* ── Order Card ── */
+    .order-card {
+        background: #fff;
+        border: 1px solid rgba(58,111,67,.12);
+        border-radius: 18px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 12px rgba(58,111,67,.06);
+        overflow: hidden;
+        transition: box-shadow .2s, transform .2s;
+    }
+    .order-card:hover {
+        box-shadow: 0 6px 24px rgba(58,111,67,.13);
+        transform: translateY(-2px);
+    }
+
+    /* Card header */
+    .oc-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px 24px;
+        border-bottom: 1px solid rgba(58,111,67,.08);
+        background: #FAFCFA;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    .oc-id {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        color: #3A6F43;
+        letter-spacing: .04em;
+    }
+    .oc-date {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 12px;
+        color: #8FA996;
+    }
+    .oc-status-badge {
+        padding: 4px 14px;
+        border-radius: 20px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+    }
+    .oc-status-badge.pending  { background: #FFF8E1; color: #F59E0B; }
+    .oc-status-badge.partial  { background: #E3F2FD; color: #1D6FBB; }
+    .oc-status-badge.completed{ background: #E8F5EC; color: #3A6F43; }
+
+    /* ETA Bar */
+    .eta-bar {
+        padding: 14px 24px;
+        background: linear-gradient(90deg, #F0F9F2 0%, #E8F5EC 100%);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border-bottom: 1px solid rgba(58,111,67,.08);
+    }
+    .eta-bar .eta-icon { font-size: 22px; }
+    .eta-bar .eta-text {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        color: #1C2E20;
+    }
+    .eta-bar .eta-sub {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 12px;
+        color: #6B8A72;
+        margin-top: 1px;
+    }
+    .eta-bar.delivered { background: linear-gradient(90deg,#E8F5EC,#D4EDD9); }
+    .eta-bar.rejected  { background: linear-gradient(90deg,#FFEBEE,#FFD0D0); }
+    .eta-bar.waiting   { background: linear-gradient(90deg,#FFF8E1,#FFF2C8); }
+
+    /* Progress track */
+    .progress-track {
+        display: flex;
+        align-items: center;
+        padding: 20px 24px;
+        gap: 0;
+        border-bottom: 1px solid rgba(58,111,67,.08);
+        overflow-x: auto;
+    }
+    .progress-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        min-width: 80px;
+        flex: 1;
+        position: relative;
+    }
+    .progress-step::after {
+        content: '';
+        position: absolute;
+        top: 16px;
+        left: 50%;
+        width: 100%;
+        height: 2px;
+        background: rgba(58,111,67,.15);
+    }
+    .progress-step:last-child::after { display: none; }
+    .progress-step.done::after { background: #59AC77; }
+    .step-dot {
+        width: 32px; height: 32px;
+        border-radius: 50%;
+        background: #F0F4F0;
+        border: 2px solid rgba(58,111,67,.2);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 14px;
+        position: relative; z-index: 1;
+    }
+    .progress-step.done  .step-dot { background: #59AC77; border-color: #3A6F43; }
+    .progress-step.active .step-dot { background: #fff; border-color: #59AC77; box-shadow: 0 0 0 4px rgba(89,172,119,.2); animation: pulse-ring 1.5s infinite; }
+    .step-label {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 11px;
+        font-weight: 600;
+        color: #8FA996;
+        text-align: center;
+    }
+    .progress-step.done  .step-label { color: #3A6F43; }
+    .progress-step.active .step-label { color: #1C2E20; }
+    @keyframes pulse-ring {
+        0%   { box-shadow: 0 0 0 0 rgba(89,172,119,.35); }
+        70%  { box-shadow: 0 0 0 8px rgba(89,172,119,0); }
+        100% { box-shadow: 0 0 0 0 rgba(89,172,119,0); }
+    }
+
+    /* Items table */
+    .items-wrapper { padding: 0 24px 8px; }
+    .item-row {
+        display: flex;
+        align-items: center;
+        padding: 14px 0;
+        border-bottom: 1px solid rgba(58,111,67,.06);
+        gap: 14px;
+        flex-wrap: wrap;
+    }
+    .item-row:last-child { border-bottom: none; }
+    .item-emoji {
+        width: 44px; height: 44px;
+        background: #F7FBF8;
+        border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 22px;
+        flex-shrink: 0;
+    }
+    .item-info { flex: 1; min-width: 160px; }
+    .item-info .item-name {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 15px;
+        font-weight: 600;
+        color: #1C2E20;
+        margin: 0 0 3px 0;
+    }
+    .item-info .item-sub {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 12px;
+        color: #8FA996;
+        margin: 0;
+    }
+    .item-amount {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 15px;
+        font-weight: 700;
+        color: #1C2E20;
+    }
+    .item-status-badge {
+        padding: 3px 12px;
+        border-radius: 20px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    .item-status-badge.pending  { background: #FFF8E1; color: #F59E0B; }
+    .item-status-badge.paid     { background: #E3F2FD; color: #1D6FBB; }
+    .item-status-badge.verified { background: #E8F5EC; color: #3A6F43; }
+    .item-status-badge.rejected { background: #FFEBEE; color: #C0392B; }
+
+    /* Card footer */
+    .oc-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 24px;
+        background: #FAFCFA;
+        border-top: 1px solid rgba(58,111,67,.08);
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .oc-total {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 15px;
+        font-weight: 700;
+        color: #1C2E20;
+    }
+    .oc-total span { color: #3A6F43; font-size: 18px; }
+    .oc-action-btn {
+        padding: 8px 20px;
+        border-radius: 10px;
+        background: #3A6F43;
+        color: #fff;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: background .2s;
+        text-decoration: none;
+    }
+    .oc-action-btn:hover { background: #2D5735; }
+    .oc-action-btn.secondary {
+        background: transparent;
+        color: #3A6F43;
+        border: 1px solid rgba(58,111,67,.25);
+    }
+    .oc-action-btn.secondary:hover { background: #F0F9F2; }
+
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 80px 40px;
+    }
+    .empty-state .empty-icon { font-size: 72px; margin-bottom: 24px; }
+    .empty-state h3 {
+        font-family: 'Playfair Display', serif;
+        font-size: 24px;
+        color: #1C2E20;
+        margin-bottom: 10px;
+    }
+    .empty-state p {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 15px;
+        color: #6B8A72;
+        margin-bottom: 28px;
+    }
+
+    /* Live clock badge */
+    #live-clock {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 13px;
+        color: #6B8A72;
+        background: #F7FBF8;
+        border: 1px solid rgba(58,111,67,.12);
+        border-radius: 20px;
+        padding: 5px 14px;
+        display: inline-block;
+    }
+
+    /* Responsive */
+    @media(max-width:640px){
+        .summary-row { gap: 10px; }
+        .summary-chip { min-width: 110px; padding: 12px 14px; }
+        .oc-header { padding: 14px 16px; }
+        .eta-bar, .items-wrapper, .oc-footer { padding-left: 16px; padding-right: 16px; }
+        .progress-track { padding: 16px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="orders-header">
+    <div class="orders-header-left">
+        <h2>My Orders</h2>
+        <p>Track your deliveries in real-time &nbsp;•&nbsp; <span id="live-clock"></span></p>
+    </div>
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <a href="{% url 'marketplace' %}" class="refresh-btn">
+            <img src="{% static 'cart-check-svgrepo-com.svg' %}" alt="cart-check-svgrepo-com.svg" style="height: 20px; width: 20px;"> Shop More
+        </a>
+        <a href="{% url 'my_orders' %}" class="refresh-btn" style="background:#3A6F43;color:#fff;border-color:#3A6F43;">
+            ↻ Refresh
+        </a>
+    </div>
+</div>
+
+<!-- Summary Chips -->
+<div class="summary-row">
+    <div class="summary-chip">
+        <div class="chip-icon green"><img src="{% static 'box-svgrepo-com (1).svg' %}" alt="box-svgrepo-com.svg" style="height: 20px; width: 20px;"></div>
+        <div>
+            <div class="chip-val">{{ total_orders }}</div>
+            <div class="chip-lbl">Total Orders</div>
+        </div>
+    </div>
+    <div class="summary-chip">
+        <div class="chip-icon green"><img src="{% static 'cart-check-svgrepo-com.svg' %}" alt="tick-svgrepo-com.svg" style="height: 20px; width: 20px;"></div>
+        <div>
+            <div class="chip-val">{{ completed_count }}</div>
+            <div class="chip-lbl">Delivered</div>
+        </div>
+    </div>
+    <div class="summary-chip">
+        <div class="chip-icon amber"><img src="{% static 'truck-time-svgrepo-com.svg' %}" alt="truck-time-svgrepo-com.svg" style="height: 20px; width: 20px;"></div>
+        <div>
+            <div class="chip-val">{{ in_progress_count }}</div>
+            <div class="chip-lbl">In Progress</div>
+        </div>
+    </div>
+    <!-- <div class="summary-chip">
+        <div class="chip-icon blue">💰</div>
+        <div>
+            <div class="chip-val">₹{{ total_spent }}</div>
+            <div class="chip-lbl">Total Spent</div>
+        </div>
+    </div> -->
+</div>
+
+<!-- Filter Tabs -->
+<div class="filter-tabs">
+    <div class="filter-tab active" data-filter="all">All Orders</div>
+    <div class="filter-tab" data-filter="pending">Pending Payment</div>
+    <div class="filter-tab" data-filter="partial">In Progress</div>
+    <div class="filter-tab" data-filter="completed">Delivered</div>
+</div>
+
+<!-- Orders List -->
+{% if orders %}
+    {% for order in orders %}
+    <div class="order-card" data-status="{{ order.status }}">
+
+        <!-- Card Header -->
+        <div class="oc-header">
+            <div>
+                <div class="oc-id">ORDER #KS-{{ order.id|stringformat:"04d" }}</div>
+                <div class="oc-date">Placed on {{ order.created_at|date:"d M Y, g:i A" }}</div>
+            </div>
+            <span class="oc-status-badge {{ order.status }}">
+                {% if order.status == 'completed' %}<img src="{% static 'truck-tick-svgrepo-com.svg' %}" alt="truck-tick-svgrepo-com.svg" style="height: 20px; width: 20px;"> Delivered
+                {% elif order.status == 'partial' %}<img src="{% static 'truck-time-svgrepo-com.svg' %}" alt="truck-time-svgrepo-com.svg" style="height: 20px; width: 20px;"> In Progress
+                {% else %}<img src="{% static 'timer-svgrepo-com.svg' %}" alt="timer-svgrepo-com.svg" style="height: 20px; width: 20px;"> Pending{% endif %}
+            </span>
+        </div>
+
+        <!-- ETA Bar -->
+        {% if order.status == 'completed' %}
+        <div class="eta-bar delivered">
+            <div class="eta-icon"><img src="{% static 'truck-tick-svgrepo-com.svg' %}" alt="truck-tick-svgrepo-com.svg" style="height: 20px; width: 20px;"></div>
+            <div>
+                <div class="eta-text">Order Delivered Successfully</div>
+                <div class="eta-sub">All items verified by farmers. Enjoy your fresh produce!</div>
+            </div>
+        </div>
+        {% elif order.status == 'partial' %}
+        <div class="eta-bar">
+            <div class="eta-icon"><img src="{% static 'truck-time-svgrepo-com.svg' %}" alt="truck-time-svgrepo-com.svg" style="height: 20px; width: 20px;"></div>
+            <div>
+                <div class="eta-text">
+                    Arriving in ~{{ order.eta_minutes }} min
+                    <span style="font-size:12px;font-weight:400;color:#6B8A72;margin-left:8px;">estimated</span>
+                </div>
+                <div class="eta-sub">Farmer has verified payment · Arranging dispatch</div>
+            </div>
+        </div>
+        {% else %}
+        <div class="eta-bar waiting">
+            <div class="eta-icon"><img src="{% static 'timer-svgrepo-com.svg' %}" alt="timer-svgrepo-com.svg" style="height: 20px; width: 20px;"></div>
+            <div>
+                <div class="eta-text">Waiting for payment verification</div>
+                <div class="eta-sub">Upload payment screenshot to proceed · Farmer will verify within 30 min</div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Progress Steps -->
+        <div class="progress-track">
+            {% with steps=order.progress_steps %}
+            {% for step in steps %}
+            <div class="progress-step {{ step.state }}">
+                <div class="step-dot">{{ step.icon }}</div>
+                <div class="step-label">{{ step.label }}</div>
+            </div>
+            {% endfor %}
+            {% endwith %}
+        </div>
+
+        <!-- Items -->
+        <div class="items-wrapper">
+            {% for item in order.items.all %}
+            <div class="item-row">
+                <!-- <div class="item-emoji">🌾</div> -->
+                <div class="item-info">
+                    <p class="item-name">{{ item.crop.name }}</p>
+                    <p class="item-sub">{{ item.quantity }} kg · Farmer: {{ item.farmer.first_name }} {{ item.farmer.last_name }} · <img src="{% static 'location-pin-svgrepo-com.svg' %}" alt="location-pin-svgrepo-com.svg" style="height: 20px; width: 20px;">{{ item.farmer.location|truncatechars:30 }}</p>
+                </div>
+                <span class="item-status-badge {{ item.status }}">{{ item.get_status_display }}</span>
+                <div class="item-amount">₹{{ item.amount }}</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Card Footer -->
+        <div class="oc-footer">
+            <div class="oc-total">
+                Order Total: <span>₹{{ order.total_amount }}</span>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                {% if order.status == 'pending' %}
+                <a href="{% url 'wishlist' %}" class="oc-action-btn">Upload Payment</a>
+                {% endif %}
+                <a href="#order-{{ order.id }}" class="oc-action-btn secondary">View Details</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+{% else %}
+    <div class="empty-state">
+        <div class="empty-icon"><img src="{% static 'box-svgrepo-com (1).svg' %}" alt="box-svgrepo-com.svg" style="height: 150px; width: 150px;"></div>
+        <h3>No Orders Yet</h3>
+        <p>You haven't placed any orders. Browse fresh produce from local farmers!</p>
+        <a href="{% url 'marketplace' %}" class="oc-action-btn" style="display:inline-block;">Browse Marketplace</a>
+    </div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Live clock
+    function updateClock() {
+        const now = new Date();
+        const opts = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+        document.getElementById('live-clock').textContent = now.toLocaleTimeString('en-IN', opts);
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // Filter tabs
+    const tabs = document.querySelectorAll('.filter-tab');
+    const cards = document.querySelectorAll('.order-card');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            const filter = tab.dataset.filter;
+            cards.forEach(card => {
+                if (filter === 'all' || card.dataset.status === filter) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+
+    // Auto-refresh every 60 seconds to get latest statuses
+    let countdown = 60;
+    setInterval(() => {
+        countdown--;
+        if (countdown <= 0) window.location.reload();
+    }, 1000);
+</script>
+{% endblock %}

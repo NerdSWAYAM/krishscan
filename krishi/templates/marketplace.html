@@ -10,15 +10,16 @@
         padding: 40px 0;
         margin-bottom: 32px;
         background: linear-gradient(135deg, var(--color-bg), var(--color-surface));
-        border-radius: 24px;
+        /* border-radius: 24px; */
         border: 1px solid var(--color-border);
     }
 
     .market-title {
         font-family: 'Playfair Display', serif;
-        font-size: 36px;
+        font-size: 5rem;
         color: var(--color-deep-forest);
         margin-bottom: 12px;
+        font-weight: 100;
     }
 
     .market-subtitle {
@@ -96,7 +97,7 @@
         color: var(--color-deep-forest);
         margin-bottom: 12px;
     }
-    
+
     .price-display span {
         font-size: 13px;
         color: var(--color-text-muted);
@@ -158,6 +159,7 @@
         display: flex;
         gap: 12px;
         align-items: center;
+        position: relative;
     }
 
     .add-to-cart {
@@ -170,18 +172,49 @@
         font-weight: 500;
     }
 
+    .cart-popup {
+        display: none;
+        position: absolute;
+        bottom: -10px;
+        left: -10px;
+        right: -10px;
+        background: #fff;
+        padding: 16px;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        z-index: 10;
+        border: 1px solid var(--color-primary-light);
+        animation: slideUp 0.2s ease-out;
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(10px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
     @media (max-width: 768px) {
-        .filter-bar { flex-direction: column; }
-        .filter-select { width: 100%; }
+        .filter-bar {
+            flex-direction: column;
+        }
+
+        .filter-select {
+            width: 100%;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="market-header">
-    <h1 class="market-title">Farm-Fresh Produce</h1>
-    <p class="market-subtitle">Discover high-quality, freshly harvested crops sourced directly from verified local farmers.</p>
-    
+    <h1 class="market-title">KrishiScan</h1>
+
     <div class="filter-bar">
         <input type="text" class="form-control search-input" placeholder="Search crops, farmers, or regions...">
         <select class="form-select filter-select">
@@ -195,9 +228,10 @@
 </div>
 
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-    <h2 style="font-family: 'Playfair Display', serif; font-size: 24px; color: var(--color-deep-forest);">Available Listings</h2>
+    <h2 style="font-family: 'Playfair Display', serif; font-size: 24px; color: var(--color-deep-forest);">Available
+        Listings</h2>
     {% if request.session.role == 'Farmer' %}
-        <a href="{% url 'upload_crop' %}" class="btn btn-secondary">+ Upload Crop</a>
+    <a href="{% url 'upload_crop' %}" class="btn btn-secondary">+ Upload Crop</a>
     {% endif %}
 </div>
 
@@ -206,52 +240,124 @@
     <div class="product-card">
         <div class="product-image-wrap">
             {% if crop.image %}
-                <img src="{{ crop.image.url }}" alt="{{ crop.name }}" class="product-image">
+            <img src="{{ crop.image.url }}" alt="{{ crop.name }}" class="product-image">
             {% else %}
-                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #E8F5EC; font-size: 48px;">🌾</div>
+            <div
+                style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #E8F5EC; font-size: 48px;">
+                🌾</div>
             {% endif %}
         </div>
-        
+
         <div class="product-details">
             <h3 class="product-name">{{ crop.name }}</h3>
-            
+
             <div class="farmer-info">
                 <div class="farmer-avatar">{{ crop.farmer.first_name.0|upper }}{{ crop.farmer.last_name.0|upper }}</div>
                 <div class="farmer-name">{{ crop.farmer.first_name }} {{ crop.farmer.last_name }}</div>
             </div>
-            
+
             <div>
-                <span class="location-pill">📍 {{ crop.farmer.location|default:"India" }}</span>
+                <span class="location-pill"><img src="{% static 'location-pin-svgrepo-com.svg' %}"
+                        style="height: 20px; width: 20px;"> {{ crop.farmer.location|default:"India" }}
+                        {% if crop.distance is not None %}
+                        <span style="color: #59AC77; font-weight: 600; margin-left: 4px;">• {{ crop.distance }} km away</span>
+                        {% endif %}
+                </span>
             </div>
-            
+
             <div class="price-display">
                 ₹{{ crop.price_per_kg }} <span>/ kg</span>
             </div>
-            
+
             <div class="product-actions">
-                <button class="btn btn-primary add-to-cart" onclick="addToCart(this)">Add to Cart</button>
+                <button class="btn btn-primary add-to-cart" onclick="showCartPopup(this, {{ crop.id }})">Add to
+                    Cart</button>
+                <a href="{% url 'chat_view' crop.farmer.id %}" class="btn btn-secondary"
+                    style="padding: 12px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: #E8F5EC; border: none; text-decoration: none;"
+                    title="Chat with Farmer"><img src="{% static 'chat-dots-svgrepo-com.svg' %}"
+                        alt="chat-lines-svgrepo-com.svg" style="height: 20px; width: 20px;"></a>
                 <span class="qty-badge">{{ crop.quantity }}kg left</span>
+
+                <div class="cart-popup" id="cart-popup-{{ crop.id }}">
+                    <div
+                        style="font-size: 13px; margin-bottom: 8px; color: var(--color-deep-forest); font-weight: 600;">
+                        Select Quantity (kg)</div>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="number" id="qty-{{ crop.id }}" class="form-control"
+                            style="padding: 8px; font-size: 14px;" min="1" max="{{ crop.quantity }}" value="1">
+                        <button class="btn btn-primary" style="padding: 8px 16px; font-size: 14px; min-width: 90px;"
+                            onclick="confirmAdd({{ crop.id }}, {{ crop.quantity }})">Confirm</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     {% empty %}
-    <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; background: var(--color-surface); border-radius: 20px; border: 1px dashed var(--color-border);">
+    <div
+        style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; background: var(--color-surface); border-radius: 20px; border: 1px dashed var(--color-border);">
         <div style="font-size: 48px; margin-bottom: 16px;">🛒</div>
-        <h3 style="font-family: 'Playfair Display', serif; font-size: 24px; color: var(--color-deep-forest); margin-bottom: 8px;">No Crops Available</h3>
+        <h3
+            style="font-family: 'Playfair Display', serif; font-size: 24px; color: var(--color-deep-forest); margin-bottom: 8px;">
+            No Crops Available</h3>
         <p style="color: var(--color-text-muted);">Check back later or try adjusting your search filters.</p>
     </div>
     {% endfor %}
 </div>
 
 <script>
-    function addToCart(btn) {
-        const originalText = btn.innerText;
-        btn.innerText = 'Added ✓';
-        btn.style.background = 'var(--color-deep-forest)';
-        setTimeout(() => {
-            btn.innerText = originalText;
-            btn.style.background = '';
-        }, 2000);
+    function showCartPopup(btn, cropId) {
+        document.querySelectorAll('.cart-popup').forEach(p => p.style.display = 'none');
+        document.getElementById('cart-popup-' + cropId).style.display = 'block';
+    }
+
+    function confirmAdd(cropId, maxQty) {
+        const qtyInput = document.getElementById('qty-' + cropId);
+        const qty = parseFloat(qtyInput.value);
+        if (isNaN(qty) || qty <= 0 || qty > maxQty) {
+            alert('Please enter a valid quantity between 1 and ' + maxQty);
+            return;
+        }
+
+        const popup = document.getElementById('cart-popup-' + cropId);
+        const originalHtml = popup.innerHTML;
+        popup.innerHTML = '<div style="text-align: center; padding: 10px 0; color: var(--color-text-muted);">Adding...</div>';
+
+        fetch('/api/add-to-wishlist/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ crop_id: cropId, quantity: qty })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    popup.innerHTML = '<div style="color: var(--color-primary); font-weight: 600; text-align: center; padding: 10px 0; font-size: 16px;">Added to Cart ✓</div>';
+                    setTimeout(() => {
+                        popup.style.display = 'none';
+                        popup.innerHTML = originalHtml;
+                    }, 2000);
+                } else {
+                    alert(data.message);
+                    popup.innerHTML = originalHtml;
+                }
+            });
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
     }
 </script>
 {% endblock %}

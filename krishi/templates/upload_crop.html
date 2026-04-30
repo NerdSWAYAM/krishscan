@@ -30,7 +30,8 @@
             font-family: 'DM Sans', sans-serif;
             background: var(--bg);
             position: relative;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
             padding: 24px;
         }
 
@@ -348,11 +349,11 @@
 <body>
 
     <div class="card">
-        <a href="{% url 'marketplace' %}" class="close-link">&times;</a>
+        <a href="javascript:history.back()" class="close-link">&times;</a>
 
         <div class="card-header">
             <p class="eyebrow">Farmer Portal</p>
-            <h1 class="card-title">🌾 List a New Crop</h1>
+            <h1 class="card-title">List a New Crop</h1>
             <p class="card-subtitle">Fill in the details to publish your produce to the marketplace.</p>
         </div>
 
@@ -395,7 +396,7 @@
                 <label class="field-label">Upload Photo</label>
                 <div class="upload-zone" id="upload-zone">
                     <input type="file" name="image" accept="image/*" required id="file-input">
-                    <div class="upload-icon">📷</div>
+                    <div class="upload-icon"><img src="{% static 'upload-minimalistic-svgrepo-com.svg' %}" alt="upload" style="height: 40px; width: 40px;"></div>
                     <p class="upload-title">Drop image here</p>
                     <p class="upload-sub">or <span>browse files</span> · JPG, PNG, WEBP</p>
                 </div>

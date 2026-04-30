@@ -7,13 +7,13 @@
 <style>
     .hero-banner {
         position: relative;
-        background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary));
+        background: var(--color-surface);
         border-radius: 20px;
         padding: 48px;
-        color: #fff;
+        color: var(--color-text-primary);
         margin-bottom: 40px;
         overflow: hidden;
-        box-shadow: 0 8px 24px rgba(58, 111, 67, 0.2);
+        box-shadow: 0 0 10px 0 var(--color-border);
     }
 
     .hero-banner::before {
@@ -46,12 +46,12 @@
         font-size: 42px;
         line-height: 1.1;
         margin-bottom: 16px;
-        color: #fff;
+        color: var(--color-deep-forest);
     }
 
     .hero-subtitle {
         font-size: 16px;
-        color: rgba(255, 255, 255, 0.85);
+        color: var(--color-text-primary);
         margin-bottom: 24px;
         line-height: 1.6;
     }
@@ -189,6 +189,17 @@
         gap: 4px;
     }
 
+    .price-badge {
+        background: #FFFFFF;
+        color: #000000;
+        font-size: 16px;
+        font-weight: 700;
+        padding: 6px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--color-border);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
     @media (max-width: 900px) {
         .split-section { grid-template-columns: 1fr; }
     }
@@ -198,110 +209,71 @@
 {% block content %}
 <div class="hero-banner">
     <div class="hero-content">
-        <div class="hero-eyebrow">Fresh & Local</div>
-        <h2 class="hero-title">Seasonal Harvest Collection</h2>
-        <p class="hero-subtitle">Discover farm-fresh organic produce, directly from the growers who care for the land. Skip the middleman and support local agriculture.</p>
-        <a href="{% url 'marketplace' %}" class="btn btn-primary" style="background: #fff; color: var(--color-deep-forest);">Shop Seasonal Produce</a>
+        <!-- <div class="hero-eyebrow"></div> -->
+        <h2 class="hero-title">Welcome back, {{ request.session.first_name }}!</h2>
+        <p class="hero-subtitle">
+            <img src="{% static 'mail-svgrepo-com.svg' %}" style="height: 20px; width: 20px;"> {{ request.session.email }}<br>
+            <img src="{% static 'location-pin-svgrepo-com.svg' %}" style="height: 20px; width: 20px;"> {{ request.session.location }}
+        </p>
+        <a href="{% url 'marketplace' %}" class="btn btn-primary" style="background: var(--color-primary); color: var(--color-bg);">Shop Seasonal Produce</a>
     </div>
-</div>
-
-<h3 class="section-title">Browse by Category</h3>
-<div class="category-grid">
-    <a href="#" class="category-card">
-        <div class="category-icon">🥬</div>
-        <div class="category-name">Vegetables</div>
-    </a>
-    <a href="#" class="category-card">
-        <div class="category-icon">🍎</div>
-        <div class="category-name">Fruits</div>
-    </a>
-    <a href="#" class="category-card">
-        <div class="category-icon">🌾</div>
-        <div class="category-name">Grains</div>
-    </a>
-    <a href="#" class="category-card">
-        <div class="category-icon">🌿</div>
-        <div class="category-name">Spices</div>
-    </a>
-    <a href="#" class="category-card">
-        <div class="category-icon">🍯</div>
-        <div class="category-name">Pantry</div>
-    </a>
-    <a href="#" class="category-card">
-        <div class="category-icon">🌻</div>
-        <div class="category-name">Seeds</div>
-    </a>
 </div>
 
 <div class="split-section">
     <div class="card">
         <h3 class="section-title">Recent Orders</h3>
         <div class="orders-list">
-            <div class="order-item">
-                <div class="order-details">
-                    <div class="order-icon">📦</div>
-                    <div class="order-meta">
-                        <h4>Organic Tomatoes & Basil</h4>
-                        <p>Order #ORD-8943 • Delivered</p>
+            {% if recent_orders %}
+                {% for order in recent_orders %}
+                <div class="order-item">
+                    <div class="order-details">
+                        <div class="order-icon">
+                            {% if order.crop.image %}
+                                <img src="{{ order.crop.image.url }}" alt="{{ order.crop.name }}" style="height: 100%; width: 100%; object-fit: cover; border-radius: 12px;">
+                            {% else %}
+                                <img src="{% static 'box--svgrepo-com.svg' %}" alt="order box" style="height: 20px; width: 20px;">
+                            {% endif %}
+                        </div>
+                        <div class="order-meta">
+                            <h4>{{ order.crop.name }} ({{ order.quantity }}kg)</h4>
+                            <p>Order #ORD-{{ order.id }} • {{ order.status }}</p>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="price-badge">₹ {{ order.amount }}</span>
                     </div>
                 </div>
-                <div>
-                    <span class="badge badge-success">₹ 450</span>
-                </div>
-            </div>
-            <div class="order-item">
-                <div class="order-details">
-                    <div class="order-icon">📦</div>
-                    <div class="order-meta">
-                        <h4>Fresh Wheat Grains (10kg)</h4>
-                        <p>Order #ORD-8912 • In Transit</p>
-                    </div>
-                </div>
-                <div>
-                    <span class="badge badge-info">₹ 1200</span>
-                </div>
-            </div>
-            <div class="order-item">
-                <div class="order-details">
-                    <div class="order-icon">📦</div>
-                    <div class="order-meta">
-                        <h4>Assorted Root Vegetables</h4>
-                        <p>Order #ORD-8850 • Delivered</p>
-                    </div>
-                </div>
-                <div>
-                    <span class="badge badge-success">₹ 320</span>
-                </div>
-            </div>
+                {% endfor %}
+            {% else %}
+                
+                <img src="{% static 'box-svgrepo-com (1).svg' %}" alt="order-box" style="height: 200px; width: 200px; margin: 100px auto; align-items: center; justify-content: center; display: flex;">
+                <p style="color: var(--color-text-muted); font-size: 18px; text-align: center; margin-top: 100px;">No recent orders found.</p>
+            {% endif %}
         </div>
     </div>
 
     <div class="card">
-        <h3 class="section-title">Recommended Farmers</h3>
+        <h3 class="section-title">Recently Connected Farmers</h3>
         <div class="farmers-list">
-            <div class="farmer-card">
-                <div class="farmer-avatar">RP</div>
-                <div class="farmer-info">
-                    <h4>Rajesh Patel Farm</h4>
-                    <p>📍 Maharashtra • 4.9 ★</p>
+            {% if recent_farmers %}
+                {% for farmer in recent_farmers %}
+                <div class="farmer-card">
+                    <div class="farmer-avatar">
+                        {{ farmer.first_name|slice:":1"|upper }}{{ farmer.last_name|slice:":1"|upper }}
+                    </div>
+                    <div class="farmer-info">
+                        <h4>{{ farmer.first_name }} {{ farmer.last_name }}</h4>
+                        <p>📍 {{ farmer.location }}</p>
+                    </div>
+                    <div style="margin-left: auto;">
+                        <a href="{% url 'chat_view' farmer.id %}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px; text-decoration: none; color: #3A6F43; background: #F7FBF8; border: 1px solid rgba(58,111,67,0.2);">Chat</a>
+                    </div>
                 </div>
-            </div>
-            <div class="farmer-card">
-                <div class="farmer-avatar" style="background: var(--color-deep-forest);">SK</div>
-                <div class="farmer-info">
-                    <h4>Sunita's Organic</h4>
-                    <p>📍 Gujarat • 4.8 ★</p>
-                </div>
-            </div>
-            <div class="farmer-card">
-                <div class="farmer-avatar" style="background: var(--color-soft-alert); color: var(--color-error-text);">MV</div>
-                <div class="farmer-info">
-                    <h4>Malwa Valley Greens</h4>
-                    <p>📍 Madhya Pradesh • 5.0 ★</p>
-                </div>
-            </div>
+                {% endfor %}
+            {% else %}
+                <p style="color: var(--color-text-muted); font-size: 14px; text-align: center; margin-top: 20px;">No recent connections.</p>
+            {% endif %}
         </div>
-        <a href="#" class="btn btn-secondary" style="width: 100%; margin-top: 8px;">View All Farmers</a>
     </div>
 </div>
 {% endblock %}
