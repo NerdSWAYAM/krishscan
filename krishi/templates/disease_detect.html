@@ -50,8 +50,15 @@
     }
 
     @keyframes float {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-10px); }
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-10px);
+        }
     }
 
     .upload-text {
@@ -73,13 +80,48 @@
         justify-content: center;
     }
 
-    /* Result Split View */
-    .result-container {
+    /* Page Layout */
+    .disease-page-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1.05fr 0.95fr;
         gap: 40px;
         margin-top: 40px;
         animation: fadeUpIn 0.5s ease;
+        align-items: start;
+    }
+
+    .left-panel,
+    .right-panel {
+        width: 100%;
+    }
+
+    .upload-card {
+        background: var(--color-surface);
+        border-radius: 24px;
+        border: 1px solid var(--color-border);
+        box-shadow: 0 8px 24px rgba(58, 111, 67, 0.06);
+        padding: 32px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .upload-zone {
+        background: var(--color-surface);
+        border: 2px dashed var(--color-primary);
+        border-radius: 24px;
+        padding: 60px 20px;
+        text-align: center;
+        transition: all var(--transition-card);
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .upload-zone:hover,
+    .upload-zone.drag-over {
+        background: var(--color-bg);
+        border-color: var(--color-deep-forest);
     }
 
     .image-preview {
@@ -109,6 +151,74 @@
         padding: 40px;
         border: 1px solid var(--color-border);
         box-shadow: 0 8px 24px rgba(58, 111, 67, 0.06);
+        min-height: 420px;
+    }
+
+    .placeholder-text {
+        font-size: 16px;
+        color: var(--color-text-muted);
+        line-height: 1.7;
+    }
+
+    .camera-modal {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+    }
+
+    .camera-modal-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+    }
+
+    .camera-modal-content {
+        position: relative;
+        z-index: 1;
+        width: min(520px, calc(100% - 40px));
+        background: var(--color-surface);
+        border-radius: 24px;
+        padding: 24px;
+        box-shadow: 0 24px 50px rgba(0, 0, 0, 0.18);
+        display: grid;
+        gap: 18px;
+    }
+
+    .camera-modal-content video {
+        width: 100%;
+        border-radius: 18px;
+        background: #000;
+    }
+
+    .camera-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .camera-close {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        border: none;
+        background: transparent;
+        font-size: 28px;
+        color: var(--color-deep-forest);
+        cursor: pointer;
+    }
+
+    @media (max-width: 900px) {
+        .disease-page-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .image-preview {
+            min-height: 300px;
+        }
     }
 
     .diagnosis-header {
@@ -230,8 +340,13 @@
     }
 
     @media (max-width: 900px) {
-        .result-container { grid-template-columns: 1fr; }
-        .image-preview { min-height: 300px; }
+        .result-container {
+            grid-template-columns: 1fr;
+        }
+
+        .image-preview {
+            min-height: 300px;
+        }
     }
 </style>
 {% endblock %}
@@ -239,24 +354,9 @@
 {% block content %}
 <div class="page-header">
     <h1 class="page-title">AI Crop Disease Detection</h1>
-    <p class="page-subtitle">Upload a photo of your crop to instantly identify potential risks and get actionable treatment recommendations.</p>
+    <p class="page-subtitle">Upload a photo of your crop to instantly identify potential risks and get actionable
+        treatment recommendations.</p>
 </div>
-
-<form method="POST" enctype="multipart/form-data" id="diseaseForm" action="{% url 'disease_detect' %}">
-    {% csrf_token %}
-    <input type="file" id="file-upload" name="image" accept="image/*" style="display: none;" onchange="submitForm()">
-    <input type="file" id="camera-upload" name="image" accept="image/*" capture="environment" style="display: none;" onchange="submitForm()">
-    
-    <div class="upload-zone" id="uploadZone">
-        <div class="upload-icon">🌾</div>
-        <div class="upload-text">Drag & Drop Crop Image Here</div>
-        <p class="upload-subtext">Supports JPG, PNG (Max 5MB). Ensure the affected area is clearly visible.</p>
-        <div class="upload-actions">
-            <button type="button" class="btn btn-primary" onclick="document.getElementById('file-upload').click()">Browse Files</button>
-            <button type="button" class="btn btn-secondary" onclick="document.getElementById('camera-upload').click()">Open Camera</button>
-        </div>
-    </div>
-</form>
 
 <div id="loadingIndicator" style="display: none; text-align: center; margin-top: 40px;">
     <div style="width: 48px; height: 48px; border: 4px solid #E8F5EC; border-top-color: var(--color-primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px;"></div>
@@ -265,79 +365,113 @@
 </div>
 
 <style>
-    @keyframes spin { 100% { transform: rotate(360deg); } }
+    @keyframes spin {
+        100% { transform: rotate(360deg); }
+    }
 </style>
 
-{% if result %}
-<div class="result-container" id="resultView">
-    <div class="image-preview">
-        <!-- Assuming the view might pass the uploaded image URL later. For now using a placeholder to demonstrate the split view layout -->
-        <img src="https://images.unsplash.com/photo-1599839619722-39751411ea63?q=80&w=800&auto=format&fit=crop" alt="Uploaded Crop Image">
-        <div style="position: absolute; top: 24px; left: 24px;">
-            <span class="badge badge-info">Uploaded Image</span>
+<div class="disease-page-grid" id="resultView">
+    <div class="left-panel">
+        <form method="POST" enctype="multipart/form-data" id="diseaseForm" action="{% url 'disease_detect' %}">
+            {% csrf_token %}
+            <input type="file" id="file-upload" name="image" accept="image/*" style="display: none;" onchange="submitForm()">
+            <input type="file" id="camera-upload" name="image" accept="image/*" capture="environment" style="display: none;" onchange="submitForm()">
+
+            <div class="upload-card">
+                <div class="upload-zone" id="uploadZone" onclick="document.getElementById('file-upload').click()">
+                    <div class="upload-icon"><img src="{% static 'scan-svgrepo-com.svg' %}" width="140px" height="140px" /></div>
+                    <div class="upload-text">Drag & Drop Crop Image Here</div>
+                    <p class="upload-subtext">Supports JPG, PNG (Max 5MB). Ensure the affected area is clearly visible.</p>
+                    <div class="upload-actions">
+                        <button type="button" class="btn btn-primary" onclick="event.stopPropagation(); document.getElementById('file-upload').click()">Browse Files</button>
+                        <button type="button" class="btn btn-secondary" onclick="event.stopPropagation(); openCamera()">Open Camera</button>
+                    </div>
+                </div>
+
+                {% if result %}
+                <div class="image-preview">
+                    <img src="{{ result.image_uri|default:'https://images.unsplash.com/photo-1599839619722-39751411ea63?q=80&w=800&auto=format&fit=crop' }}" alt="Uploaded Crop Image">
+                    <div style="position: absolute; top: 24px; left: 24px;">
+                        <span class="badge badge-info">Uploaded Image</span>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+    <div class="right-panel">
+        <div class="diagnosis-card">
+            {% if result %}
+                {% if result.error %}
+                <div class="alert alert-error" style="color: var(--color-error-text); background-color: var(--color-light-blush); padding: 16px; border-radius: 8px; margin-bottom: 24px; border: 1px solid var(--color-soft-alert);">
+                    <strong>Analysis Failed:</strong> {{ result.error }}
+                </div>
+                <button class="btn btn-secondary" onclick="window.location.href='{% url 'disease_detect' %}'">Try Again</button>
+                {% else %}
+                <div class="diagnosis-header">
+                    <div>
+                        <span class="badge {% if result.confidence > 80 %}badge-success{% else %}badge-warning{% endif %}" style="margin-bottom: 12px;">Analysis Complete</span>
+                        <h2 class="disease-name">{{ result.disease|default:"Healthy Crop" }}</h2>
+                        <p style="color: var(--color-text-muted);">Detected primarily on leaves</p>
+                    </div>
+                    {% with score=result.confidence|default:95 %}
+                    <div class="health-score-ring {% if score > 85 %}danger{% elif score > 60 %}warning{% else %}healthy{% endif %}">
+                        <span>{{ score|floatformat:0 }}</span>
+                    </div>
+                    {% endwith %}
+                </div>
+
+                <div class="confidence-section">
+                    <div class="confidence-label">
+                        <span>AI Confidence Score</span>
+                        <span>{{ result.confidence|default:95|floatformat:1 }}%</span>
+                    </div>
+                    <div class="confidence-bar-bg">
+                        <div class="confidence-bar-fill" style="width: {{ result.confidence|default:95 }}%; {% if result.confidence > 80 %}background: var(--color-soft-alert);{% endif %}"></div>
+                    </div>
+                </div>
+
+                <div class="action-steps">
+                    <h4>Recommended Actions</h4>
+                    <ul class="step-list">
+                        <li><div class="step-icon">1</div><div><strong>Isolate the area:</strong> Prevent the spread by isolating the affected plants immediately.</div></li>
+                        <li><div class="step-icon">2</div><div><strong>Apply Fungicide:</strong> Use a copper-based fungicide to treat the spots.</div></li>
+                        <li><div class="step-icon">3</div><div><strong>Improve Ventilation:</strong> Ensure proper spacing between plants to reduce humidity.</div></li>
+                    </ul>
+                </div>
+
+                <div style="margin-top: 32px; display: flex; gap: 16px; flex-wrap: wrap;">
+                    <button class="btn btn-primary" style="flex: 1; min-width: 140px;">Save Report</button>
+                    <button class="btn btn-secondary" style="flex: 1; min-width: 140px;">Consult Expert</button>
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="placeholder-text">
+                    <h3>Upload a crop image to start disease detection</h3>
+                    <p>Use the camera or browse button to capture a leaf or crop photo. Results and recommendations will appear here once the image has been processed.</p>
+                </div>
+            {% endif %}
         </div>
     </div>
-
-    <div class="diagnosis-card">
-        {% if result.error %}
-            <div class="alert alert-error">
-                <strong>Analysis Failed:</strong> {{ result.error }}
-            </div>
-            <button class="btn btn-secondary" onclick="window.history.back()">Try Again</button>
-        {% else %}
-            <div class="diagnosis-header">
-                <div>
-                    <span class="badge {% if result.confidence > 80 %}badge-success{% else %}badge-warning{% endif %}" style="margin-bottom: 12px;">Analysis Complete</span>
-                    <h2 class="disease-name">{{ result.disease|default:"Healthy Crop" }}</h2>
-                    <p style="color: var(--color-text-muted);">Detected primarily on leaves</p>
-                </div>
-                
-                <!-- Determine health score class based on mock logic -->
-                {% with score=result.confidence|default:95 %}
-                <div class="health-score-ring {% if score > 85 %}danger{% elif score > 60 %}warning{% else %}healthy{% endif %}">
-                    <span>{{ score|floatformat:0 }}</span>
-                </div>
-                {% endwith %}
-            </div>
-
-            <div class="confidence-section">
-                <div class="confidence-label">
-                    <span>AI Confidence Score</span>
-                    <span>{{ result.confidence|default:95|floatformat:1 }}%</span>
-                </div>
-                <div class="confidence-bar-bg">
-                    <div class="confidence-bar-fill" style="width: {{ result.confidence|default:95 }}%; {% if result.confidence > 80 %}background: var(--color-soft-alert);{% endif %}"></div>
-                </div>
-            </div>
-
-            <div class="action-steps">
-                <h4>Recommended Actions</h4>
-                <ul class="step-list">
-                    <li>
-                        <div class="step-icon">1</div>
-                        <div><strong>Isolate the area:</strong> Prevent the spread by isolating the affected plants immediately.</div>
-                    </li>
-                    <li>
-                        <div class="step-icon">2</div>
-                        <div><strong>Apply Fungicide:</strong> Use a copper-based fungicide to treat the spots.</div>
-                    </li>
-                    <li>
-                        <div class="step-icon">3</div>
-                        <div><strong>Improve Ventilation:</strong> Ensure proper spacing between plants to reduce humidity.</div>
-                    </li>
-                </ul>
-            </div>
-
-            <div style="margin-top: 32px; display: flex; gap: 16px;">
-                <button class="btn btn-primary" style="flex: 1;">Save Report</button>
-                <button class="btn btn-secondary" style="flex: 1;">Consult Expert</button>
-            </div>
-        {% endif %}
+</div>
+<div id="cameraModal" class="camera-modal" style="display:none;">
+    <div class="camera-modal-backdrop" onclick="closeCamera()"></div>
+    <div class="camera-modal-content">
+        <button type="button" class="camera-close" onclick="closeCamera()">&times;</button>
+        <h3>Capture from Camera</h3>
+        <video id="cameraVideo" autoplay playsinline></video>
+        <div class="camera-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeCamera()">Cancel</button>
+            <button type="button" class="btn btn-primary" onclick="captureCameraPhoto()">Capture Photo</button>
+        </div>
     </div>
 </div>
-{% endif %}
 
 <script>
+    const uploadZone = document.getElementById('uploadZone');
+    const cameraInput = document.getElementById('camera-upload');
+    let cameraStream = null;
+
     function submitForm() {
         document.getElementById('uploadZone').style.display = 'none';
         const resultView = document.getElementById('resultView');
@@ -345,5 +479,84 @@
         document.getElementById('loadingIndicator').style.display = 'block';
         document.getElementById('diseaseForm').submit();
     }
+
+    function openCamera() {
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            showCameraModal();
+            return;
+        }
+        cameraInput.click();
+    }
+
+    function showCameraModal() {
+        const modal = document.getElementById('cameraModal');
+        const video = document.getElementById('cameraVideo');
+        modal.style.display = 'flex';
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+            .then(stream => {
+                cameraStream = stream;
+                video.srcObject = stream;
+            })
+            .catch(() => {
+                closeCamera();
+                cameraInput.click();
+            });
+    }
+
+    function closeCamera() {
+        const modal = document.getElementById('cameraModal');
+        const video = document.getElementById('cameraVideo');
+        modal.style.display = 'none';
+        video.srcObject = null;
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(track => track.stop());
+            cameraStream = null;
+        }
+    }
+
+    function captureCameraPhoto() {
+        const video = document.getElementById('cameraVideo');
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        canvas.toBlob(blob => {
+            if (!blob) {
+                closeCamera();
+                return;
+            }
+            const file = new File([blob], 'camera-capture.jpg', { type: 'image/jpeg' });
+            setFileAndSubmit(file);
+            closeCamera();
+        }, 'image/jpeg', 0.95);
+    }
+
+    function setFileAndSubmit(file) {
+        const input = document.getElementById('file-upload');
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        input.files = dataTransfer.files;
+        submitForm();
+    }
+
+    uploadZone.addEventListener('dragover', event => {
+        event.preventDefault();
+        uploadZone.classList.add('drag-over');
+    });
+
+    uploadZone.addEventListener('dragleave', () => {
+        uploadZone.classList.remove('drag-over');
+    });
+
+    uploadZone.addEventListener('drop', event => {
+        event.preventDefault();
+        uploadZone.classList.remove('drag-over');
+        const file = event.dataTransfer.files[0];
+        if (file) {
+            setFileAndSubmit(file);
+        }
+    });
 </script>
 {% endblock %}
