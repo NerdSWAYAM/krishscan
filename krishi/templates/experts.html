@@ -7,111 +7,147 @@
     <title>KrishiScan - Expert Consultation</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'global.css' %}">
+    <link rel="stylesheet" href="{% static 'farmer-sidebar.css' %}">
     <style>
-        /* Base styles */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Inter", sans-serif; }
-        body { background-color: var(--color-bg-base); color: var(--color-text-main); display: flex; height: 100vh; overflow: hidden; }
-        .sidebar { width: 280px; background-color: var(--color-primary-dark); color: #fff; display: flex; flex-direction: column; padding: 2rem 1.5rem; position: fixed; top: 0; left: 0; height: 100%; z-index: 50; }
-        .brand { margin-bottom: 3rem; padding-left: 0.5rem; }
-        .brand h1 { font-size: 1.8rem; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 0.2rem; display: flex; align-items: center; gap: 10px; }
-        .brand h1::before { content: "🌾"; font-size: 1.5rem; }
-        .subtitle { font-size: 0.85rem; color: var(--color-primary-light); text-transform: uppercase; letter-spacing: 1px; font-weight: 500; }
-        .nav-menu { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
-        .nav-link { display: flex; align-items: center; gap: 12px; padding: 0.8rem 1rem; color: var(--color-bg-base); text-decoration: none; border-radius: var(--radius-sm); font-size: 1rem; font-weight: 500; transition: all var(--transition-fast); position: relative; }
-        .nav-link:hover { background-color: rgba(255,255,255,0.05); color: #fff; }
-        .nav-link.active { background-color: var(--color-primary); color: #fff; }
-        .nav-link.active::before { content: ""; position: absolute; left: -1.5rem; top: 50%; transform: translateY(-50%); width: 4px; height: 60%; background-color: var(--color-primary-light); border-radius: 0 4px 4px 0; }
-        .nav-icon { font-size: 1.2rem; }
-        .profile-pill { display: flex; align-items: center; gap: 12px; padding: 1rem; background-color: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-md); margin-top: auto; text-decoration: none; color: #fff; transition: background var(--transition-fast); }
-        .profile-pill:hover { background-color: rgba(0,0,0,0.25); }
-        .avatar-initials { width: 40px; height: 40px; border-radius: 50%; background-color: var(--color-primary-light); color: var(--color-primary-dark); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; }
-        .profile-text { display: flex; flex-direction: column; }
-        .profile-name { font-weight: 600; font-size: 0.95rem; }
-        .profile-role { font-size: 0.8rem; color: var(--color-primary-light); }
-        
-        .main-content { margin-left: 280px; flex: 1; height: 100vh; overflow-y: auto; position: relative; }
-        .banner-bg { position: absolute; top: 0; left: 0; width: 100%; height: 250px; object-fit: cover; z-index: 0; opacity: 0.8; pointer-events: none; }
-        .content-wrapper { position: relative; z-index: 10; padding: 3rem 4rem; max-width: 1400px; margin: 0 auto; }
-        .header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2.5rem; }
-        .greeting h2 { font-size: 2.2rem; color: var(--color-primary-dark); font-weight: 700; letter-spacing: -0.5px; margin-bottom: 0.4rem; }
-        .greeting p { color: var(--color-text-muted); font-size: 1.05rem; }
+        .banner-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: min(15rem, 35vh);
+            object-fit: cover;
+            z-index: 0;
+            opacity: 0.8;
+            pointer-events: none;
+        }
 
-        /* Expert UI */
+        .content-wrapper {
+            position: relative;
+            z-index: 10;
+            padding: clamp(1.25rem, 4vw, 3rem) clamp(1rem, 4vw, 4rem);
+            max-width: 87.5rem;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .greeting h2 {
+            font-size: clamp(1.35rem, 4vw, 2rem);
+            color: var(--color-primary-dark);
+            font-weight: 700;
+            margin-bottom: 0.35rem;
+        }
+
+        .greeting p {
+            color: var(--color-text-muted);
+            font-size: clamp(0.9rem, 2.5vw, 1.05rem);
+        }
+
         .expert-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+            gap: clamp(1rem, 3vw, 2rem);
         }
+
         .expert-card {
-            background-color: var(--color-bg-surface);
-            border-radius: var(--radius-md);
+            background-color: var(--color-bg-surface, #fff);
+            border-radius: var(--radius-md, 12px);
             border: 1px solid var(--color-border);
-            padding: 2rem;
+            padding: clamp(1.25rem, 3vw, 2rem);
             text-align: center;
             box-shadow: var(--shadow-sm);
-            transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
         }
-        .expert-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); border-color: var(--color-primary-light);}
+
+        .expert-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md, 0 8px 24px rgba(0,0,0,0.08));
+            border-color: var(--color-primary-light);
+        }
+
         .exp-avatar {
-            font-size: 4rem;
-            margin-bottom: 1rem;
+            width: 4rem;
+            height: 4rem;
+            margin: 0 auto 1rem auto;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #59AC77, #3A6F43);
+            color: #fff;
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .exp-name { font-size: 1.2rem; font-weight: 700; color: var(--color-text-main); margin-bottom: 5px; }
+
+        .exp-name { font-size: 1.15rem; font-weight: 700; color: var(--color-text-main); margin-bottom: 5px; }
         .exp-spec { color: var(--color-primary); font-size: 0.9rem; font-weight: 600; margin-bottom: 15px; }
         .exp-desc { color: var(--color-text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px; }
+
         .btn-call {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 2.75rem;
+            padding: 0.65rem 1.35rem;
             background-color: var(--color-primary-dark);
             color: #fff;
-            padding: 0.8rem 1.5rem;
-            border-radius: var(--radius-sm);
+            border-radius: var(--radius-sm, 8px);
             text-decoration: none;
             font-weight: 600;
-            transition: background var(--transition-fast);
+            transition: background 0.2s ease;
+            width: 100%;
+            max-width: 16rem;
+            box-sizing: border-box;
         }
-        .btn-call:hover { background-color: var(--color-primary); }
 
+        .btn-call:hover { background-color: var(--color-primary); }
     </style>
 </head>
-<body>
+<body class="farmer-profile-layout">
 
-    <!-- SIDEBAR -->
     {% include 'farmer_sidebar.html' %}
 
-    <!-- MAIN CONTENT -->
     <main class="main-content">
         <object data="{% static 'expert_banner.svg' %}" type="image/svg+xml" class="banner-bg"></object>
         <div class="content-wrapper">
             <div class="header-row">
                 <div class="greeting">
-                    <h2>Connect with Experts 👨‍🌾</h2>
-                    <p>Get professional agriculture consulting dynamically.</p>
+                    <h2>Connect with experts</h2>
+                    <p>Professional agriculture consulting when you need it.</p>
                 </div>
             </div>
 
             <div class="expert-grid">
                 <div class="expert-card">
-                    <div class="exp-avatar">👨‍⚕️</div>
+                    <div class="exp-avatar" aria-hidden="true">AS</div>
                     <div class="exp-name">Dr. Anil Sharma</div>
-                    <div class="exp-spec">Pathologist & Soil Expert</div>
+                    <div class="exp-spec">Pathologist &amp; soil expert</div>
                     <p class="exp-desc">Extensive knowledge in treating soil deficiencies and early blight.</p>
-                    <a href="#" class="btn-call">Book Call</a>
+                    <a href="#" class="btn-call">Book call</a>
                 </div>
 
                 <div class="expert-card">
-                    <div class="exp-avatar">👩‍🔬</div>
+                    <div class="exp-avatar" aria-hidden="true">NG</div>
                     <div class="exp-name">Dr. Neha Gupta</div>
-                    <div class="exp-spec">Botany Specialist</div>
+                    <div class="exp-spec">Botany specialist</div>
                     <p class="exp-desc">Specializes in organic farming methods and natural pest control.</p>
-                    <a href="#" class="btn-call">Book Call</a>
+                    <a href="#" class="btn-call">Book call</a>
                 </div>
 
                 <div class="expert-card">
-                    <div class="exp-avatar">👨‍💻</div>
+                    <div class="exp-avatar" aria-hidden="true">RK</div>
                     <div class="exp-name">Ravi Kumar</div>
-                    <div class="exp-spec">Agriculture Tech</div>
+                    <div class="exp-spec">Agriculture tech</div>
                     <p class="exp-desc">Helps you with KrishiScan IoT integrations and drone sweeps.</p>
-                    <a href="#" class="btn-call">Book Call</a>
+                    <a href="#" class="btn-call">Book call</a>
                 </div>
             </div>
 

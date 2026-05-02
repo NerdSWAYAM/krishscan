@@ -392,6 +392,25 @@ h4,
                 rgba(255, 255, 255, 0.9) 0%,
                 rgba(255, 255, 255, 0.4) 100%);
     }
+
+    .btn-text,
+    .btn-filled {
+        min-height: 2.75rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding-left: 1.25rem;
+        padding-right: 1.25rem;
+    }
+
+    .roles-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .role-img {
+        height: min(350px, 55vw);
+        min-height: 200px;
+    }
 }
 /* --- FEATURES SECTION --- */
 .features-section {

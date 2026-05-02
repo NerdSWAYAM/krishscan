@@ -14,7 +14,6 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'global.css' %}">
     <link rel="stylesheet" href="{% static 'index.css' %}?v=2.0">
-    <link rel="stylesheet" href="{% static 'farmer-sidebar.css' %}">
     <style>
         /* Removed duplicate body styles as they are in farmer-sidebar.css */
 
@@ -225,11 +224,32 @@
             margin-top: 2rem;
         }
 
+        main {
+            overflow-x: clip;
+            padding-left: clamp(0.75rem, 3vw, 1.5rem);
+            padding-right: clamp(0.75rem, 3vw, 1.5rem);
+            box-sizing: border-box;
+        }
+
+        .tracker-title {
+            font-size: clamp(2rem, 8vw, 5rem) !important;
+            line-height: 1.05;
+            word-break: break-word;
+        }
+
         @media (max-width: 768px) {
             .results-header {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 1rem;
+            }
+
+            .search-container {
+                padding: 1.25rem !important;
+            }
+
+            .market-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -240,7 +260,7 @@
 
     <main>
     <div class="tracker-hero">
-        <h1 class="cinematic-heading-dark text-center" style="margin-bottom: 0.5rem; font-size: 5rem; color: var(--color-deep-forest);">Live Market Prices</h1>
+        <h1 class="cinematic-heading-dark text-center tracker-title" style="margin-bottom: 0.5rem; color: var(--color-deep-forest);">Live Market Prices</h1>
         <p class="cinematic-text-dark mx-auto text-center" style="max-width: 600px; color: var(--color-primary);">
             Access real-time Mandi figures across India to ensure you always get the fair value for your harvest.
         </p>

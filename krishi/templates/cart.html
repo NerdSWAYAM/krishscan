@@ -4,7 +4,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Crop Marketplace</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Marketplace – KrishiScan</title>
     <link rel="stylesheet" href="{% static 'global.css' %}">
     <link rel="stylesheet" href="{% static 'cart.css' %}">
 </head>
@@ -12,33 +13,34 @@
 <body>
     {% include 'navbar.html' %}
 
-    <h1>🌾 Crop Marketplace</h1>
+    <main class="cart-page">
+        <h1>Crop marketplace</h1>
 
-    <div class="products">
-        <h2>Available Crops</h2>
+        <section class="products" aria-labelledby="available-heading">
+            <h2 id="available-heading">Available crops</h2>
 
-        <div class="item">
-            <span>Rice - ₹30/kg</span>
-            <button onclick="addToCart('Rice', 30)">Add to Cart</button>
-        </div>
+            <div class="item">
+                <span>Rice – ₹30/kg</span>
+                <button type="button" onclick="addToCart('Rice', 30)">Add to cart</button>
+            </div>
 
-        <div class="item">
-            <span>Wheat - ₹25/kg</span>
-            <button onclick="addToCart('Wheat', 25)">Add to Cart</button>
-        </div>
+            <div class="item">
+                <span>Wheat – ₹25/kg</span>
+                <button type="button" onclick="addToCart('Wheat', 25)">Add to cart</button>
+            </div>
 
-        <div class="item">
-            <span>Maize - ₹20/kg</span>
-            <button onclick="addToCart('Maize', 20)">Add to Cart</button>
-        </div>
+            <div class="item">
+                <span>Maize – ₹20/kg</span>
+                <button type="button" onclick="addToCart('Maize', 20)">Add to cart</button>
+            </div>
+        </section>
 
-    </div>
-
-    <div class="cart">
-        <h2>🛒 Cart</h2>
-        <ul id="cartList"></ul>
-        <h3 id="total">Total: ₹0</h3>
-    </div>
+        <section class="cart" aria-labelledby="cart-heading">
+            <h2 id="cart-heading">Cart</h2>
+            <ul id="cartList"></ul>
+            <p id="total" class="cart-total">Total: ₹0</p>
+        </section>
+    </main>
 
     <script>
         let cart = [];
@@ -66,7 +68,7 @@
                 let itemTotal = item.price * item.quantity;
                 total += itemTotal;
 
-                li.textContent = `${item.name} - ${item.quantity} kg - ₹${itemTotal}`;
+                li.textContent = `${item.name} – ${item.quantity} kg – ₹${itemTotal}`;
                 cartList.appendChild(li);
             });
 

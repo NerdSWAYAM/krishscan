@@ -9,7 +9,7 @@
         position: relative;
         background: var(--color-surface);
         border-radius: 20px;
-        padding: 48px;
+        padding: clamp(1.25rem, 5vw, 3rem);
         color: var(--color-text-primary);
         margin-bottom: 40px;
         overflow: hidden;
@@ -43,8 +43,8 @@
 
     .hero-title {
         font-family: 'Playfair Display', serif;
-        font-size: 42px;
-        line-height: 1.1;
+        font-size: clamp(1.5rem, 5vw, 2.625rem);
+        line-height: 1.15;
         margin-bottom: 16px;
         color: var(--color-deep-forest);
     }
@@ -200,8 +200,42 @@
         box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
 
+    .farmer-card-actions {
+        margin-left: auto;
+    }
+
     @media (max-width: 900px) {
         .split-section { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 600px) {
+        .order-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .farmer-card {
+            flex-wrap: wrap;
+        }
+
+        .farmer-card-actions {
+            margin-left: 0;
+            width: 100%;
+        }
+
+        .farmer-card-actions .btn {
+            width: 100%;
+            text-align: center;
+            justify-content: center;
+            min-height: 2.75rem;
+        }
+
+        .empty-orders-visual {
+            max-width: 100%;
+            height: auto !important;
+            margin: 2rem auto !important;
+        }
     }
 </style>
 {% endblock %}
@@ -215,7 +249,7 @@
             <img src="{% static 'mail-svgrepo-com.svg' %}" style="height: 20px; width: 20px;"> {{ request.session.email }}<br>
             <img src="{% static 'location-pin-svgrepo-com.svg' %}" style="height: 20px; width: 20px;"> {{ request.session.location }}
         </p>
-        <a href="{% url 'marketplace' %}" class="btn btn-primary" style="background: var(--color-primary); color: var(--color-bg);">Shop Seasonal Produce</a>
+        <a href="{% url 'marketplace' %}" class="btn btn-primary" style="background: var(--color-primary); color: var(--color-bg); min-height: 2.75rem;">Shop Seasonal Produce</a>
     </div>
 </div>
 
@@ -246,8 +280,8 @@
                 {% endfor %}
             {% else %}
                 
-                <img src="{% static 'box-svgrepo-com (1).svg' %}" alt="order-box" style="height: 200px; width: 200px; margin: 100px auto; align-items: center; justify-content: center; display: flex;">
-                <p style="color: var(--color-text-muted); font-size: 18px; text-align: center; margin-top: 100px;">No recent orders found.</p>
+                <img src="{% static 'box-svgrepo-com (1).svg' %}" alt="" class="empty-orders-visual" style="display: block; max-width: 12.5rem; width: 50vw; height: auto; margin: 2rem auto;">
+                <p style="color: var(--color-text-muted); font-size: clamp(0.95rem, 3vw, 1.125rem); text-align: center; margin-top: 1rem;">No recent orders found.</p>
             {% endif %}
         </div>
     </div>
@@ -263,9 +297,9 @@
                     </div>
                     <div class="farmer-info">
                         <h4>{{ farmer.first_name }} {{ farmer.last_name }}</h4>
-                        <p>📍 {{ farmer.location }}</p>
+                        <p>{{ farmer.location }}</p>
                     </div>
-                    <div style="margin-left: auto;">
+                    <div class="farmer-card-actions">
                         <a href="{% url 'chat_view' farmer.id %}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px; text-decoration: none; color: #3A6F43; background: #F7FBF8; border: 1px solid rgba(58,111,67,0.2);">Chat</a>
                     </div>
                 </div>

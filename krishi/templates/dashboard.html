@@ -19,7 +19,7 @@
 
     .greeting-section h2 {
         font-family: 'Playfair Display', serif;
-        font-size: 32px;
+        font-size: clamp(1.35rem, 4vw, 2rem);
         margin-bottom: 8px;
     }
 
@@ -64,7 +64,7 @@
 
     .stats-row {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
         gap: 24px;
         margin-bottom: 32px;
     }
@@ -89,10 +89,11 @@
 
     .stat-value {
         font-family: 'Grenze Gotisch', serif;
-        font-size: 32px;
+        font-size: clamp(1.25rem, 4vw, 2rem);
         font-weight: 700;
         color: var(--color-deep-forest);
-        line-height: 1;
+        line-height: 1.2;
+        word-break: break-word;
     }
 
     .stat-label {
@@ -174,6 +175,28 @@
         border-radius: 16px;
         border: 1px solid var(--color-border);
         background: white;
+    }
+
+    .dashboard-bottom-grid {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+
+    .chart-panel-canvas {
+        position: relative;
+        width: 100%;
+        max-width: 15.625rem;
+        height: min(15.625rem, 72vw);
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .scans-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .uploaded-crop-thumbnail {
@@ -259,11 +282,11 @@
     }
 
     @media (max-width: 1024px) {
-        .stats-row {
-            grid-template-columns: repeat(2, 1fr);
+        .dashboard-grid {
+            grid-template-columns: 1fr;
         }
 
-        .dashboard-grid {
+        .dashboard-bottom-grid {
             grid-template-columns: 1fr;
         }
     }
@@ -273,14 +296,37 @@
             flex-direction: column;
             gap: 24px;
             text-align: center;
+            padding: 1.25rem !important;
         }
 
         .date-time-display {
             text-align: center !important;
         }
 
-        .stats-row {
+        .uploaded-crop-item {
             grid-template-columns: 1fr;
+            justify-items: stretch;
+        }
+
+        .uploaded-crop-item .btn-remove-crop {
+            width: 100%;
+            min-height: 2.75rem;
+        }
+
+        .farmer-card {
+            flex-wrap: wrap;
+        }
+
+        .farmer-card-actions {
+            margin-left: 0 !important;
+            width: 100%;
+        }
+
+        .farmer-card .btn {
+            width: 100%;
+            text-align: center;
+            justify-content: center;
+            min-height: 2.75rem;
         }
     }
 </style>
@@ -360,11 +406,11 @@
             style="display: flex; align-items: center; justify-content: space-around; padding: 20px 0; flex-wrap: wrap; gap: 20px;">
             <div style="text-align: center;">
                 <img src="http://openweathermap.org/img/wn/{{ weather_data.icon }}@4x.png" alt="Weather icon"
-                    style="width: 140px; height: 140px; filter: drop-shadow(0px 10px 15px rgba(0,0,0,0.1));">
+                    style="width: min(140px, 40vw); height: auto; max-width: 100%; filter: drop-shadow(0px 10px 15px rgba(0,0,0,0.1));">
                 <h2
-                    style="font-size: 42px; margin: 0; color: var(--color-deep-forest); font-family: 'Playfair Display', serif;">
+                    style="font-size: clamp(1.75rem, 6vw, 2.625rem); margin: 0; color: var(--color-deep-forest); font-family: 'Playfair Display', serif;">
                     {{ weather_data.temp }}°C</h2>
-                <p style="font-size: 20px; color: var(--color-text-muted); margin: 5px 0 0 0; font-weight: 500;">
+                <p style="font-size: clamp(1rem, 3vw, 1.25rem); color: var(--color-text-muted); margin: 5px 0 0 0; font-weight: 500;">
                     {{weather_data.description }}</p>
             </div>
             <div style="display: flex; flex-direction: column; gap: 24px;">
@@ -420,7 +466,7 @@
                 <img src="{{ crop.image.url }}" alt="{{ crop.name }}" class="uploaded-crop-thumbnail">
                 {% else %}
                 <div class="uploaded-crop-thumbnail"
-                    style="display:flex;align-items:center;justify-content:center;font-size:28px;">🌾</div>
+                    style="display:flex;align-items:center;justify-content:center;color:var(--color-text-muted);font-size:0.75rem;font-weight:600;text-transform:uppercase;">No image</div>
                 {% endif %}
                 <div class="uploaded-crop-info">
                     <div class="uploaded-crop-name">{{ crop.name }}</div>
@@ -439,14 +485,14 @@
         {% endif %}
     </div>
 
-    <div style="grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+    <div class="dashboard-bottom-grid">
         <div style="background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 12px rgba(58,111,67,0.06); border: 1px solid var(--color-border); cursor: pointer; transition: transform 0.2s; display: flex; flex-direction: column; align-items: center;"
             onclick="window.location.href='{% url 'crop_history' %}'" onmouseover="this.style.transform='translateY(-4px)'"
             onmouseout="this.style.transform='translateY(0)'">
             <h3 class="section-title" style="margin-top: 0; margin-bottom: 16px; align-self: flex-start;">Crop Status
                 Overview</h3>
-            <div style="position: relative; width: 100%; max-width: 250px; height: 250px; margin: auto;">
-                <canvas id="cropStatusChart" width="250" height="250" style="display: block; max-width: 100%;"></canvas>
+            <div class="chart-panel-canvas">
+                <canvas id="cropStatusChart" style="display: block; width: 100% !important; height: 100% !important;"></canvas>
             </div>
             <div
                 style="text-align: center; margin-top: 16px; font-size: 14px; color: var(--color-text-muted); font-weight: 500;">
@@ -465,9 +511,9 @@
                         </div>
                         <div class="farmer-info">
                             <h4 style="margin: 0 0 4px 0; font-size: 15px; font-family: 'DM Sans', sans-serif;">{{ consumer.first_name }} {{ consumer.last_name }}</h4>
-                            <p style="margin: 0; font-size: 13px; color: var(--color-text-muted);">📍 {{ consumer.location }}</p>
+                            <p style="margin: 0; font-size: 13px; color: var(--color-text-muted);">{{ consumer.location }}</p>
                         </div>
-                        <div style="margin-left: auto;">
+                        <div class="farmer-card-actions" style="margin-left: auto;">
                             <a href="{% url 'chat_view' consumer.id %}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px; text-decoration: none; color: #3A6F43; background: #F7FBF8; border: 1px solid rgba(58,111,67,0.2);">Chat</a>
                         </div>
                     </div>

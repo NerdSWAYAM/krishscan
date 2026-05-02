@@ -4,8 +4,9 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        height: 64px;
-        padding: 0 40px;
+        gap: 0.75rem;
+        min-height: 4rem;
+        padding: 0 clamp(1rem, 4vw, 2.5rem);
         background: #FFFFFF;
         border-bottom: 1px solid rgba(58, 111, 67, 0.12);
         box-shadow: 0 2px 12px rgba(58, 111, 67, 0.06);
@@ -19,6 +20,7 @@
         align-items: center;
         gap: 8px;
         text-decoration: none;
+        flex-shrink: 0;
     }
 
     .navbar-logo {
@@ -29,12 +31,28 @@
         margin: 0;
     }
 
+    .navbar-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-left: auto;
+        flex-shrink: 0;
+    }
+
     .navbar-links {
         display: flex;
-        gap: 32px;
+        gap: clamp(1rem, 3vw, 2rem);
         align-items: center;
-        margin-left: auto;
-        margin-right: 40px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .navbar-desktop-only {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
     }
 
     .nav-link {
@@ -68,12 +86,6 @@
         border-radius: 2px 2px 0 0;
     }
 
-    .navbar-right {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-    }
-
     .role-badge {
         font-family: 'DM Sans', sans-serif;
         font-size: 11px;
@@ -94,6 +106,10 @@
         color: #7B2020;
     }
 
+    .notification-host {
+        position: relative;
+    }
+
     .notification-bell {
         position: relative;
         color: #6B8A72;
@@ -101,10 +117,19 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: color 0.2s ease;
+        min-width: 2.75rem;
+        min-height: 2.75rem;
+        border-radius: 0.625rem;
+        transition: color 0.2s ease, background 0.2s ease;
+    }
+
+    .notification-bell:focus-visible {
+        outline: 2px solid #59AC77;
+        outline-offset: 2px;
     }
 
     .notification-bell:hover {
+        background: rgba(89, 172, 119, 0.08);
         color: #3A6F43;
     }
 
@@ -146,8 +171,8 @@
         position: absolute;
         top: calc(100% + 12px);
         right: 0;
-        width: 320px;
-        max-height: 420px;
+        width: min(20rem, calc(100vw - 1.5rem));
+        max-height: min(26rem, 70vh);
         background: #FFFFFF;
         border: 1px solid rgba(58, 111, 67, 0.16);
         border-radius: 16px;
@@ -304,11 +329,21 @@
     .hamburger {
         display: none;
         flex-direction: column;
-        gap: 4px;
+        gap: 5px;
+        justify-content: center;
+        align-items: center;
         background: none;
         border: none;
         cursor: pointer;
-        padding: 4px;
+        padding: 0.5rem;
+        min-width: 2.75rem;
+        min-height: 2.75rem;
+        border-radius: 0.5rem;
+    }
+
+    .hamburger:focus-visible {
+        outline: 2px solid #59AC77;
+        outline-offset: 2px;
     }
 
     .hamburger span {
@@ -333,9 +368,10 @@
     }
 
     .mobile-drawer {
-        position: absolute;
-        top: 64px;
+        position: fixed;
+        top: 4rem;
         left: 0;
+        right: 0;
         width: 100%;
         background: #FFFFFF;
         border-bottom: 1px solid rgba(58, 111, 67, 0.12);
@@ -345,11 +381,14 @@
         padding: 0;
         max-height: 0;
         overflow: hidden;
-        transition: max-height 0.3s ease;
+        transition: max-height 0.32s ease;
+        z-index: 1100;
     }
 
     .mobile-drawer.open {
-        max-height: 400px;
+        max-height: min(85vh, 32rem);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .mobile-nav-item {
@@ -379,20 +418,24 @@
     }
 
     @media(max-width: 768px) {
-        .navbar {
-            padding: 0 20px;
-        }
-
         .navbar-links {
             display: none;
         }
 
-        .navbar-right {
+        .navbar-desktop-only {
             display: none;
         }
 
         .hamburger {
             display: flex;
+        }
+
+        .notification-dropdown {
+            position: fixed;
+            top: 4.25rem;
+            right: 0.75rem;
+            left: auto;
+            width: min(20rem, calc(100vw - 1.5rem));
         }
     }
 </style>
@@ -403,97 +446,84 @@
         <h1 class="navbar-logo">KrishiScan</h1>
     </a>
 
-    <!-- Desktop Links -->
     <div class="navbar-links">
         {% if request.session.role == 'Farmer' %}
-        
-        
-        <!-- <a href="#" class="nav-link">My Farm</a> -->
         <a href="{% url 'marketplace' %}"
             class="nav-link {% if request.resolver_match.url_name == 'marketplace' %}active{% endif %}">Market</a>
         <a href="{% url 'disease_detect' %}"
             class="nav-link {% if request.resolver_match.url_name == 'disease_detect' %}active{% endif %}">Scan Crop</a>
         <a href="{% url 'crop_history' %}"
             class="nav-link {% if request.resolver_match.url_name == 'crop_history' %}active{% endif %}">Crop History</a>
-        
         <a href="{% url 'price_tracker' %}"
             class="nav-link {% if request.resolver_match.url_name == 'price_tracker' %}active{% endif %}">Market Prices</a>
         <a href="{% url 'dashboard' %}"
             class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">Profile</a>
-        <!-- <a href="#" class="nav-link">Reports</a> -->
         {% else %}
-        <!-- Consumer Links -->
-        
         <a href="{% url 'marketplace' %}"
             class="nav-link {% if request.resolver_match.url_name == 'marketplace' %}active{% endif %}">Browse</a>
         <a href="{% url 'price_tracker' %}"
             class="nav-link {% if request.resolver_match.url_name == 'price_tracker' %}active{% endif %}">Market Prices</a>
         <a href="{% url 'my_orders' %}"
             class="nav-link {% if request.resolver_match.url_name == 'my_orders' %}active{% endif %}">Orders</a>
-        <!-- <a href="#" class="nav-link">Farmers</a> -->
-        <!-- <a href="{% url 'wishlist' %}"
-            class="nav-link {% if request.resolver_match.url_name == 'wishlist' %}active{% endif %}">Wishlist</a> -->
         <a href="{% url 'consumerdash' %}"
             class="nav-link {% if request.resolver_match.url_name == 'consumerdash' %}active{% endif %}">Profile</a>
         {% endif %}
     </div>
 
-    <!-- Desktop Right Controls -->
-    <div class="navbar-right">
-        {% if request.session.role == 'Farmer' %}
-        <div class="role-badge farmer">Farmer</div>
-        {% else %}
-        <div class="role-badge consumer">Consumer</div>
-        {% endif %}
-
-        <div class="notification-bell" id="notificationBell">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-            </svg>
-            <div class="notification-dot" id="notificationDot"></div>
-            <span class="notification-count" id="notificationCount"></span>
-        </div>
-
-        <div class="notification-dropdown" id="notificationDropdown">
-            <div class="notification-dropdown-header">
-                <span>Notifications</span>
-                <a href="#" id="markAllRead">Mark all read</a>
+    <div class="navbar-toolbar">
+        <div class="notification-host">
+            <div class="notification-bell" id="notificationBell" role="button" tabindex="0" aria-label="Notifications" aria-expanded="false" aria-haspopup="true">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                <div class="notification-dot" id="notificationDot"></div>
+                <span class="notification-count" id="notificationCount"></span>
             </div>
-            <div class="notification-items" id="notificationItems">
-                <div class="notification-empty">Loading notifications…</div>
-            </div>
-            <a href="{% url 'marketplace' %}" class="notification-view-all">View all notifications</a>
-        </div>
-
-        <div class="avatar-wrapper">
-            <div class="avatar-circle" id="avatarCircle">
-                {{ request.session.first_name|default:"A"|slice:":1"|upper }}{{ request.session.last_name|default:"U"|slice:":1"|upper }}
-            </div>
-            <div class="avatar-dropdown" id="avatarDropdown">
-                <a href="#" class="dropdown-item">Profile</a>
-                <!-- <a href="#" class="dropdown-item">Settings</a> -->
-                {% if request.session.role == 'Farmer' %}
-                <a href="/wallet/" class="dropdown-item">Wallet</a>
-                <a href="{% url 'dashboard' %}#recent-chats" class="dropdown-item">Chats</a>
-                {% else %}
-                <a href="/wishlist/" class="dropdown-item">Wishlist</a>
-                <a href="{% url 'my_orders' %}" class="dropdown-item">MyOrders</a>
-                {% endif %}
-                <a href="/login/" class="dropdown-item" style="color: #C0392B;">Logout</a>
+            <div class="notification-dropdown" id="notificationDropdown">
+                <div class="notification-dropdown-header">
+                    <span>Notifications</span>
+                    <a href="#" id="markAllRead">Mark all read</a>
+                </div>
+                <div class="notification-items" id="notificationItems">
+                    <div class="notification-empty">Loading notifications…</div>
+                </div>
+                <a href="{% url 'marketplace' %}" class="notification-view-all">View all notifications</a>
             </div>
         </div>
+
+        <div class="navbar-desktop-only">
+            {% if request.session.role == 'Farmer' %}
+            <div class="role-badge farmer">Farmer</div>
+            {% else %}
+            <div class="role-badge consumer">Consumer</div>
+            {% endif %}
+            <div class="avatar-wrapper">
+                <div class="avatar-circle" id="avatarCircle">
+                    {{ request.session.first_name|default:"A"|slice:":1"|upper }}{{ request.session.last_name|default:"U"|slice:":1"|upper }}
+                </div>
+                <div class="avatar-dropdown" id="avatarDropdown">
+                    <a href="#" class="dropdown-item">Profile</a>
+                    {% if request.session.role == 'Farmer' %}
+                    <a href="/wallet/" class="dropdown-item">Wallet</a>
+                    <a href="{% url 'dashboard' %}#recent-chats" class="dropdown-item">Chats</a>
+                    {% else %}
+                    <a href="/wishlist/" class="dropdown-item">Wishlist</a>
+                    <a href="{% url 'my_orders' %}" class="dropdown-item">MyOrders</a>
+                    {% endif %}
+                    <a href="/login/" class="dropdown-item" style="color: #C0392B;">Logout</a>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" class="hamburger" id="mobileMenuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileDrawer">
+        <span></span>
+        <span></span>
+        <span></span>
+        </button>
     </div>
 
-    <!-- Mobile Hamburger Button -->
-    <button class="hamburger" id="mobileMenuBtn">
-        <span></span>
-        <span></span>
-        <span></span>
-    </button>
-
-    <!-- Mobile Drawer -->
-    <div class="mobile-drawer" id="mobileDrawer">
+    <div class="mobile-drawer" id="mobileDrawer" role="navigation" aria-label="Mobile">
         {% if request.session.role == 'Farmer' %}
         
         
@@ -641,16 +671,27 @@
             });
         }
 
+        const syncNotifyExpanded = () => {
+            if (!notificationBell || !notificationDropdown) return;
+            notificationBell.setAttribute('aria-expanded', notificationDropdown.classList.contains('show') ? 'true' : 'false');
+        };
+
         if (notificationBell && notificationDropdown) {
             notificationBell.addEventListener('click', function (e) {
                 e.stopPropagation();
                 notificationDropdown.classList.toggle('show');
+                syncNotifyExpanded();
                 if (avatarDropdown && avatarDropdown.classList.contains('show')) {
                     avatarDropdown.classList.remove('show');
                 }
                 if (notificationDropdown.classList.contains('show')) {
                     markNotificationsRead();
                 }
+            });
+            notificationBell.addEventListener('keydown', function (e) {
+                if (e.key !== 'Enter' && e.key !== ' ') return;
+                e.preventDefault();
+                notificationBell.click();
             });
         }
 
@@ -670,22 +711,28 @@
         if (mobileMenuBtn && mobileDrawer) {
             mobileMenuBtn.addEventListener('click', function (e) {
                 e.stopPropagation();
-                this.classList.toggle('active');
-                mobileDrawer.classList.toggle('open');
+                const open = !mobileDrawer.classList.contains('open');
+                this.classList.toggle('active', open);
+                mobileDrawer.classList.toggle('open', open);
+                mobileMenuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                mobileMenuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
             });
         }
 
-        // Close dropdowns and drawer when clicking outside
         document.addEventListener('click', function (e) {
-            if (avatarDropdown && avatarDropdown.classList.contains('show')) {
+            var avatarWrap = avatarCircle ? avatarCircle.closest('.avatar-wrapper') : null;
+            if (avatarDropdown && avatarDropdown.classList.contains('show') && avatarWrap && !avatarWrap.contains(e.target)) {
                 avatarDropdown.classList.remove('show');
             }
-            if (notificationDropdown && notificationDropdown.classList.contains('show') && !notificationDropdown.contains(e.target) && !notificationBell.contains(e.target)) {
+            if (notificationDropdown && notificationDropdown.classList.contains('show') && !notificationDropdown.contains(e.target) && notificationBell && !notificationBell.contains(e.target)) {
                 notificationDropdown.classList.remove('show');
+                syncNotifyExpanded();
             }
-            if (mobileDrawer && mobileDrawer.classList.contains('open') && !mobileDrawer.contains(e.target)) {
+            if (mobileDrawer && mobileDrawer.classList.contains('open') && !mobileDrawer.contains(e.target) && mobileMenuBtn && !mobileMenuBtn.contains(e.target)) {
                 mobileDrawer.classList.remove('open');
-                if (mobileMenuBtn) mobileMenuBtn.classList.remove('active');
+                mobileMenuBtn.classList.remove('active');
+                mobileMenuBtn.setAttribute('aria-expanded', 'false');
+                mobileMenuBtn.setAttribute('aria-label', 'Open menu');
             }
         });
 
