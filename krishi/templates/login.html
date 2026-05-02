@@ -34,10 +34,11 @@
 
         body {
             min-height: 100vh;
+            min-height: 100dvh;
             display: flex;
             font-family: 'Inter', sans-serif;
             background: var(--cream);
-            overflow: hidden;
+            overflow-x: clip;
         }
 
         /* LEFT PANEL — decorative */
@@ -478,6 +479,12 @@
 
             .right-panel {
                 padding: 40px 24px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .btn-primary {
+                min-height: 2.75rem;
             }
         }
     </style>

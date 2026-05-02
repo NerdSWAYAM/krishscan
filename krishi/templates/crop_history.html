@@ -97,6 +97,26 @@
         background: #FFD5D5;
         color: #7B2020;
     }
+
+    @media (max-width: 768px) {
+        .page-header {
+            padding: clamp(1.25rem, 4vw, 2rem);
+        }
+
+        .page-title {
+            font-size: clamp(1.35rem, 5vw, 1.75rem);
+        }
+
+        .table-container {
+            padding: clamp(0.75rem, 3vw, 1rem);
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            font-size: 0.875rem;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -148,7 +168,7 @@
     </table>
     {% else %}
     <div style="text-align: center; padding: 40px; color: var(--color-text-muted);">
-        <div style="font-size: 48px; margin-bottom: 16px;"><img src="{% static 'box-svgrepo-com (1).svg' %}" alt="order-box" style="height: 100px; width: 100px; margin: 50px auto; align-items: center; justify-content: center; display: flex;"></div>
+        <div style="margin-bottom: 16px;"><img src="{% static 'box-svgrepo-com (1).svg' %}" alt="" style="display: block; max-width: min(100px, 25vw); height: auto; margin: 1rem auto;"></div>
         <p>No orders have been placed for your crops yet.</p>
     </div>
     {% endif %}
@@ -174,7 +194,7 @@
                     {% if crop.image %}
                         <img src="{{ crop.image.url }}" alt="{{ crop.name }}" style="width: 48px; height: 48px; border-radius: 8px; object-fit: cover;">
                     {% else %}
-                        <div style="width: 48px; height: 48px; border-radius: 8px; background: #E8F5EC; display: flex; align-items: center; justify-content: center; font-size: 24px;">🌾</div>
+                        <div style="width: 48px; height: 48px; border-radius: 8px; background: #E8F5EC; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase;">—</div>
                     {% endif %}
                 </td>
                 <td style="font-weight: 600; font-size: 16px;">{{ crop.name }}</td>

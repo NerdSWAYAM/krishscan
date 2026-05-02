@@ -244,3 +244,40 @@ a:hover {
     color: var(--color-primary-dark);
     letter-spacing: 0.05em;
 }
+
+/* --- Responsive foundations (mobile-first utilities) --- */
+html {
+    font-size: 100%;
+    -webkit-text-size-adjust: 100%;
+}
+
+img,
+video,
+canvas {
+    max-width: 100%;
+    height: auto;
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive table {
+    min-width: min(100%, 36rem);
+}
+
+@media (max-width: 480px) {
+    body {
+        font-size: 0.9375rem;
+    }
+
+    .btn-primary,
+    .btn-secondary,
+    .btn-danger {
+        min-height: 2.75rem;
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+    }
+}

@@ -344,6 +344,25 @@
         .input-prefix-wrap input {
             padding-left: 30px;
         }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 16px;
+                align-items: flex-start;
+            }
+
+            .card {
+                padding: clamp(1.25rem, 5vw, 2rem);
+            }
+
+            .row-2 {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-submit {
+                min-height: 2.75rem;
+            }
+        }
     </style>
 </head>
 <body>
