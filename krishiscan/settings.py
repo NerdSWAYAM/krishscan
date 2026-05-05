@@ -175,3 +175,6 @@ DEFAULT_FROM_EMAIL = 'nerdswayam@gmail.com'
 
 RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID")
 RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET")
+# Authentication
+LOGIN_URL = 'login'
+AUTHENTICATION_BACKENDS = ['krishi.views.UserAccountBackend']

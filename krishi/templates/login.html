@@ -275,6 +275,25 @@
             background: #fff5f5;
             color: #c0392b;
             border-color: #e74c3c;
+            position: relative;
+        }
+
+        .alert-close {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: inherit;
+            opacity: 0.5;
+            padding: 4px;
+        }
+
+        .alert-close:hover {
+            opacity: 1;
         }
 
         @keyframes fadeIn {
@@ -487,6 +506,41 @@
                 min-height: 2.75rem;
             }
         }
+        /* OTP/Reset Modal */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(26, 58, 31, 0.5); backdrop-filter: blur(6px); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-overlay.open { display: flex; }
+        .modal-box { background: var(--color-bg); border-radius: 20px; padding: 40px 32px; width: 360px; box-shadow: 0 30px 80px rgba(26, 58, 31, 0.35); animation: modalIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; position: relative; text-align: center; }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.92) translateY(16px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        .modal-close { position: absolute; top: 16px; right: 20px; background: none; border: none; font-size: 22px; color: var(--light-text); cursor: pointer; padding: 4px 8px; transition: color 0.2s; }
+        .modal-close:hover { color: #e74c3c; }
+        .modal-icon { width: 56px; height: 56px; background: linear-gradient(135deg, rgba(106, 176, 76, 0.15), rgba(78, 140, 69, 0.1)); border: 1px solid rgba(106, 176, 76, 0.3); border-radius: 16px; display: flex; align-items: center; justify-content: center; color: var(--sage); margin: 0 auto 16px auto; }
+        .modal-title { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: var(--dark-text); margin-bottom: 8px; }
+        .modal-sub { font-size: 13.5px; color: var(--light-text); line-height: 1.5; margin-bottom: 22px; }
+        .otp-digits { display: flex; gap: 12px; justify-content: center; margin-bottom: 24px; }
+        .otp-digit { width: 45px; height: 55px; border: 1.5px solid var(--border); border-radius: 12px; font-size: 24px; text-align: center; font-weight: 600; color: var(--dark-text); background: var(--color-bg); transition: all 0.2s; }
+        .otp-digit:focus { border-color: var(--sage); outline: none; box-shadow: 0 0 0 3px rgba(89, 172, 119, 0.15); }
+        .btn-verify { 
+            width: 100%; 
+            padding: 14px; 
+            background: linear-gradient(135deg, var(--sage), var(--moss));
+            color: #fff; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 15px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 12px rgba(44, 83, 50, 0.2);
+            margin-top: 10px;
+        }
+        .btn-verify:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(44, 83, 50, 0.3);
+        }
+        .btn-verify:disabled { opacity: 0.7; cursor: not-allowed; }
+        .input-modal { width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; margin-bottom: 16px; transition: border-color 0.2s; }
+        .input-modal:focus { border-color: var(--sage); outline: none; box-shadow: 0 0 0 3px rgba(89, 172, 119, 0.15); }
+        .modal-label { display: block; font-size: 13px; font-weight: 600; color: var(--mid-text); text-align: left; margin-bottom: 8px; margin-top: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
     </style>
 </head>
 
@@ -540,10 +594,16 @@
 
             <form method="POST" action="{% url 'login' %}">
                 {% csrf_token %}
+                {% if next %}
+                <input type="hidden" name="next" value="{{ next }}">
+                {% endif %}
 
                 {% if messages %}
                 {% for message in messages %}
-                <div class="alert alert-error">{{ message }}</div>
+                <div class="alert alert-error">
+                    {{ message }}
+                    <button type="button" class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+                </div>
                 {% endfor %}
                 {% endif %}
 
@@ -559,9 +619,12 @@
                     <div class="input-wrap">
                         <input type="password" name="password" id="pass" placeholder="Enter your password" required>
                     </div>
-                    <div class="show-pw-row">
-                        <input type="checkbox" id="show-pw" onclick="togglePassword()">
-                        <label for="show-pw">Show password</label>
+                    <div class="show-pw-row" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <input type="checkbox" id="show-pw" onclick="togglePassword()">
+                            <label for="show-pw">Show password</label>
+                        </div>
+                        <a href="javascript:void(0)" id="forgot-pw-link" style="font-size: 13px; color: var(--moss); text-decoration: none; font-weight: 500;">Forgot Password?</a>
                     </div>
                 </div>
 
@@ -577,11 +640,163 @@
         <p class="footer-note">&copy; 2026 KrishiScan. All rights reserved.</p>
     </div>
 
+    <!-- Forgot Password Modal -->
+    <div id="forgot-pw-modal" class="modal-overlay">
+        <div class="modal-box">
+            <button class="modal-close" id="close-forgot-modal">&times;</button>
+            <div class="modal-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                </svg>
+            </div>
+            
+            <!-- Step 2: OTP & New Password -->
+            <div id="step-reset">
+                <h3 class="modal-title">Enter OTP</h3>
+                <p class="modal-sub">We sent an OTP to your email. Set your new password below.</p>
+                
+                <div class="otp-digits">
+                    <input class="otp-digit reset-digit" type="text" maxlength="1" inputmode="numeric" pattern="\d">
+                    <input class="otp-digit reset-digit" type="text" maxlength="1" inputmode="numeric" pattern="\d">
+                    <input class="otp-digit reset-digit" type="text" maxlength="1" inputmode="numeric" pattern="\d">
+                    <input class="otp-digit reset-digit" type="text" maxlength="1" inputmode="numeric" pattern="\d">
+                </div>
+                <label class="modal-label">New Password</label>
+                <input type="password" id="reset-new-password" class="input-modal" placeholder="Create a strong password">
+                <button class="btn-verify" id="btn-reset-password">Reset Password</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Password Toggle
         function togglePassword() {
             const pwd = document.getElementById("pass");
             pwd.type = pwd.type === "password" ? "text" : "password";
         }
+        
+        // Modal Elements
+        const forgotLink = document.getElementById('forgot-pw-link');
+        const modal = document.getElementById('forgot-pw-modal');
+        const closeModal = document.getElementById('close-forgot-modal');
+        const stepReset = document.getElementById('step-reset');
+        
+        // Buttons
+        const btnResetPassword = document.getElementById('btn-reset-password');
+        
+        // Inputs
+        const mainEmailInput = document.getElementById('email');
+        const inputNewPassword = document.getElementById('reset-new-password');
+        const otpInputs = document.querySelectorAll('.reset-digit');
+        
+        // Trigger Forgot Password Flow
+        forgotLink.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const email = mainEmailInput.value.trim();
+            if (!email) {
+                alert("Please enter your email address in the login form first.");
+                mainEmailInput.focus();
+                return;
+            }
+            
+            forgotLink.textContent = 'Sending OTP...';
+            forgotLink.style.pointerEvents = 'none';
+            
+            try {
+                const res = await fetch('/send-otp/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    modal.classList.add('open');
+                    inputNewPassword.value = '';
+                    otpInputs.forEach(input => input.value = '');
+                    otpInputs[0].focus();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (err) {
+                alert('Network error. Please try again.');
+            }
+            
+            forgotLink.textContent = 'Forgot Password?';
+            forgotLink.style.pointerEvents = 'auto';
+        });
+        
+        // Close Modal
+        closeModal.addEventListener('click', () => modal.classList.remove('open'));
+        window.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('open'); });
+        
+        // OTP Auto-advance
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                if (e.target.value && index < otpInputs.length - 1) {
+                    otpInputs[index + 1].focus();
+                }
+            });
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    otpInputs[index - 1].focus();
+                }
+            });
+        });
+        
+        // Reset Password
+        btnResetPassword.addEventListener('click', async () => {
+            const email = mainEmailInput.value.trim();
+            const newPassword = inputNewPassword.value.trim();
+            let otp = '';
+            otpInputs.forEach(i => otp += i.value);
+            
+            if(otp.length !== 4) { alert('Please enter a valid 4-digit OTP'); return; }
+            if(!newPassword) { alert('Please enter a new password'); return; }
+            
+            btnResetPassword.textContent = 'Resetting...';
+            btnResetPassword.disabled = true;
+            
+            try {
+                const res = await fetch('/reset-password/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value },
+                    body: JSON.stringify({ email, otp, new_password: newPassword })
+                });
+                const data = await res.json();
+                
+                if(data.success) {
+                    alert('Password reset successfully! You can now login.');
+                    modal.classList.remove('open');
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (err) {
+                alert('Network error. Please try again.');
+            }
+            
+            btnResetPassword.textContent = 'Reset Password';
+            btnResetPassword.disabled = false;
+        });
+
+        // Auto-dismiss alerts after 5 seconds
+        document.querySelectorAll('.alert').forEach(alert => {
+            setTimeout(() => {
+                alert.style.opacity = '0';
+                alert.style.transform = 'translateY(-10px)';
+                alert.style.transition = 'all 0.5s ease-out';
+                setTimeout(() => alert.remove(), 500);
+            }, 5000);
+        });
+
+        // Remove global skeleton loader once the page is fully loaded
+        window.addEventListener('load', function() {
+            document.body.classList.add('loaded-state');
+        });
+        // Fallback
+        setTimeout(function() {
+            document.body.classList.add('loaded-state');
+        }, 3000);
     </script>
 </body>
 

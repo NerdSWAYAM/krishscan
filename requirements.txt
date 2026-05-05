@@ -5,9 +5,10 @@ dotenv
 requests
 pandas
 torch
-trochvision
+torchvision
 pillow
 timm
 razorpay
-tensorflow-cpu
-huggingface_hubcryptography
+tensorflow
+huggingface_hub
+cryptography

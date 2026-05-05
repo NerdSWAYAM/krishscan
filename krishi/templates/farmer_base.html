@@ -8,6 +8,13 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'global.css' %}">
+    <script>
+        window.KrishiScanAuth = {
+            isAuthenticated: {% if request.user.is_authenticated or request.session.user_id %}true{% else %}false{% endif %},
+            loginUrl: "{% url 'login' %}"
+        };
+    </script>
+    <script src="{% static 'auth-guard.js' %}" defer></script>
     {% block extra_css %}{% endblock %}
     <style>
         body {

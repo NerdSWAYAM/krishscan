@@ -442,7 +442,7 @@
 <!-- Orders List -->
 {% if orders %}
     {% for order in orders %}
-    <div class="order-card" data-status="{{ order.status }}">
+    <div class="order-card" id="order-card-{{ order.id }}" data-status="{{ order.status }}">
 
         <!-- Card Header -->
         <div class="oc-header">
@@ -502,11 +502,18 @@
         <!-- Items -->
         <div class="items-wrapper">
             {% for item in order.items.all %}
-            <div class="item-row">
+            <div class="item-row" id="item-row-{{ item.id }}">
                 <!-- <div class="item-emoji">🌾</div> -->
                 <div class="item-info">
                     <p class="item-name">{{ item.crop.name }}</p>
                     <p class="item-sub">{{ item.quantity }} kg · Farmer: {{ item.farmer.first_name }} {{ item.farmer.last_name }} · <img src="{% static 'location-pin-svgrepo-com.svg' %}" alt="location-pin-svgrepo-com.svg" style="height: 20px; width: 20px;">{{ item.farmer.location|truncatechars:30 }}</p>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-top: 6px; font-size: 13px;">
+                        <span style="color: #3A6F43; font-weight: 600;">
+                            <img src="{% static 'truck-time-svgrepo-com.svg' %}" style="height: 16px; width: 16px; vertical-align: text-bottom;"> 
+                            Est. Delivery: <span id="eta-{{ item.id }}">{% if item.minutes_left > 0 %}{{ item.minutes_left }} mins{% else %}Delivered / Arriving Now{% endif %}</span>
+                        </span>
+                        <a href="{% url 'order_map' item.id %}" target="_blank" style="padding: 4px 10px; font-size: 12px; background: #E8F5EC; color: #3A6F43; border: 1px solid rgba(58,111,67,0.2); border-radius: 6px; text-decoration: none; font-weight: 600;">Show Map</a>
+                    </div>
                 </div>
                 <span class="item-status-badge {{ item.status }}">{{ item.get_status_display }}</span>
                 <div class="item-amount">₹{{ item.amount }}</div>
@@ -570,11 +577,57 @@
         });
     });
 
-    // Auto-refresh every 60 seconds to get latest statuses
-    let countdown = 60;
-    setInterval(() => {
-        countdown--;
-        if (countdown <= 0) window.location.reload();
-    }, 1000);
+    // Auto-refresh using AJAX polling instead of full page reload
+    function pollOrderStatuses() {
+        fetch('/api/orders-status/')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.data.orders) {
+                    const orders = data.data.orders;
+                    for (const orderId in orders) {
+                        const orderData = orders[orderId];
+                        
+                        // Update order card status badge
+                        const card = document.getElementById(`order-card-${orderId}`);
+                        if (card) {
+                            card.dataset.status = orderData.status;
+                            const badge = card.querySelector('.oc-status-badge');
+                            if (badge) {
+                                badge.className = `oc-status-badge ${orderData.status}`;
+                                if (orderData.status === 'completed') badge.innerHTML = `<img src="{% static 'truck-tick-svgrepo-com.svg' %}" style="height: 20px; width: 20px;"> Delivered`;
+                                else if (orderData.status === 'partial') badge.innerHTML = `<img src="{% static 'truck-time-svgrepo-com.svg' %}" style="height: 20px; width: 20px;"> In Progress`;
+                                else badge.innerHTML = `<img src="{% static 'timer-svgrepo-com.svg' %}" style="height: 20px; width: 20px;"> Pending`;
+                            }
+                        }
+                        
+                        // Update items
+                        for (const itemId in orderData.items) {
+                            const itemData = orderData.items[itemId];
+                            const itemRow = document.getElementById(`item-row-${itemId}`);
+                            if (itemRow) {
+                                const statusBadge = itemRow.querySelector('.item-status-badge');
+                                if (statusBadge) {
+                                    statusBadge.className = `item-status-badge ${itemData.status}`;
+                                    statusBadge.textContent = itemData.status_display;
+                                }
+                                
+                                const etaSpan = document.getElementById(`eta-${itemId}`);
+                                if (etaSpan) {
+                                    if (itemData.minutes_left > 0) {
+                                        etaSpan.textContent = `${itemData.minutes_left} mins`;
+                                    } else {
+                                        etaSpan.textContent = 'Delivered / Arriving Now';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+            .catch(err => console.error("Polling error:", err));
+    }
+    
+    // Poll every 30 seconds
+    setInterval(pollOrderStatuses, 30000);
 </script>
 {% endblock %}

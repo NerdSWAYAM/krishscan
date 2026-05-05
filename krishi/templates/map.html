@@ -1,0 +1,218 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Order - {{ crop_name }}</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <style>
+        :root {
+            --color-primary: #59AC77;
+            --color-deep-forest: #014525;
+            --color-bg: #F7FBF8;
+            --color-surface: #FFFFFF;
+        }
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--color-bg);
+        }
+        #map {
+            height: 100vh;
+            width: 100%;
+            z-index: 1;
+        }
+        .header-card {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: var(--color-surface);
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .header-card h2 {
+            margin: 0 0 8px 0;
+            color: var(--color-deep-forest);
+            font-size: 18px;
+        }
+        .header-card p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: var(--color-surface);
+            padding: 10px 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-decoration: none;
+            color: var(--color-deep-forest);
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .back-btn:hover {
+            background: var(--color-primary);
+            color: white;
+        }
+        .leaflet-popup-content-wrapper {
+            border-radius: 8px;
+        }
+        .leaflet-popup-content {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="{% url 'my_orders' %}" class="back-btn">
+        ← Back to Orders
+    </a>
+
+    <div class="header-card">
+        <h2>Order Tracking</h2>
+        <p><strong>{{ crop_name }}</strong> from {{ farmer_name }}</p>
+    </div>
+
+    <div id="map"></div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var consumerCoordsStr = "{{ consumer_coords|default:'' }}";
+            var farmerCoordsStr = "{{ farmer_coords|default:'' }}";
+            
+            // Default center (India) if coordinates are missing
+            var defaultCenter = [20.5937, 78.9629];
+            var map = L.map('map').setView(defaultCenter, 5);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            var consumerMarker, farmerMarker;
+            var latlngs = [];
+
+            if (consumerCoordsStr && consumerCoordsStr.includes(',')) {
+                var cParts = consumerCoordsStr.split(',');
+                var cLat = parseFloat(cParts[0]);
+                var cLng = parseFloat(cParts[1]);
+                
+                if (!isNaN(cLat) && !isNaN(cLng)) {
+                    var consumerIcon = L.divIcon({
+                        className: 'custom-div-icon',
+                        html: "<div style='background-color:#4285F4; width:16px; height:16px; border-radius:50%; border:3px solid white; box-shadow:0 0 5px rgba(0,0,0,0.5);'></div>",
+                        iconSize: [22, 22],
+                        iconAnchor: [11, 11]
+                    });
+                    
+                    consumerMarker = L.marker([cLat, cLng], {icon: consumerIcon}).addTo(map)
+                        .bindPopup("<b>{{ consumer_name }}</b><br>Delivery Location")
+                        .openPopup();
+                    latlngs.push([cLat, cLng]);
+                }
+            }
+
+            if (farmerCoordsStr && farmerCoordsStr.includes(',')) {
+                var fParts = farmerCoordsStr.split(',');
+                var fLat = parseFloat(fParts[0]);
+                var fLng = parseFloat(fParts[1]);
+                
+                if (!isNaN(fLat) && !isNaN(fLng)) {
+                    var farmerIcon = L.divIcon({
+                        className: 'custom-div-icon',
+                        html: "<div style='background-color:#59AC77; width:16px; height:16px; border-radius:50%; border:3px solid white; box-shadow:0 0 5px rgba(0,0,0,0.5);'></div>",
+                        iconSize: [22, 22],
+                        iconAnchor: [11, 11]
+                    });
+                    
+                    farmerMarker = L.marker([fLat, fLng], {icon: farmerIcon}).addTo(map)
+                        .bindPopup("<b>{{ farmer_name }}</b><br>Farm Location");
+                    latlngs.push([fLat, fLng]);
+                }
+            }
+
+            // Draw real-world route using OSRM if both coordinates exist
+            if (latlngs.length === 2) {
+                // OSRM expects coordinates in lon,lat format
+                // latlngs[1] is Farmer (start), latlngs[0] is Consumer (end)
+                var startLngLat = latlngs[1][1] + ',' + latlngs[1][0];
+                var endLngLat = latlngs[0][1] + ',' + latlngs[0][0];
+                
+                var osrmUrl = 'https://router.project-osrm.org/route/v1/driving/' + startLngLat + ';' + endLngLat + '?overview=full&geometries=geojson';
+                
+                fetch(osrmUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.routes && data.routes.length > 0) {
+                            var routeGeoJSON = data.routes[0].geometry;
+                            var routeLayer = L.geoJSON(routeGeoJSON, {
+                                style: {
+                                    color: '#3A6F43',
+                                    weight: 5,
+                                    opacity: 0.9,
+                                    dashArray: '10, 10'
+                                }
+                            }).addTo(map);
+                            map.fitBounds(routeLayer.getBounds(), {padding: [50, 50]});
+                        } else {
+                            // Fallback to straight line
+                            fallbackLine();
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Routing error:', err);
+                        fallbackLine();
+                    });
+                    
+                function fallbackLine() {
+                    var polyline = L.polyline(latlngs, {
+                        color: '#3A6F43', 
+                        weight: 4,
+                        dashArray: '10, 10',
+                        opacity: 0.8
+                    }).addTo(map);
+                    map.fitBounds(polyline.getBounds(), {padding: [50, 50]});
+                }
+            } else if (latlngs.length === 1) {
+                map.setView(latlngs[0], 12);
+            }
+        });
+
+        // Remove global skeleton loader once the page is fully loaded
+        window.addEventListener('load', function() {
+            document.body.classList.add('loaded-state');
+        });
+        // Fallback
+        setTimeout(function() {
+            document.body.classList.add('loaded-state');
+        }, 3000);
+    </script>
+</body>
+</html>

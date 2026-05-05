@@ -2,6 +2,65 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 from .models import UserAccount, Crop, EmailOTP
+from django.contrib.auth import login as auth_login, logout as auth_logout, authenticate
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.backends import BaseBackend
+from django.contrib.auth.hashers import check_password
+from functools import wraps
+from django.http import JsonResponse
+from django.utils.http import url_has_allowed_host_and_scheme
+
+def role_required(role):
+    def decorator(view_func):
+        @wraps(view_func)
+        def _wrapped_view(request, *args, **kwargs):
+            user_role = request.session.get('role')
+            if not user_role and request.user.is_authenticated:
+                user_role = getattr(request.user, 'role', None)
+                
+            if user_role != role:
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.content_type == 'application/json':
+                    return JsonResponse({'success': False, 'message': f'Access denied. Restricted to {role}s.'}, status=403)
+                messages.error(request, f'Access denied. This page is restricted to {role}s.')
+                if user_role == 'Farmer':
+                    return redirect('dashboard')
+                else:
+                    return redirect('marketplace')
+            return view_func(request, *args, **kwargs)
+        return _wrapped_view
+    return decorator
+
+farmer_required = role_required('Farmer')
+consumer_required = role_required('Consumer')
+
+
+# Monkey-patch UserAccount to work seamlessly with Django Auth
+from django.contrib.auth.signals import user_logged_in
+from django.contrib.auth.models import update_last_login
+user_logged_in.disconnect(update_last_login, dispatch_uid='update_last_login')
+
+UserAccount.is_active = True
+UserAccount.is_authenticated = True
+UserAccount.is_anonymous = False
+UserAccount.get_session_auth_hash = lambda self: self.password
+
+class UserAccountBackend(BaseBackend):
+    def authenticate(self, request, email=None, password=None, **kwargs):
+        try:
+            user = UserAccount.objects.get(email=email)
+            if check_password(password, user.password):
+                return user
+        except UserAccount.DoesNotExist:
+            return None
+
+    def get_user(self, user_id):
+        try:
+            return UserAccount.objects.get(pk=user_id)
+        except UserAccount.DoesNotExist:
+            return None
+
+
+
 
 def home(request):
     return render(request, 'index.html')
@@ -43,6 +102,7 @@ def signup(request):
         )
         new_user.save()
         
+        auth_login(request, new_user, backend='krishi.views.UserAccountBackend')
         request.session['user_id'] = new_user.id
         request.session['role'] = new_user.role
         request.session['first_name'] = new_user.first_name
@@ -57,35 +117,67 @@ def signup(request):
     return render(request, 'signup.html')
 
 from django.contrib.auth.hashers import check_password
+from functools import wraps
+from django.http import JsonResponse
+
+def role_required(role):
+    def decorator(view_func):
+        @wraps(view_func)
+        def _wrapped_view(request, *args, **kwargs):
+            user_role = request.session.get('role')
+            if not user_role and request.user.is_authenticated:
+                user_role = getattr(request.user, 'role', None)
+                
+            if user_role != role:
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.content_type == 'application/json':
+                    return JsonResponse({'success': False, 'message': f'Access denied. Restricted to {role}s.'}, status=403)
+                messages.error(request, f'Access denied. This page is restricted to {role}s.')
+                if user_role == 'Farmer':
+                    return redirect('dashboard')
+                else:
+                    return redirect('marketplace')
+            return view_func(request, *args, **kwargs)
+        return _wrapped_view
+    return decorator
+
+farmer_required = role_required('Farmer')
+consumer_required = role_required('Consumer')
+
 
 def login(request):
+    next_url = request.POST.get('next') or request.GET.get('next')
+
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
         
-        try:
-            user = UserAccount.objects.get(email=email)
-            if check_password(password, user.password):
-                request.session['user_id'] = user.id
-                request.session['role'] = user.role
-                request.session['first_name'] = user.first_name
-                request.session['last_name'] = user.last_name
-                request.session['email'] = user.email
-                request.session['location'] = user.location
-                request.session['coordinates'] = user.coordinates
-                
-                # Redirect based on role if needed, or marketplace by default
-                if user.role == 'Farmer':
-                    return redirect('dashboard')
-                else:
-                    return redirect('marketplace')
-            else:
-                messages.error(request, 'Invalid password.')
-        except UserAccount.DoesNotExist:
-            messages.error(request, 'No account found with this email.')
+        user = authenticate(request, email=email, password=password)
+        if user is not None:
+            auth_login(request, user)
+            request.session['user_id'] = user.id
+            request.session['role'] = user.role
+            request.session['first_name'] = user.first_name
+            request.session['last_name'] = user.last_name
+            request.session['email'] = user.email
+            request.session['location'] = user.location
+            request.session['coordinates'] = user.coordinates
             
-    return render(request, 'login.html')
+            if next_url and url_has_allowed_host_and_scheme(
+                url=next_url,
+                allowed_hosts={request.get_host()},
+                require_https=request.is_secure(),
+            ):
+                return redirect(next_url)
 
+            if user.role == 'Farmer':
+                return redirect('dashboard')
+            return redirect('marketplace')
+        else:
+            messages.error(request, 'Invalid email or password.')
+            
+    return render(request, 'login.html', {'next': next_url})
+
+### Distance Calculation
 import math
 
 def calculate_distance(lat1, lon1, lat2, lon2):
@@ -98,6 +190,9 @@ def calculate_distance(lat1, lon1, lat2, lon2):
     distance = R * c
     return round(distance, 2)
 
+
+
+@login_required(login_url='/login/')
 def marketplace(request):
     crops = Crop.objects.select_related('farmer').all().order_by('-created_at')
     
@@ -131,9 +226,12 @@ def marketplace(request):
         
     return render(request, 'marketplace.html', {'crops': crop_list, 'wishlist': wishlist})
 
+@login_required(login_url='/login/')
 def weather(request):
     return render(request, 'weather.html')
 
+@login_required(login_url='/login/')
+@farmer_required
 def upload_crop(request):
     if request.session.get('role') != 'Farmer':
         messages.error(request, 'Only farmers can upload crops.')
@@ -173,6 +271,8 @@ def upload_crop(request):
 
     return render(request, 'upload_crop.html')
 
+@login_required(login_url='/login/')
+@consumer_required
 def consumer(request):
     import os
     from .models import Order
@@ -203,71 +303,22 @@ def consumer(request):
     }
     return render(request, 'consumerdash.html', context)
 
-from django.core.cache import cache
 
+from django.core.cache import cache
+@login_required(login_url='/login/')
+@farmer_required
 def dashboard(request):
     import os
     import requests
     from django.utils import timezone
     from .models import Crop, Order
     
-    API_KEY = os.getenv("API_KEY", "579b464db66ec23bdd0000014221d4e33efb481147dfeea08b43d410")
-    RESOURCE_ID = os.getenv("RESOURCE_ID", "9ef84268-d588-465a-a308-a864a43d0070")
-    
-    url = f"https://api.data.gov.in/resource/{RESOURCE_ID}"
-    
-    params = {
-        "api-key": API_KEY,
-        "format": "json",
-        "limit": 5
-    }
-    
-    cache_key = 'dashboard_market_prices'
-    market_prices = cache.get(cache_key)
-    
-    if market_prices is None:
-        try:
-            response = requests.get(url, params=params, timeout=5)
-            response.raise_for_status()
-            data = response.json()
-            market_prices = data.get('records', [])
-            cache.set(cache_key, market_prices, 60 * 60)
-        except requests.exceptions.RequestException as e:
-            print("Error fetching data:", e)
-            market_prices = []
+    # Removed blocking API calls to prevent dashboard slowness.
+    # These are now handled via AJAX in dashboard_stats_api.
+    market_prices = []
 
-    # Fetch Real-Time Weather
+    # Weather is now handled via AJAX
     weather_data = None
-    try:
-        w_url = "https://api.openweathermap.org/data/2.5/weather"
-        w_params = {
-            "appid": os.getenv("WEATHER_API", "ddd2be8826cfdca0b5ed7bea91f2c640"),
-            "units": "metric"
-        }
-        
-        coordinates = request.session.get('coordinates')
-        if coordinates:
-            lat, lon = coordinates.split(',')
-            w_params['lat'] = lat.strip()
-            w_params['lon'] = lon.strip()
-        else:
-            location = request.session.get('location', 'Bangalore')
-            w_params['q'] = location.split(',')[0] if location else 'Bangalore'
-            
-        res = requests.get(w_url, params=w_params, timeout=5)
-        if res.status_code == 200:
-            w_data = res.json()
-            weather_data = {
-                'temp': w_data['main']['temp'],
-                'feels_like': w_data['main']['feels_like'],
-                'humidity': w_data['main']['humidity'],
-                'wind_speed': w_data['wind']['speed'],
-                'description': w_data['weather'][0]['description'].capitalize(),
-                'icon': w_data['weather'][0]['icon'],
-                'city': w_data['name']
-            }
-    except Exception as e:
-        print("Error fetching weather:", e)
 
     # Crop Stats
     user_id = request.session.get('user_id')
@@ -307,12 +358,17 @@ def dashboard(request):
     }
     return render(request, 'dashboard.html', context)
 
+@login_required(login_url='/login/')
+@farmer_required
 def sell(request):
     return render(request, 'sell.html')
 
+@login_required(login_url='/login/')
+@consumer_required
 def cart(request):
     return render(request, 'cart.html')
 
+@login_required(login_url='/login/')
 def add_to_wishlist(request):
     import json
     from django.http import JsonResponse
@@ -345,6 +401,7 @@ def add_to_wishlist(request):
             return JsonResponse({'success': False, 'message': str(e)})
     return JsonResponse({'success': False, 'message': 'Invalid request'})
 
+@login_required(login_url='/login/')
 def remove_from_wishlist(request):
     import json
     from django.http import JsonResponse
@@ -370,6 +427,7 @@ def remove_from_wishlist(request):
     return JsonResponse({'success': False, 'message': 'Invalid request'})
 
 
+@login_required(login_url='/login/')
 def remove_crop(request):
     import json
     from django.http import JsonResponse
@@ -404,7 +462,8 @@ def remove_crop(request):
 
     return JsonResponse({'success': False, 'message': 'Invalid request'})
 
-
+@login_required(login_url='/login/')
+@consumer_required
 def wishlist_view(request):
     from .models import Crop
     user_id = request.session.get('user_id')
@@ -476,45 +535,9 @@ def wishlist_view(request):
     }
     return render(request, 'wishlist.html', context)
 
-_disease_model = None
-_resnet_model = None
+from .ml_services import get_disease_model, get_resnet_model, CLASS_NAMES
 
-def get_disease_model():
-    import torch
-    import torch.nn as nn
-    import timm
-    from huggingface_hub import hf_hub_download
-    global _disease_model
-    if _disease_model is None:
-        model_path = hf_hub_download(repo_id="VisionaryQuant/5_Crop_Disease_Detection", filename="best_crop_disease_model.pt")
-        model = timm.create_model('efficientnet_b3', pretrained=False)
-        model.classifier = nn.Sequential(
-            nn.Linear(model.classifier.in_features, 17)
-        )
-        state_dict = torch.load(model_path, map_location=torch.device('cpu'))
-        model.load_state_dict(state_dict)
-        model.eval()
-        _disease_model = model
-    return _disease_model
-
-def get_resnet_model():
-    import os
-    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-    import tensorflow as tf
-    global _resnet_model
-    if _resnet_model is None:
-        model_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'MLmodels', 'resnet50_transfer_best.h5')
-        _resnet_model = tf.keras.models.load_model(model_path)
-    return _resnet_model
-
-CLASS_NAMES = [
-    "Corn___Common_Rust", "Corn___Gray_Leaf_Spot", "Corn___Healthy", "Corn___Northern_Leaf_Blight",
-    "Potato___Early_Blight", "Potato___Healthy", "Potato___Late_Blight",
-    "Rice___Brown_Spot", "Rice___Healthy", "Rice___Leaf_Blast", "Rice___Neck_Blast",
-    "Sugarcane___Bacterial_Blight", "Sugarcane___Healthy", "Sugarcane___Red_Rot",
-    "Wheat___Brown_Rust", "Wheat___Healthy", "Wheat___Yellow_Rust"
-]
-
+@login_required(login_url='/login/')
 def disease_detect(request):
     import torch
     from torchvision import transforms
@@ -596,6 +619,7 @@ def disease_detect(request):
 
     return render(request, 'disease_detect.html', {'result': result})
 
+@login_required(login_url='/login/')
 def experts(request):
     return render(request, 'experts.html')
 
@@ -605,6 +629,7 @@ import dotenv
 
 dotenv.load_dotenv()
 
+@login_required(login_url='/login/')
 def price_tracker(request):
     API_KEY = os.getenv("API_KEY", "579b464db66ec23bdd0000014221d4e33efb481147dfeea08b43d410")
     RESOURCE_ID = os.getenv("RESOURCE_ID", "9ef84268-d588-465a-a308-a864a43d0070")
@@ -628,11 +653,13 @@ def price_tracker(request):
     
     if records is None:
         try:
-            response = requests.get(url, params=params, timeout=5)
-            response.raise_for_status()
-            data = response.json()
-            records = data.get('records', [])
-            cache.set(cache_key, records, 60 * 60)
+            response = requests.get(url, params=params, timeout=3)
+            if response.status_code == 200:
+                data = response.json()
+                records = data.get('records', [])
+                cache.set(cache_key, records, 60 * 60)
+            else:
+                records = []
         except requests.exceptions.RequestException as e:
             print("Error fetching data:", e)
             records = []
@@ -678,11 +705,11 @@ def send_otp_api(request):
         html_content = f"""
         <h2>Email Verification</h2>
         <p>Your OTP is:</p>
-        <h1 style="color:#59AC77; text-weight:bold; ">{otp}</h1>
+        <h1 style="color:#014525; text-weight:bold; ">{otp}</h1>
         <p>This OTP is valid for 5 minutes.</p>
         <p><small>(Please check your spam folder if you do not see this email)</small></p>
         <center>
-            <h2>From Team - <span style="color:#59AC77;">KrishiScan</span></h2>
+            <h2>From Team - <span style="color:#014525;">KrishiScan</span></h2>
         </center>
         """
 
@@ -696,6 +723,8 @@ def send_otp_api(request):
 
     return JsonResponse({'success': False, 'message': 'Invalid request method'})
 
+@login_required(login_url='/login/')
+@farmer_required
 def crop_history(request):
     user_id = request.session.get('user_id')
     role = request.session.get('role')
@@ -718,6 +747,7 @@ def crop_history(request):
     }
     return render(request, 'crop_history.html', context)
 
+@login_required(login_url='/login/')
 def submit_payment(request):
     """Consumer submits a screenshot proof for a specific OrderItem."""
     import json
@@ -778,6 +808,7 @@ def submit_payment(request):
     return JsonResponse({'success': True, 'message': 'Payment proof submitted successfully'})
 
 
+@login_required(login_url='/login/')
 def verify_order_item(request):
     """Farmer approves or rejects a payment for one of their OrderItems."""
     import json
@@ -869,6 +900,7 @@ def verify_order_item(request):
     return JsonResponse({'success': True})
 
 
+@login_required(login_url='/login/')
 def create_checkout(request):
     """Consumer initiates checkout — creates Order + OrderItems, returns grouped data for payment UI."""
     import json
@@ -959,6 +991,8 @@ def create_checkout(request):
     })
 
 
+@login_required(login_url='/login/')
+@farmer_required
 def wallet_view(request):
     if 'email' not in request.session or request.session.get('role') != 'Farmer':
         return redirect('login')
@@ -1004,6 +1038,8 @@ def wallet_view(request):
     return render(request, 'farmer_wallet.html', context)
 
 
+@login_required(login_url='/login/')
+@consumer_required
 def my_orders(request):
     """Consumer's full order history with delivery status estimation."""
     from .models import Order
@@ -1072,7 +1108,94 @@ def my_orders(request):
             'items': items_data,
         })
 
-    return render(request, 'my_orders.html', {'enriched_orders': enriched_orders})
+    # Also attach dynamic ETA to items directly for the template
+    for order in orders:
+        consumer_coords = None
+        if order.consumer and order.consumer.coordinates:
+            try:
+                lat, lon = map(float, order.consumer.coordinates.split(','))
+                consumer_coords = (lat, lon)
+            except Exception:
+                pass
+                
+        for item in order.items.all():
+            farmer_coords = None
+            if item.crop and item.crop.farmer and item.crop.farmer.coordinates:
+                try:
+                    lat, lon = map(float, item.crop.farmer.coordinates.split(','))
+                    farmer_coords = (lat, lon)
+                except Exception:
+                    pass
+            
+            # Default ETA if coordinates are missing
+            item.dynamic_eta = 120 
+            
+            if consumer_coords and farmer_coords:
+                dist = calculate_distance(consumer_coords[0], consumer_coords[1], farmer_coords[0], farmer_coords[1])
+                # Assume 40 km/h average speed: (dist / 40) * 60 = dist * 1.5
+                item.dynamic_eta = max(15, int(dist * 1.5)) # minimum 15 mins
+                
+            elapsed_minutes = int((now - item.created_at).total_seconds() / 60)
+            item.minutes_left = max(0, item.dynamic_eta - elapsed_minutes)
+
+    return render(request, 'my_orders.html', {'orders': orders, 'enriched_orders': enriched_orders})
+
+@login_required(login_url='/login/')
+def api_orders_status(request):
+    """JSON API to fetch live order statuses without page reload."""
+    from .models import Order
+    from django.utils import timezone
+    from django.http import JsonResponse
+
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return JsonResponse({'success': False, 'message': 'Not logged in'})
+
+    orders = Order.objects.filter(consumer_id=user_id).prefetch_related('items__crop__farmer')
+    now = timezone.now()
+    
+    response_data = {'orders': {}}
+
+    for order in orders:
+        order_data = {
+            'status': order.status,
+            'items': {}
+        }
+        
+        consumer_coords = None
+        if order.consumer and order.consumer.coordinates:
+            try:
+                lat, lon = map(float, order.consumer.coordinates.split(','))
+                consumer_coords = (lat, lon)
+            except Exception:
+                pass
+                
+        for item in order.items.all():
+            farmer_coords = None
+            if item.crop and item.crop.farmer and item.crop.farmer.coordinates:
+                try:
+                    lat, lon = map(float, item.crop.farmer.coordinates.split(','))
+                    farmer_coords = (lat, lon)
+                except Exception:
+                    pass
+            
+            dynamic_eta = 120 
+            if consumer_coords and farmer_coords:
+                dist = calculate_distance(consumer_coords[0], consumer_coords[1], farmer_coords[0], farmer_coords[1])
+                dynamic_eta = max(15, int(dist * 1.5))
+                
+            elapsed_minutes = int((now - item.created_at).total_seconds() / 60)
+            minutes_left = max(0, dynamic_eta - elapsed_minutes)
+            
+            order_data['items'][item.id] = {
+                'status': item.status,
+                'status_display': item.get_status_display(),
+                'minutes_left': minutes_left
+            }
+            
+        response_data['orders'][order.id] = order_data
+
+    return JsonResponse({'success': True, 'data': response_data})
 
 from cryptography.fernet import Fernet
 import os
@@ -1097,6 +1220,7 @@ def decrypt_message(encrypted_message):
     except Exception:
         return "[Error decrypting message]"
 
+@login_required(login_url='/login/')
 def chat_view(request, user_id):
     from .models import UserAccount, ChatMessage
     from django.db.models import Q
@@ -1128,6 +1252,7 @@ def chat_view(request, user_id):
 from django.http import JsonResponse
 import json
 
+@login_required(login_url='/login/')
 def send_message_api(request):
     if request.method == 'POST':
         from .models import ChatMessage
@@ -1169,6 +1294,47 @@ def send_message_api(request):
             
     return JsonResponse({'success': False, 'message': 'Invalid request'})
 
+def reset_password_api(request):
+    import json
+    from django.http import JsonResponse
+    from django.contrib.auth.hashers import make_password
+    from .models import UserAccount, EmailOTP
+
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            email = data.get('email')
+            otp = data.get('otp')
+            new_password = data.get('new_password')
+            
+            if not all([email, otp, new_password]):
+                return JsonResponse({'success': False, 'message': 'Missing required fields'})
+                
+            try:
+                user = UserAccount.objects.get(email=email)
+            except UserAccount.DoesNotExist:
+                return JsonResponse({'success': False, 'message': 'No account found with this email'})
+                
+            stored_otp = EmailOTP.objects.filter(email=email).order_by('-created_at').first()
+            if not stored_otp or stored_otp.otp != otp:
+                return JsonResponse({'success': False, 'message': 'Invalid OTP'})
+                
+            if not stored_otp.is_valid():
+                return JsonResponse({'success': False, 'message': 'OTP has expired'})
+                
+            user.password = make_password(new_password)
+            user.save(update_fields=['password'])
+            
+            return JsonResponse({'success': True, 'message': 'Password reset successfully. You can now login.'})
+            
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'message': 'Invalid JSON format'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+            
+    return JsonResponse({'success': False, 'message': 'Invalid request method'})
+
+@login_required(login_url='/login/')
 def fetch_messages_api(request):
     from .models import ChatMessage
     from django.db.models import Q
@@ -1194,6 +1360,7 @@ def fetch_messages_api(request):
         
     return JsonResponse({'success': True, 'messages': messages_list})
 
+@login_required(login_url='/login/')
 def fetch_notifications_api(request):
     from .models import Notification
     from django.http import JsonResponse
@@ -1217,6 +1384,7 @@ def fetch_notifications_api(request):
         
     return JsonResponse({'success': True, 'notifications': data, 'unread_count': unread_count})
 
+@login_required(login_url='/login/')
 def mark_notifications_read_api(request):
     from .models import Notification
     from django.http import JsonResponse
@@ -1226,3 +1394,113 @@ def mark_notifications_read_api(request):
         
     Notification.objects.filter(user_id=user_id, is_read=False).update(is_read=True)
     return JsonResponse({'success': True})
+
+
+@login_required(login_url='/login/')
+def dashboard_stats_api(request):
+    import os
+    import requests
+    from django.http import JsonResponse
+    from django.core.cache import cache
+
+    # 1. Market Prices
+    API_KEY = os.getenv("API_KEY", "579b464db66ec23bdd0000014221d4e33efb481147dfeea08b43d410")
+    RESOURCE_ID = os.getenv("RESOURCE_ID", "9ef84268-d588-465a-a308-a864a43d0070")
+    m_url = f"https://api.data.gov.in/resource/{RESOURCE_ID}"
+    
+    m_cache_key = 'dashboard_market_prices'
+    market_prices = cache.get(m_cache_key)
+    
+    if market_prices is None:
+        try:
+            # Short timeout for API calls in AJAX
+            res = requests.get(m_url, params={"api-key": API_KEY, "format": "json", "limit": 5}, timeout=3)
+            if res.status_code == 200:
+                market_prices = res.json().get('records', [])
+                cache.set(m_cache_key, market_prices, 60 * 60)
+        except:
+            market_prices = []
+
+    # 2. Weather
+    w_cache_key = f'weather_{request.session.get("location", "Bangalore")}_{request.session.get("coordinates", "none")}'
+    weather_data = cache.get(w_cache_key)
+    
+    if weather_data is None:
+        try:
+            w_url = "https://api.openweathermap.org/data/2.5/weather"
+            w_params = {"appid": os.getenv("WEATHER_API", "ddd2be8826cfdca0b5ed7bea91f2c640"), "units": "metric"}
+            
+            coords = request.session.get('coordinates')
+            if coords:
+                lat, lon = coords.split(',')
+                w_params['lat'], w_params['lon'] = lat.strip(), lon.strip()
+            else:
+                loc = request.session.get('location', 'Bangalore')
+                w_params['q'] = loc.split(',')[0] if loc else 'Bangalore'
+                
+            res = requests.get(w_url, params=w_params, timeout=3)
+            if res.status_code == 200:
+                wd = res.json()
+                weather_data = {
+                    'temp': wd['main']['temp'],
+                    'feels_like': wd['main']['feels_like'],
+                    'humidity': wd['main']['humidity'],
+                    'wind_speed': wd['wind']['speed'],
+                    'description': wd['weather'][0]['description'].capitalize(),
+                    'icon': wd['weather'][0]['icon'],
+                    'city': wd['name']
+                }
+                cache.set(w_cache_key, weather_data, 60 * 30)
+        except:
+            weather_data = None
+
+    # Calculate Avg Market Price for the stat card
+    avg_price = 0
+    if market_prices:
+        try:
+            prices = [float(r.get('modal_price', 0)) for r in market_prices if r.get('modal_price')]
+            if prices:
+                avg_price = int(sum(prices) / len(prices))
+        except:
+            pass
+
+    return JsonResponse({
+        'market_prices': market_prices,
+        'weather_data': weather_data,
+        'avg_market_price': avg_price
+    })
+
+
+@login_required(login_url='/login/')
+def order_map(request, item_id):
+    from .models import OrderItem
+    from django.shortcuts import get_object_or_404
+    
+    item = get_object_or_404(OrderItem, id=item_id)
+    
+    # Ensure only the consumer or farmer involved can view it
+    user_id = request.session.get('user_id')
+    if item.order.consumer_id != user_id and item.crop.farmer_id != user_id:
+        return redirect('my_orders')
+
+    consumer_coords = item.order.consumer.coordinates if item.order.consumer else None
+    farmer_coords = item.crop.farmer.coordinates if item.crop.farmer else None
+    
+    context = {
+        'item': item,
+        'consumer_coords': consumer_coords,
+        'farmer_coords': farmer_coords,
+        'consumer_name': f"{item.order.consumer.first_name} {item.order.consumer.last_name}",
+        'farmer_name': f"{item.crop.farmer.first_name} {item.crop.farmer.last_name}",
+        'crop_name': item.crop.name,
+    }
+    
+    return render(request, 'map.html', context)
+
+
+def logout_user(request):
+    auth_logout(request)
+    return redirect('login')
+
+def custom_404(request, exception):
+    return render(request, '404.html', status=404)
