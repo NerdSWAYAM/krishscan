@@ -463,6 +463,15 @@
                 zone.style.borderColor = 'var(--primary)';
             }
         });
+
+        // Remove global skeleton loader once the page is fully loaded
+        window.addEventListener('load', function() {
+            document.body.classList.add('loaded-state');
+        });
+        // Fallback
+        setTimeout(function() {
+            document.body.classList.add('loaded-state');
+        }, 3000);
     </script>
 </body>
 </html>

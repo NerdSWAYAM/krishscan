@@ -1,15 +1,18 @@
 from django.urls import path
 from . import views
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('', views.home, name='home'),
     path('signup/', views.signup, name='signup'),
     path('login/', views.login, name='login'),
+    path('logout/', views.logout_user, name='logout'),
     path('farmer-dashboard/', views.dashboard, name='dashboard'),
     path('sell/', views.sell, name='sell'),
     path('cart/', views.cart, name='cart'),
     path('wishlist/', views.wishlist_view, name='wishlist'),
     path('orders/', views.my_orders, name='my_orders'),
+    path('api/orders-status/', views.api_orders_status, name='api_orders_status'),
     path('api/add-to-wishlist/', views.add_to_wishlist, name='add_to_wishlist'),
     path('api/remove-from-wishlist/', views.remove_from_wishlist, name='remove_from_wishlist'),
     path('api/remove-crop/', views.remove_crop, name='remove_crop'),
@@ -20,6 +23,7 @@ urlpatterns = [
     path('experts/', views.experts, name='experts'),
     path('upload-crop/', views.upload_crop, name='upload_crop'),
     path('send-otp/', views.send_otp_api, name='send_otp'),
+    path('reset-password/', views.reset_password_api, name='reset_password'),
     path('weather/', views.weather, name='weather'),
     path('crop-history/', views.crop_history, name='crop_history'),
     # UPI Payment endpoints
@@ -32,4 +36,6 @@ urlpatterns = [
     path('api/chat/fetch/', views.fetch_messages_api, name='fetch_messages_api'),
     path('api/notifications/fetch/', views.fetch_notifications_api, name='fetch_notifications_api'),
     path('api/notifications/mark-read/', views.mark_notifications_read_api, name='mark_notifications_read_api'),
-]
+    path('api/dashboard-stats/', views.dashboard_stats_api, name='dashboard_stats_api'),
+    path('map/<int:item_id>/', views.order_map, name='order_map'),
+]

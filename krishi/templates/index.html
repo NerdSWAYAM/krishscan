@@ -1,207 +1,2233 @@
 <!DOCTYPE html>
 <html lang="en">
 {% load static %}
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KrishiScan - The Story of Freshness</title>
+    <title>KrishiScan — AI-Powered Agriculture Platform</title>
+    <meta name="description" content="KrishiScan helps farmers detect plant diseases, get crop recommendations, and connect with buyers through an AI-powered marketplace platform.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Cinematic Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Gilda+Display&family=Inter:wght@300;400;500;600&display=swap"
-        rel="stylesheet">
-    <!-- Custom CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+    <!-- <link rel="stylesheet" href="{% static 'index.css' %}"> -->
     <link rel="stylesheet" href="{% static 'global.css' %}">
-    <link rel="stylesheet" href="{% static 'index.css' %}">
+    <style>
+        :root {
+        --forest: #2c5332;
+        --forest-mid: #3A6F43;
+        --sage: #59AC77;
+        --sage-light: #8BC49E;
+        --mint: #E8F5EC;
+        --gold: #B8894A;
+        --gold-light: #D4A865;
+        --cream: #F7FBF8;
+        --white: #FFFFFF;
+        --ink: #1C2E20;
+        --ink-mid: #3A3A3A;
+        --ink-muted: #6B8A72;
+        --border: rgba(58, 111, 67, 0.15);
+        --border-dark: rgba(58, 111, 67, 0.25);
+
+        --font-display: 'Playfair Display', Georgia, serif;
+        --font-body: 'DM Sans', system-ui, sans-serif;
+
+        --shadow-sm: 0 1px 3px rgba(28, 46, 32, .06), 0 1px 2px rgba(28, 46, 32, .04);
+        --shadow-md: 0 4px 16px rgba(28, 46, 32, .08), 0 2px 6px rgba(28, 46, 32, .05);
+        --shadow-lg: 0 16px 48px rgba(28, 46, 32, .12), 0 4px 16px rgba(28, 46, 32, .07);
+        --shadow-xl: 0 32px 80px rgba(28, 46, 32, .16), 0 8px 24px rgba(28, 46, 32, .1);
+
+        --radius-sm: 8px;
+        --radius-md: 14px;
+        --radius-lg: 20px;
+        --radius-xl: 28px;
+
+        --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        font-family: var(--font-body);
+        background: var(--white);
+        color: var(--ink);
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+    }
+
+    img {
+        display: block;
+        max-width: 100%;
+    }
+
+    a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    /* ═══════════════════════════════════════════════
+        UTILITY CLASSES
+        ═══════════════════════════════════════════════ */
+    .container {
+        width: 100%;
+        max-width: 1160px;
+        margin: 0 auto;
+        padding: 0 28px;
+    }
+
+    .section {
+        padding: 100px 0;
+    }
+
+    .section--tight {
+        padding: 72px 0;
+    }
+
+    .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--sage);
+        margin-bottom: 18px;
+    }
+
+    .eyebrow-line {
+        width: 24px;
+        height: 1.5px;
+        background: var(--sage);
+        border-radius: 2px;
+    }
+
+    .heading-xl {
+        font-family: var(--font-display);
+        font-size: clamp(42px, 6vw, 72px);
+        font-weight: 500;
+        color: var(--forest);
+        line-height: 1.05;
+        letter-spacing: -0.02em;
+    }
+
+    .heading-lg {
+        font-family: var(--font-display);
+        font-size: clamp(32px, 4vw, 52px);
+        font-weight: 500;
+        color: var(--forest);
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+    }
+
+    .heading-md {
+        font-family: var(--font-display);
+        font-size: clamp(22px, 2.5vw, 30px);
+        font-weight: 500;
+        color: var(--forest);
+        line-height: 1.2;
+        letter-spacing: -0.01em;
+    }
+
+    .body-lg {
+        font-size: 18px;
+        line-height: 1.7;
+        color: var(--ink-mid);
+        font-weight: 300;
+    }
+
+    .body-md {
+        font-size: 15px;
+        line-height: 1.65;
+        color: var(--ink-muted);
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 13px 24px;
+        border-radius: var(--radius-sm);
+        font-family: var(--font-body);
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.22s var(--ease-out);
+        border: none;
+        white-space: nowrap;
+    }
+
+    .btn-primary {
+        background: var(--forest);
+        color: var(--white);
+    }
+
+    .btn-primary:hover {
+        background: var(--forest-mid);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .btn-outline {
+        background: transparent;
+        color: var(--forest);
+        border: 1.5px solid var(--border-dark);
+    }
+
+    .btn-outline:hover {
+        background: var(--mint);
+        border-color: var(--sage-light);
+        transform: translateY(-2px);
+    }
+
+    .btn-lg {
+        padding: 15px 30px;
+        font-size: 15px;
+        border-radius: var(--radius-md);
+    }
+
+    /* ═══════════════════════════════════════════════
+        SCROLL REVEAL
+        ═══════════════════════════════════════════════ */
+    .reveal {
+        opacity: 0;
+        transform: translateY(24px);
+        transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
+    }
+
+    .reveal.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .reveal-delay-1 {
+        transition-delay: 0.08s;
+    }
+
+    .reveal-delay-2 {
+        transition-delay: 0.16s;
+    }
+
+    .reveal-delay-3 {
+        transition-delay: 0.24s;
+    }
+
+    .reveal-delay-4 {
+        transition-delay: 0.32s;
+    }
+
+    .reveal-delay-5 {
+        transition-delay: 0.40s;
+    }
+
+    /* ═══════════════════════════════════════════════
+        NAVIGATION
+        ═══════════════════════════════════════════════ */
+    .nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        padding: 0;
+        transition: all 0.3s ease;
+    }
+
+    .nav.scrolled {
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(16px);
+        border-bottom: 1px solid var(--border);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .nav-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 68px;
+        max-width: 1160px;
+        margin: 0 auto;
+        padding: 0 28px;
+    }
+
+    .nav-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: 'Grenze Gotisch', serif;
+        font-size: 26px;
+        font-weight: 500;
+        color: var(--forest);
+        letter-spacing: 0.03em;
+    }
+
+    .nav-logo-icon {
+        width: 32px;
+        height: 32px;
+        background: var(--forest);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        flex-shrink: 0;
+    }
+
+    .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 32px;
+        list-style: none;
+    }
+
+    .nav-links a {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--ink-mid);
+        transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+        color: var(--sage);
+    }
+
+    .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .nav-login {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ink-mid);
+        padding: 8px 16px;
+        border-radius: var(--radius-sm);
+        transition: all 0.2s;
+    }
+
+    .nav-login:hover {
+        color: var(--forest);
+        background: var(--mint);
+    }
+
+    .mobile-toggle {
+        display: none;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--forest);
+        padding: 4px;
+    }
+
+    /* ═══════════════════════════════════════════════
+        HERO
+        ═══════════════════════════════════════════════ */
+    .hero {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        background: var(--cream);
+        padding-top: 68px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    /* Subtle grid background */
+    .hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(to right, rgba(46, 107, 74, 0.05) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(46, 107, 74, 0.05) 1px, transparent 1px);
+        background-size: 60px 60px;
+        pointer-events: none;
+    }
+
+    /* Radial glow */
+    .hero::after {
+        content: '';
+        position: absolute;
+        top: -200px;
+        right: -100px;
+        width: 700px;
+        height: 700px;
+        background: radial-gradient(circle, rgba(46, 107, 74, 0.1) 0%, transparent 65%);
+        pointer-events: none;
+    }
+
+    .hero-inner {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 80px;
+        align-items: center;
+        padding: 60px 28px;
+        max-width: 1160px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 6px 14px 6px 8px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--sage);
+        margin-bottom: 28px;
+        box-shadow: var(--shadow-sm);
+        animation: fadeUp 0.7s var(--ease-out) both;
+    }
+
+    .hero-badge-dot {
+        width: 7px;
+        height: 7px;
+        background: var(--sage);
+        border-radius: 50%;
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+        0%,
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        50% {
+            opacity: 0.6;
+            transform: scale(0.85);
+        }
+    }
+
+    .hero-title {
+        margin-bottom: 24px;
+        animation: fadeUp 0.7s 0.1s var(--ease-out) both;
+    }
+
+    .hero-title em {
+        font-style: italic;
+        color: var(--sage);
+    }
+
+    .hero-desc {
+        max-width: 460px;
+        margin-bottom: 36px;
+        animation: fadeUp 0.7s 0.2s var(--ease-out) both;
+    }
+
+    .hero-cta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        animation: fadeUp 0.7s 0.3s var(--ease-out) both;
+    }
+
+    .hero-trust {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 52px;
+        animation: fadeUp 0.7s 0.4s var(--ease-out) both;
+    }
+
+    .trust-avatars {
+        display: flex;
+    }
+
+    .trust-avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: 2px solid white;
+        background: var(--mint);
+        margin-left: -8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--sage);
+        overflow: hidden;
+    }
+
+    .trust-avatar:first-child {
+        margin-left: 0;
+    }
+
+    .trust-text {
+        font-size: 13px;
+        color: var(--ink-muted);
+    }
+
+    .trust-text strong {
+        color: var(--ink-mid);
+        font-weight: 600;
+    }
+
+    /* Hero Visual */
+    .hero-visual {
+        position: relative;
+        animation: fadeIn 1s 0.3s var(--ease-out) both;
+    }
+
+    .hero-card-main {
+        background: white;
+        border-radius: var(--radius-xl);
+        padding: 32px;
+        box-shadow: var(--shadow-xl);
+        border: 1px solid var(--border);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-card-main::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--sage), var(--gold-light));
+    }
+
+    .scan-area {
+        background: var(--cream);
+        border-radius: var(--radius-lg);
+        padding: 28px;
+        margin-bottom: 24px;
+        position: relative;
+        overflow: hidden;
+        aspect-ratio: 4/3;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Animated scan line */
+    .scan-line {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--sage), transparent);
+        animation: scan 3s ease-in-out infinite;
+    }
+
+    @keyframes scan {
+        0% {
+            top: 10%;
+            opacity: 0;
+        }
+
+        10% {
+            opacity: 1;
+        }
+
+        90% {
+            opacity: 1;
+        }
+
+        100% {
+            top: 90%;
+            opacity: 0;
+        }
+    }
+
+    .scan-corners {
+        position: absolute;
+        inset: 16px;
+        pointer-events: none;
+    }
+
+    .scan-corner {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        border-color: var(--sage);
+        border-style: solid;
+    }
+
+    .scan-corner--tl {
+        top: 0;
+        left: 0;
+        border-width: 2px 0 0 2px;
+        border-radius: 3px 0 0 0;
+    }
+
+    .scan-corner--tr {
+        top: 0;
+        right: 0;
+        border-width: 2px 2px 0 0;
+        border-radius: 0 3px 0 0;
+    }
+
+    .scan-corner--bl {
+        bottom: 0;
+        left: 0;
+        border-width: 0 0 2px 2px;
+        border-radius: 0 0 0 3px;
+    }
+
+    .scan-corner--br {
+        bottom: 0;
+        right: 0;
+        border-width: 0 2px 2px 0;
+        border-radius: 0 0 3px 0;
+    }
+
+    .card-scan-result {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: var(--mint);
+        border: 1px solid rgba(46, 107, 74, 0.2);
+        border-radius: var(--radius-md);
+        padding: 14px 18px;
+        margin-bottom: 12px;
+    }
+
+    .scan-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--forest);
+    }
+
+    .scan-value {
+        font-size: 12px;
+        color: var(--sage);
+        font-weight: 600;
+    }
+
+    .confidence-bar {
+        height: 4px;
+        background: var(--border);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-top: 8px;
+    }
+
+    .confidence-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--sage), var(--gold-light));
+        border-radius: 4px;
+        animation: fillBar 2s 1s var(--ease-out) both;
+    }
+
+    @keyframes fillBar {
+        from {
+            width: 0;
+        }
+
+        to {
+            width: 87%;
+        }
+    }
+
+    /* Floating cards */
+    .hero-float-1 {
+        position: absolute;
+        top: -20px;
+        right: -28px;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 14px 18px;
+        box-shadow: var(--shadow-md);
+        animation: float1 4s ease-in-out infinite;
+        min-width: 160px;
+    }
+
+    .hero-float-2 {
+        position: absolute;
+        bottom: 20px;
+        left: -28px;
+        background: var(--forest);
+        border-radius: var(--radius-md);
+        padding: 14px 18px;
+        box-shadow: var(--shadow-lg);
+        animation: float2 4s 1.5s ease-in-out infinite;
+        min-width: 150px;
+    }
+
+    @keyframes float1 {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-8px);
+        }
+    }
+
+    @keyframes float2 {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(6px);
+        }
+    }
+
+    .float-label {
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+
+    .float-value {
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+    }
+
+    .hero-float-1 .float-label {
+        color: var(--ink-muted);
+    }
+
+    .hero-float-1 .float-value {
+        color: var(--forest);
+    }
+
+    .hero-float-2 .float-label {
+        color: rgba(255, 255, 255, 0.55);
+    }
+
+    .hero-float-2 .float-value {
+        color: white;
+    }
+
+    /* ═══════════════════════════════════════════════
+        LOGOS STRIP
+        ═══════════════════════════════════════════════ */
+    .logos-strip {
+        padding: 40px 0;
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        background: white;
+    }
+
+    .logos-inner {
+        max-width: 1160px;
+        margin: 0 auto;
+        padding: 0 28px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .logos-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--ink-muted);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        white-space: nowrap;
+        flex-shrink: 0;
+        margin-right: 8px;
+    }
+
+    .logos-divider {
+        width: 1px;
+        height: 28px;
+        background: var(--border);
+        flex-shrink: 0;
+    }
+
+    .logos-list {
+        display: flex;
+        align-items: center;
+        gap: 40px;
+        overflow: hidden;
+        flex: 1;
+    }
+
+    .logo-item {
+        font-family: var(--font-display);
+        font-size: 17px;
+        font-weight: 600;
+        color: var(--border-dark);
+        white-space: nowrap;
+        letter-spacing: -0.02em;
+        transition: color 0.2s;
+    }
+
+    .logo-item:hover {
+        color: var(--ink-muted);
+    }
+
+    /* ═══════════════════════════════════════════════
+        FEATURES
+        ═══════════════════════════════════════════════ */
+    .features {
+        background: white;
+    }
+
+    .features-header {
+        text-align: center;
+        max-width: 560px;
+        margin: 0 auto 64px;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2px;
+        background: var(--border);
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+    }
+
+    .feature-card {
+        background: white;
+        padding: 36px 32px;
+        transition: all 0.28s var(--ease-out);
+        cursor: default;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .feature-card::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--sage), var(--gold-light));
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.35s var(--ease-out);
+    }
+
+    .feature-card:hover {
+        background: var(--cream);
+        z-index: 1;
+    }
+
+    .feature-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .feature-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: var(--radius-sm);
+        background: var(--mint);
+        border: 1px solid rgba(46, 107, 74, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--sage);
+        margin-bottom: 22px;
+        transition: all 0.28s;
+    }
+
+    .feature-card:hover .feature-icon {
+        background: var(--forest);
+        color: white;
+        border-color: var(--forest);
+    }
+
+    .feature-title {
+        font-family: var(--font-display);
+        font-size: 19px;
+        font-weight: 500;
+        color: var(--forest);
+        margin-bottom: 10px;
+        letter-spacing: -0.01em;
+    }
+
+    .feature-desc {
+        font-size: 14px;
+        line-height: 1.65;
+        color: var(--ink-muted);
+    }
+
+    /* ═══════════════════════════════════════════════
+        HOW IT WORKS
+        ═══════════════════════════════════════════════ */
+    .how {
+        background: var(--cream);
+    }
+
+    .how-header {
+        text-align: center;
+        max-width: 520px;
+        margin: 0 auto 72px;
+    }
+
+    .steps {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0;
+        position: relative;
+    }
+
+    /* connector line */
+    .steps::before {
+        content: '';
+        position: absolute;
+        top: 28px;
+        left: calc(12.5% + 24px);
+        right: calc(12.5% + 24px);
+        height: 1px;
+        background: linear-gradient(90deg, var(--border-dark), var(--gold-light), var(--border-dark));
+    }
+
+    .step {
+        text-align: center;
+        padding: 0 20px;
+        position: relative;
+    }
+
+    .step-number {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: white;
+        border: 2px solid var(--border-dark);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-display);
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--forest);
+        margin: 0 auto 24px;
+        position: relative;
+        z-index: 1;
+        transition: all 0.3s var(--ease-out);
+    }
+
+    .step:hover .step-number {
+        background: var(--forest);
+        color: white;
+        border-color: var(--forest);
+        transform: scale(1.1);
+    }
+
+    .step-icon-wrap {
+        width: 64px;
+        height: 64px;
+        border-radius: var(--radius-md);
+        background: white;
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--sage);
+        margin: 0 auto 20px;
+        box-shadow: var(--shadow-sm);
+        transition: all 0.3s;
+    }
+
+    .step:hover .step-icon-wrap {
+        background: var(--forest);
+        color: white;
+        border-color: var(--forest);
+        box-shadow: var(--shadow-md);
+    }
+
+    .step-title {
+        font-family: var(--font-display);
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--forest);
+        margin-bottom: 8px;
+    }
+
+    .step-desc {
+        font-size: 13px;
+        line-height: 1.6;
+        color: var(--ink-muted);
+    }
+
+    /* ═══════════════════════════════════════════════
+        BENEFITS
+        ═══════════════════════════════════════════════ */
+    .benefits {
+        background: white;
+    }
+
+    .benefits-inner {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 80px;
+        align-items: center;
+    }
+
+    .benefits-visual {
+        position: relative;
+    }
+
+    .benefit-stat-card {
+        background: var(--forest);
+        border-radius: var(--radius-xl);
+        padding: 48px 44px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .benefit-stat-card::before {
+        content: '';
+        position: absolute;
+        bottom: -60px;
+        right: -60px;
+        width: 240px;
+        height: 240px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .benefit-stat-card::after {
+        content: '';
+        position: absolute;
+        bottom: -20px;
+        right: -20px;
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .stat-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 28px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .stat-item {}
+
+    .stat-num {
+        font-family: var(--font-display);
+        font-size: 44px;
+        font-weight: 500;
+        color: white;
+        letter-spacing: -0.03em;
+        line-height: 1;
+        margin-bottom: 6px;
+    }
+
+    .stat-num span {
+        color: var(--gold-light);
+    }
+
+    .stat-label {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.55);
+        font-weight: 400;
+    }
+
+    .stat-divider {
+        grid-column: 1 / -1;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Floating badge on stat card */
+    .stat-badge {
+        position: absolute;
+        top: -18px;
+        right: 32px;
+        background: white;
+        border-radius: var(--radius-md);
+        padding: 12px 18px;
+        box-shadow: var(--shadow-lg);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .stat-badge-icon {
+        width: 36px;
+        height: 36px;
+        background: var(--mint);
+        border-radius: var(--radius-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--sage);
+    }
+
+    .stat-badge-text {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--forest);
+    }
+
+    .stat-badge-sub {
+        font-size: 11px;
+        color: var(--ink-muted);
+        margin-top: 1px;
+    }
+
+    .benefits-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .benefit-item {
+        display: flex;
+        gap: 18px;
+        padding: 22px 20px;
+        border-radius: var(--radius-md);
+        transition: all 0.25s;
+        cursor: default;
+    }
+
+    .benefit-item:hover {
+        background: var(--cream);
+        transform: translateX(4px);
+    }
+
+    .benefit-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: var(--radius-sm);
+        background: var(--mint);
+        border: 1px solid rgba(46, 107, 74, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--sage);
+        flex-shrink: 0;
+        transition: all 0.25s;
+    }
+
+    .benefit-item:hover .benefit-icon {
+        background: var(--sage);
+        color: white;
+        border-color: var(--sage);
+    }
+
+    .benefit-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--forest);
+        margin-bottom: 4px;
+    }
+
+    .benefit-desc {
+        font-size: 13px;
+        line-height: 1.6;
+        color: var(--ink-muted);
+    }
+
+    /* ═══════════════════════════════════════════════
+        TESTIMONIALS
+        ═══════════════════════════════════════════════ */
+    .testimonials {
+        background: var(--cream);
+        overflow: hidden;
+    }
+
+    .testimonials-header {
+        text-align: center;
+        max-width: 480px;
+        margin: 0 auto 56px;
+    }
+
+    .testimonials-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+
+    .testimonial-card {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 30px 28px;
+        position: relative;
+        transition: all 0.28s var(--ease-out);
+    }
+
+    .testimonial-card:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-4px);
+    }
+
+    .testimonial-card--featured {
+        background: var(--forest);
+        border-color: var(--forest);
+    }
+
+    .quote-mark {
+        width: 32px;
+        height: 32px;
+        color: var(--border-dark);
+        margin-bottom: 20px;
+    }
+
+    .testimonial-card--featured .quote-mark {
+        color: rgba(255, 255, 255, 0.25);
+    }
+
+    .testimonial-text {
+        font-family: var(--font-display);
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 1.65;
+        color: var(--ink-mid);
+        margin-bottom: 24px;
+        font-style: italic;
+    }
+
+    .testimonial-card--featured .testimonial-text {
+        color: rgba(255, 255, 255, 0.85);
+    }
+
+    .testimonial-author {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .author-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: var(--mint);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-display);
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--sage);
+        flex-shrink: 0;
+        border: 2px solid var(--border);
+    }
+
+    .testimonial-card--featured .author-avatar {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .author-name {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--forest);
+    }
+
+    .author-role {
+        font-size: 12px;
+        color: var(--ink-muted);
+        margin-top: 1px;
+    }
+
+    .testimonial-card--featured .author-name {
+        color: white;
+    }
+
+    .testimonial-card--featured .author-role {
+        color: rgba(255, 255, 255, 0.55);
+    }
+
+    .stars {
+        display: flex;
+        gap: 2px;
+        margin-bottom: 4px;
+    }
+
+    .star {
+        color: var(--gold);
+    }
+
+    .testimonial-card--featured .star {
+        color: var(--gold-light);
+    }
+
+    /* ═══════════════════════════════════════════════
+        CTA SECTION
+        ═══════════════════════════════════════════════ */
+    .cta-section {
+        background: white;
+    }
+
+    .cta-inner {
+        background: var(--forest);
+        border-radius: var(--radius-xl);
+        padding: 80px 72px;
+        position: relative;
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 60px;
+        align-items: center;
+    }
+
+    .cta-inner::before {
+        content: '';
+        position: absolute;
+        top: -120px;
+        right: -80px;
+        width: 480px;
+        height: 480px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        pointer-events: none;
+    }
+
+    .cta-inner::after {
+        content: '';
+        position: absolute;
+        top: -60px;
+        right: -20px;
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        pointer-events: none;
+    }
+
+    .cta-eyebrow {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--gold-light);
+        margin-bottom: 16px;
+    }
+
+    .cta-title {
+        font-family: var(--font-display);
+        font-size: clamp(28px, 3.5vw, 44px);
+        font-weight: 500;
+        color: white;
+        letter-spacing: -0.02em;
+        line-height: 1.12;
+        margin-bottom: 18px;
+    }
+
+    .cta-desc {
+        font-size: 16px;
+        color: rgba(255, 255, 255, 0.6);
+        line-height: 1.65;
+        max-width: 440px;
+        font-weight: 300;
+    }
+
+    .cta-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-end;
+        position: relative;
+        z-index: 1;
+    }
+
+    .btn-white {
+        background: white;
+        color: var(--forest);
+        font-weight: 700;
+    }
+
+    .btn-white:hover {
+        background: var(--cream);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-ghost-white {
+        background: transparent;
+        color: rgba(255, 255, 255, 0.75);
+        border: 1.5px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-ghost-white:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: white;
+        border-color: rgba(255, 255, 255, 0.35);
+        transform: translateY(-2px);
+    }
+
+    .cta-note {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.4);
+        text-align: center;
+    }
+
+    /* ═══════════════════════════════════════════════
+        FOOTER
+        ═══════════════════════════════════════════════ */
+    .footer {
+        background: var(--forest);
+        padding: 64px 0 32px;
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .footer-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+        gap: 48px;
+        margin-bottom: 56px;
+    }
+
+    .footer-brand {}
+
+    .footer-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: 'Grenze Gotisch', serif;
+        font-size: 24px;
+        font-weight: 500;
+        color: white;
+        letter-spacing: 0.03em;
+        margin-bottom: 16px;
+    }
+
+    .footer-logo-icon {
+        width: 30px;
+        height: 30px;
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 7px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+
+    .footer-tagline {
+        font-size: 13px;
+        line-height: 1.65;
+        color: rgba(255, 255, 255, 0.45);
+        max-width: 220px;
+        margin-bottom: 24px;
+    }
+
+    .footer-social {
+        display: flex;
+        gap: 10px;
+    }
+
+    .social-btn {
+        width: 34px;
+        height: 34px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: var(--radius-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255, 255, 255, 0.55);
+        transition: all 0.2s;
+    }
+
+    .social-btn:hover {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+    }
+
+    .footer-col-title {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.4);
+        margin-bottom: 18px;
+    }
+
+    .footer-links {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .footer-links a {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.6);
+        transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+        color: white;
+    }
+
+    .footer-bottom {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 28px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.35);
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .footer-bottom-links {
+        display: flex;
+        gap: 24px;
+    }
+
+    .footer-bottom-links a {
+        color: rgba(255, 255, 255, 0.35);
+        font-size: 13px;
+        transition: color 0.2s;
+    }
+
+    .footer-bottom-links a:hover {
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* ═══════════════════════════════════════════════
+        ANIMATIONS
+        ═══════════════════════════════════════════════ */
+    @keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    /* ═══════════════════════════════════════════════
+        RESPONSIVE
+        ═══════════════════════════════════════════════ */
+    @media (max-width: 1024px) {
+        .features-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .testimonials-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .cta-inner {
+            grid-template-columns: 1fr;
+            padding: 56px 44px;
+        }
+
+        .cta-actions {
+            align-items: flex-start;
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+
+        .footer-grid {
+            grid-template-columns: 2fr 1fr 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .section {
+            padding: 72px 0;
+        }
+
+        .nav-links,
+        .nav-actions {
+            display: none;
+        }
+
+        .mobile-toggle {
+            display: flex;
+        }
+
+        .hero-inner {
+            grid-template-columns: 1fr;
+            gap: 48px;
+            padding: 48px 28px 60px;
+        }
+
+        .hero-visual {
+            order: -1;
+        }
+
+        .hero-float-1,
+        .hero-float-2 {
+            display: none;
+        }
+
+        .logos-list {
+            gap: 24px;
+        }
+
+        .features-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .steps {
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .steps::before {
+            display: none;
+        }
+
+        .benefits-inner {
+            grid-template-columns: 1fr;
+            gap: 48px;
+        }
+
+        .testimonials-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .cta-inner {
+            padding: 44px 32px;
+        }
+
+        .footer-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 36px;
+        }
+
+        .footer-bottom {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .steps {
+            grid-template-columns: 1fr;
+        }
+
+        .footer-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .hero-cta {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+    </style>
 </head>
-
 <body>
-    <!-- FIXED NAVIGATION -->
-    <nav class="navbar">
-        <div class="logo">KrishiScan</div>
-        <div class="nav-links">
-            <a href="{% url 'login' %}" class="btn-text">Log in</a>
-            <a href="{% url 'signup' %}" class="btn-filled">Get Started</a>
-        </div>
-    </nav>
 
-    <!-- STORY SECTION 1: THE LAND -->
-    <div class="story-section">
-        <div class="background-image" style="background-image: url('{% static 'story_hero.png' %}');"></div>
-        <div class="overlay gradient-bottom"></div>
-        <div class="content-container center-content fade-in-on-scroll">
-            <h1 class="cinematic-title">KRISHI - The backbone<br>of the India.</h1>
-            <!-- <p class="cinematic-subtitle">Every dawn, millions of farmers wake up to cultivate the food that sustains
-                us. It is a story as old as time, rooted in hard work and pure soil.</p>
-            <div class="scroll-down">Scroll to discover the journey &darr;</div> -->
+<!-- ═══════════════════════════════════════════════
+     NAVIGATION
+═══════════════════════════════════════════════ -->
+<nav class="nav" id="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+        <a href="/" class="nav-logo" aria-label="KrishiScan home">
+            KrishiScan
+        </a>
+
+        <ul class="nav-links" role="list">
+            <li><a href="#features">Features</a></li>
+            <li><a href="#how-it-works">How it Works</a></li>
+            <li><a href="#benefits">Benefits</a></li>
+            <li><a href="{% url 'marketplace' %}">Marketplace</a></li>
+        </ul>
+
+        <div class="nav-actions">
+            <a href="{% url 'login' %}" class="nav-login">Log in</a>
+            <a href="{% url 'signup' %}" class="btn btn-primary">Get Started</a>
+        </div>
+
+        <button class="mobile-toggle" aria-label="Open menu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+        </button>
+    </div>
+</nav>
+
+
+<!-- ═══════════════════════════════════════════════
+     HERO
+═══════════════════════════════════════════════ -->
+<section class="hero" aria-labelledby="hero-title">
+    <div class="hero-inner">
+
+        <div class="hero-content">
+            <div class="hero-badge" role="status">
+                <div class="hero-badge-dot" aria-hidden="true"></div>
+                AI-Powered Agriculture Platform
+            </div>
+
+            <h1 class="heading-xl hero-title" id="hero-title">
+                Smart Farming<br>
+                Starts with<br>
+                <em>Better Data</em>
+            </h1>
+
+            <p class="body-lg hero-desc">
+                KrishiScan uses artificial intelligence to detect plant diseases, recommend crops, and connect farmers directly with buyers — all in one platform.
+            </p>
+
+            <div class="hero-cta">
+                <a href="{% url 'signup' %}" class="btn btn-primary btn-lg">
+                    Get Started Free
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </a>
+                <a href="#features" class="btn btn-outline btn-lg">
+                    Explore Features
+                </a>
+            </div>
+
+        </div>
+
+        <div class="hero-visual" aria-hidden="true">
+            <div class="hero-float-1">
+                <div class="float-label">Active Farmers</div>
+                <div class="float-value">2,400+</div>
+            </div>
+
+            <div class="hero-card-main">
+                <div class="scan-area">
+                    <div class="scan-line"></div>
+                    <div class="scan-corners">
+                        <div class="scan-corner scan-corner--tl"></div>
+                        <div class="scan-corner scan-corner--tr"></div>
+                        <div class="scan-corner scan-corner--bl"></div>
+                        <div class="scan-corner scan-corner--br"></div>
+                    </div>
+                    <!-- Leaf SVG illustration -->
+                    <svg width="120" height="140" viewBox="0 0 120 140" fill="none" xmlns="http://www.w3.org/2000/svg" opacity="0.7">
+                        <path d="M60 10 C20 30 10 70 30 100 C45 125 75 130 90 110 C110 85 105 45 60 10Z" fill="#4A8C65" opacity="0.3"/>
+                        <path d="M60 10 C20 30 10 70 30 100 C45 125 75 130 90 110 C110 85 105 45 60 10Z" stroke="#2E6B4A" stroke-width="1.5" fill="none"/>
+                        <path d="M60 15 C60 15 58 70 50 115" stroke="#2E6B4A" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M58 45 C40 40 25 50 22 60" stroke="#4A8C65" stroke-width="1" stroke-linecap="round"/>
+                        <path d="M58 65 C38 58 22 65 20 78" stroke="#4A8C65" stroke-width="1" stroke-linecap="round"/>
+                        <path d="M58 85 C42 80 32 88 30 96" stroke="#4A8C65" stroke-width="1" stroke-linecap="round"/>
+                        <path d="M62 45 C78 38 92 48 94 58" stroke="#4A8C65" stroke-width="1" stroke-linecap="round"/>
+                        <path d="M62 65 C80 58 94 65 96 76" stroke="#4A8C65" stroke-width="1" stroke-linecap="round"/>
+                        <!-- Disease spots -->
+                        <circle cx="40" cy="52" r="4" fill="#B8894A" opacity="0.7"/>
+                        <circle cx="78" cy="62" r="3" fill="#B8894A" opacity="0.6"/>
+                        <circle cx="52" cy="78" r="3.5" fill="#B8894A" opacity="0.65"/>
+                    </svg>
+                </div>
+
+                <div class="card-scan-result">
+                    <div>
+                        <div class="scan-label">Disease Detected</div>
+                        <div style="font-size:12px; color: var(--ink-muted); margin-top: 3px;">Early Blight — Alternaria solani</div>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill"></div>
+                        </div>
+                    </div>
+                    <div class="scan-value">87% confidence</div>
+                </div>
+
+                <div style="display:flex; gap:10px;">
+                    <div style="flex:1; background:var(--cream); border-radius:10px; padding:12px 14px;">
+                        <div style="font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--ink-muted); margin-bottom:4px;">Crop</div>
+                        <div style="font-size:14px; font-weight:600; color:var(--forest);">Tomato</div>
+                    </div>
+                    <div style="flex:1; background:var(--mint); border-radius:10px; padding:12px 14px; border:1px solid rgba(46,107,74,0.15);">
+                        <div style="font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--sage); margin-bottom:4px;">Severity</div>
+                        <div style="font-size:14px; font-weight:600; color:var(--forest);">Moderate</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-float-2">
+                <div class="float-label">Accuracy Rate</div>
+                <div class="float-value">94.2%</div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════
+     LOGOS STRIP
+═══════════════════════════════════════════════ -->
+<div class="logos-strip" aria-label="Partner organizations">
+    <div class="logos-inner">
+        <span class="logos-label">Trusted by</span>
+        <div class="logos-divider" aria-hidden="true"></div>
+        <div class="logos-list" aria-hidden="true">
+            <span class="logo-item">AgroIndia</span>
+            <span class="logo-item">FarmCo</span>
+            <span class="logo-item">GreenHarvest</span>
+            <span class="logo-item">KisanNet</span>
+            <span class="logo-item">RuralTech</span>
         </div>
     </div>
+</div>
 
-    <!-- STORY SECTION 2: THE CHAOS -->
-    <div class="story-section">
-        <div class="background-image" style="background-image: url('{% static 'story_disconnect.png' %}');"></div>
-        <div class="overlay gradient-left"></div>
-        <div class="content-container left-content fade-in-on-scroll">
-            <!-- <p class="chapter-label">Chapter 01 &mdash; The Disconnect</p> -->
-            <h2 class="cinematic-heading">Lost in the<br>Marketplace.</h2>
-            <p class="cinematic-text">For decades, this pure harvest has been tangled in a chaotic web of
-                intermediaries. The farmer loses their rightful profit, and by the time it reaches you, the food has
-                lost days of its priceless freshness.</p>
+
+<!-- ═══════════════════════════════════════════════
+     FEATURES
+═══════════════════════════════════════════════ -->
+<section class="section features" id="features" aria-labelledby="features-title">
+    <div class="container">
+        <div class="features-header">
+            <div class="eyebrow reveal">
+                <div class="eyebrow-line" aria-hidden="true"></div>
+                Platform Features
+            </div>
+            <h2 class="heading-lg reveal reveal-delay-1" id="features-title">
+                Everything a farmer needs
+            </h2>
+            <p class="body-md reveal reveal-delay-2" style="margin-top:14px;">
+                From disease diagnosis to direct sales, KrishiScan brings modern technology to agricultural challenges.
+            </p>
+        </div>
+
+        <div class="features-grid" role="list">
+
+            <article class="feature-card reveal" role="listitem">
+                <div class="feature-icon" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+                        <path d="M11 8v6M8 11h6"/>
+                    </svg>
+                </div>
+                <h3 class="feature-title">Disease Detection</h3>
+                <p class="feature-desc">Upload a photo of your crop and our AI model identifies diseases instantly with high confidence, saving time and reducing crop loss.</p>
+            </article>
+
+            <article class="feature-card reveal reveal-delay-1" role="listitem">
+                <div class="feature-icon" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                    </svg>
+                </div>
+                <h3 class="feature-title">Smart Recommendations</h3>
+                <p class="feature-desc">Receive personalized crop recommendations and treatment plans based on your soil, location, and seasonal conditions.</p>
+            </article>
+
+            <article class="feature-card reveal reveal-delay-2" role="listitem">
+                <div class="feature-icon" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+                        <line x1="3" y1="6" x2="21" y2="6"/>
+                        <path d="M16 10a4 4 0 01-8 0"/>
+                    </svg>
+                </div>
+                <h3 class="feature-title">Crop Marketplace</h3>
+                <p class="feature-desc">List your produce and connect with verified buyers directly. No middlemen, fair prices, and transparent transactions.</p>
+            </article>
+
+            <article class="feature-card reveal reveal-delay-1" role="listitem">
+                <div class="feature-icon" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+                    </svg>
+                </div>
+                <h3 class="feature-title">Direct Chat</h3>
+                <p class="feature-desc">Communicate directly with buyers and agricultural experts. Get answers to your questions in real time.</p>
+            </article>
+
+            <article class="feature-card reveal reveal-delay-2" role="listitem">
+                <div class="feature-icon" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                        <path d="M13.73 21a2 2 0 01-3.46 0"/>
+                    </svg>
+                </div>
+                <h3 class="feature-title">Smart Notifications</h3>
+                <p class="feature-desc">Stay informed about order updates, price alerts, and seasonal reminders tailored to your crops and region.</p>
+            </article>
+
+            <article class="feature-card reveal reveal-delay-3" role="listitem">
+                <div class="feature-icon" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                    </svg>
+                </div>
+                <h3 class="feature-title">Unified Dashboard</h3>
+                <p class="feature-desc">Manage your crops, orders, earnings, and analytics from a single, intuitive dashboard built for farmers.</p>
+            </article>
+
         </div>
     </div>
+</section>
 
-    <!-- STORY SECTION 3: THE DIRECT HARVEST -->
-    <!-- <div class="story-section">
-        <div class="background-image" style="background-image: url('{% static 'story_process.png' %}');"></div>
-        <div class="overlay gradient-right"></div>
-        <div class="content-container right-content fade-in-on-scroll">
-            <p class="chapter-label">Chapter 02 &mdash; The Solution</p>
-            <h2 class="cinematic-heading">Restoring the<br>Direct Link.</h2>
-            <p class="cinematic-text">We built KrishiScan to remove the noise. Our digital platform empowers farmers to
-                bypass the chaos and list their harvest instantly. No middlemen. Just the farmer, their crop, and fair
-                valuation.</p>
+
+<!-- ═══════════════════════════════════════════════
+     HOW IT WORKS
+═══════════════════════════════════════════════ -->
+<section class="section how" id="how-it-works" aria-labelledby="how-title">
+    <div class="container">
+        <div class="how-header">
+            <div class="eyebrow reveal">
+                <div class="eyebrow-line" aria-hidden="true"></div>
+                How It Works
+            </div>
+            <h2 class="heading-lg reveal reveal-delay-1" id="how-title">From scan to solution in minutes</h2>
+            <p class="body-md reveal reveal-delay-2" style="margin-top:14px;">
+                A simple, guided workflow that makes advanced agricultural technology accessible to every farmer.
+            </p>
         </div>
-    </div> -->
 
-    <!-- FEATURES SECTION -->
-    <div class="story-section features-section">
-        <div class="background-image" style="background-image: url('{% static 'wheat.png' %}');"></div>
-        <div class="overlay gradient-bottom"></div>
-        <div class="content-container center-content fade-in-on-scroll" style="max-width: 1200px;">
-            <h2 class="cinematic-heading text-center" style="margin-bottom: 0.5rem;">Powerful Features</h2>
-            <p class="cinematic-text text-center mx-auto" style="margin-bottom: 2rem;">Discover what makes KrishiScan the ultimate tool for farmers and consumers.</p>
-            
-            <div class="features-grid">
-                <!-- Feature 1 -->
-                <div class="feature-card">
-                    <div class="feature-number">01</div>
-                    <div class="feature-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        <div class="steps" role="list">
+
+            <div class="step reveal" role="listitem">
+                <div class="step-icon-wrap" aria-hidden="true">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+                        <circle cx="12" cy="13" r="4"/>
+                    </svg>
+                </div>
+                <h3 class="step-title">Upload Image</h3>
+                <p class="step-desc">Take a clear photo of your affected plant and upload it directly through the app or web platform.</p>
+            </div>
+
+            <div class="step reveal reveal-delay-1" role="listitem">
+                <div class="step-icon-wrap" aria-hidden="true">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+                    </svg>
+                </div>
+                <h3 class="step-title">AI Analysis</h3>
+                <p class="step-desc">Our deep learning model processes the image and identifies diseases, pests, or nutrient deficiencies with precision.</p>
+            </div>
+
+            <div class="step reveal reveal-delay-2" role="listitem">
+                <div class="step-icon-wrap" aria-hidden="true">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10 9 9 9 8 9"/>
+                    </svg>
+                </div>
+                <h3 class="step-title">Get Insights</h3>
+                <p class="step-desc">Receive a detailed report with diagnosis, severity level, and science-backed treatment recommendations.</p>
+            </div>
+
+            <div class="step reveal reveal-delay-3" role="listitem">
+                <div class="step-icon-wrap" aria-hidden="true">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                </div>
+                <h3 class="step-title">Take Action</h3>
+                <p class="step-desc">Apply the recommended treatment, connect with suppliers, or consult an expert — all within the platform.</p>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════
+     BENEFITS
+═══════════════════════════════════════════════ -->
+<section class="section benefits" id="benefits" aria-labelledby="benefits-title">
+    <div class="container">
+        <div class="benefits-inner">
+
+            <div class="benefits-visual reveal">
+                <div class="stat-badge" aria-hidden="true">
+                    <div class="stat-badge-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                            <polyline points="17 6 23 6 23 12"/>
                         </svg>
                     </div>
-                    <h3 class="feature-title">Disease Detection</h3>
-                    <p class="feature-desc">Scan your crops and instantly detect diseases with our advanced AI model.</p>
+                    <div>
+                        <div class="stat-badge-text">Yield Improved</div>
+                        <div class="stat-badge-sub">Season over season</div>
+                    </div>
                 </div>
 
-                <!-- Feature 2 -->
-                <div class="feature-card">
-                    <div class="feature-number">02</div>
-                    <div class="feature-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                        </svg>
+                <div class="benefit-stat-card">
+                    <div class="stat-grid">
+                        <div class="stat-item">
+                            <div class="stat-num">94<span>%</span></div>
+                            <div class="stat-label">Detection accuracy</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-num">2.4<span>k</span></div>
+                            <div class="stat-label">Active farmers</div>
+                        </div>
+                        <div class="stat-divider" aria-hidden="true"></div>
+                        <div class="stat-item">
+                            <div class="stat-num">38<span>%</span></div>
+                            <div class="stat-label">Avg. yield increase</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-num">12<span>k+</span></div>
+                            <div class="stat-label">Scans completed</div>
+                        </div>
                     </div>
-                    <h3 class="feature-title">Real-Time Prices</h3>
-                    <p class="feature-desc">Access up-to-date market prices to ensure you always get a fair valuation.</p>
                 </div>
+            </div>
 
-                <!-- Feature 3 -->
-                <div class="feature-card">
-                    <div class="feature-number">03</div>
-                    <div class="feature-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                    </div>
-                    <h3 class="feature-title">Nearest Farmer</h3>
-                    <p class="feature-desc">Connect consumers directly to the closest farmers through smart recommendations.</p>
+            <div class="benefits-content">
+                <div class="eyebrow reveal">
+                    <div class="eyebrow-line" aria-hidden="true"></div>
+                    Why KrishiScan
                 </div>
+                <h2 class="heading-lg reveal reveal-delay-1" id="benefits-title">
+                    Built for the modern farmer
+                </h2>
+                <p class="body-md reveal reveal-delay-2" style="margin-top:12px; margin-bottom:32px;">
+                    We combine advanced AI with practical tools, designed for farmers who want to grow smarter, not harder.
+                </p>
 
-                <!-- Feature 4 -->
-                <div class="feature-card">
-                    <div class="feature-number">04</div>
-                    <div class="feature-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+                <div class="benefits-list">
+
+                    <div class="benefit-item reveal reveal-delay-2">
+                        <div class="benefit-icon" aria-hidden="true">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="benefit-title">Instant AI Diagnosis</div>
+                            <div class="benefit-desc">Results in under 5 seconds. No waiting, no guesswork — just accurate, actionable information.</div>
+                        </div>
                     </div>
-                    <h3 class="feature-title">User Friendly</h3>
-                    <p class="feature-desc">An intuitive and easy-to-use interface designed for everyone, everywhere.</p>
+
+                    <div class="benefit-item reveal reveal-delay-3">
+                        <div class="benefit-icon" aria-hidden="true">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="benefit-title">Reduce Crop Loss</div>
+                            <div class="benefit-desc">Early detection means early intervention. Farmers using KrishiScan report up to 40% reduction in losses.</div>
+                        </div>
+                    </div>
+
+                    <div class="benefit-item reveal reveal-delay-4">
+                        <div class="benefit-icon" aria-hidden="true">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="1" x2="12" y2="23"/>
+                                <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="benefit-title">Better Income</div>
+                            <div class="benefit-desc">Sell directly to buyers at fair prices. Our marketplace eliminates intermediaries and maximizes your earnings.</div>
+                        </div>
+                    </div>
+
+                    <div class="benefit-item reveal reveal-delay-5">
+                        <div class="benefit-icon" aria-hidden="true">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="benefit-title">Available Anywhere</div>
+                            <div class="benefit-desc">Works on any device with internet access. Designed with low-bandwidth performance in mind.</div>
+                        </div>
+                    </div>
+
                 </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════
+     CTA
+═══════════════════════════════════════════════ -->
+<section class="section cta-section" aria-labelledby="cta-title">
+    <div class="container">
+        <div class="cta-inner reveal">
+            <div>
+                <div class="cta-eyebrow">Start Today — It's Free</div>
+                <h2 class="cta-title" id="cta-title">
+                    Your crops deserve<br>
+                    smarter care
+                </h2>
+                <p class="cta-desc">
+                    Join thousands of farmers already using KrishiScan to protect their harvest, increase income, and farm with confidence.
+                </p>
+            </div>
+            <div class="cta-actions">
+                <a href="{% url 'signup' %}" class="btn btn-white btn-lg">
+                    Create Free Account
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </a>
+                <a href="{% url 'marketplace' %}" class="btn btn-ghost-white btn-lg">
+                    Browse Marketplace
+                </a>
+                <p class="cta-note">No credit card required</p>
             </div>
         </div>
     </div>
+</section>
 
-    <!-- FINAL CTA SECTION: ROLES -->
-    <div class="roles-section">
-        <div class="roles-header">
-            <h2 class="cinematic-heading-dark">Write the Next Chapter.</h2>
-            <p class="cinematic-text-dark">Who are you in this story? Choose your path to join the movement.</p>
+
+<!-- ═══════════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════════ -->
+<footer class="footer" role="contentinfo">
+    <div class="container">
+        <div class="footer-grid">
+
+            <div class="footer-brand">
+                <div class="footer-logo">
+                    
+                    KrishiScan
+                </div>
+                <p class="footer-tagline">AI-powered agriculture platform for modern farmers and conscious buyers.</p>
+                <div class="footer-social" aria-label="Social media links">
+                    <a href="#" class="social-btn" aria-label="Twitter">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="social-btn" aria-label="LinkedIn">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/>
+                            <circle cx="4" cy="4" r="2"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="social-btn" aria-label="Instagram">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                            <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/>
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="footer-col-title">Platform</h3>
+                <ul class="footer-links" role="list">
+                    <li><a href="{% url 'marketplace' %}">Marketplace</a></li>
+                    <li><a href="{% url 'disease_detect' %}">Disease Detection</a></li>
+                    <li><a href="{% url 'price_tracker' %}">Price Tracker</a></li>
+                    <li><a href="{% url 'weather' %}">Weather</a></li>
+                    <li><a href="{% url 'experts' %}">Expert Advice</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h3 class="footer-col-title">Account</h3>
+                <ul class="footer-links" role="list">
+                    <li><a href="{% url 'signup' %}">Create Account</a></li>
+                    <li><a href="{% url 'login' %}">Sign In</a></li>
+                    <li><a href="{% url 'dashboard' %}">Farmer Dashboard</a></li>
+                    <li><a href="{% url 'consumerdash' %}">Consumer Dashboard</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h3 class="footer-col-title">Company</h3>
+                <ul class="footer-links" role="list">
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Contact</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                </ul>
+            </div>
+
         </div>
-        <div class="roles-grid">
-            <a href="{% url 'signup' %}" class="role-card">
-                <div class="role-img" style="background-image: url('{% static 'farmer_role.png' %}');"></div>
-                <div class="role-content">
-                    <h3 class="role-title">I am a Farmer</h3>
-                    <p>Sell directly to your final consumers.</p>
-                </div>
-            </a>
-            <a href="{% url 'signup' %}" class="role-card">
-                <div class="role-img" style="background-image: url('{% static 'consumer_role.png' %}');"></div>
-                <div class="role-content">
-                    <h3 class="role-title">I am a Consumer</h3>
-                    <p>Buy farm-fresh produce directly from the source.</p>
-                </div>
-            </a>
+
+        <div class="footer-bottom">
+            <span>&copy; 2025 KrishiScan. All rights reserved.</span>
+            <div class="footer-bottom-links">
+                <a href="#">Privacy</a>
+                <a href="#">Terms</a>
+                <a href="#">Cookies</a>
+            </div>
         </div>
     </div>
+</footer>
 
-    <!-- FOOTER -->
-    <footer class="footer">
-        <div class="footer-content">
-            <h3 class="footer-logo">KrishiScan</h3>
-            <p>Bridging the farm to the table.</p>
-        </div>
-        <p class="footer-copyright">&copy; 2026 KrishiScan. Rewriting Agriculture.</p>
-    </footer>
 
-    <script>
-        // Simple and bulletproof fade-in script using IntersectionObserver
-        document.addEventListener('DOMContentLoaded', () => {
-            const faders = document.querySelectorAll('.fade-in-on-scroll');
+<!-- ═══════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════ -->
+<script>
+    /* Sticky nav */
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+        nav.classList.toggle('scrolled', window.scrollY > 20);
+    }, { passive: true });
 
-            const appearOptions = {
-                threshold: 0.3,
-                rootMargin: "0px 0px -100px 0px"
-            };
-
-            const appearOnScroll = new IntersectionObserver(function (entries, observer) {
-                entries.forEach(entry => {
-                    if (!entry.isIntersecting) {
-                        return;
-                    } else {
-                        entry.target.classList.add('visible');
-                    }
-                });
-            }, appearOptions);
-
-            faders.forEach(fader => {
-                appearOnScroll.observe(fader);
-            });
-
-            // Navbar background transition on scroll
-            const navbar = document.querySelector('.navbar');
-            window.addEventListener('scroll', () => {
-                if (window.scrollY > 50) {
-                    navbar.classList.add('scrolled');
-                } else {
-                    navbar.classList.remove('scrolled');
-                }
-            });
-
-            // Trigger immediately for elements already in view
-            window.dispatchEvent(new Event('scroll'));
-
-            // Add visible to first element immediately upon load
-            setTimeout(() => {
-                const firstElement = document.querySelector('.story-section:nth-child(2) .fade-in-on-scroll');
-                if (firstElement) firstElement.classList.add('visible');
-            }, 300);
+    /* Scroll reveal */
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                revealObserver.unobserve(entry.target);
+            }
         });
-    </script>
-</body>
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
 
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    /* Smooth anchor scroll with nav offset */
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+        link.addEventListener('click', e => {
+            const target = document.querySelector(link.getAttribute('href'));
+            if (!target) return;
+            e.preventDefault();
+            const offset = 80;
+            window.scrollTo({ top: target.offsetTop - offset, behavior: 'smooth' });
+        });
+    });
+
+    // Remove global skeleton loader once the page is fully loaded
+    window.addEventListener('load', function() {
+        document.body.classList.add('loaded-state');
+    });
+    // Fallback: remove skeleton after 3 seconds anyway
+    setTimeout(function() {
+        document.body.classList.add('loaded-state');
+    }, 3000);
+</script>
+
+</body>
 </html>

@@ -97,4 +97,13 @@
         if (e.key === 'Escape' && body.classList.contains('sidebar-open')) setOpen(false);
     });
 })();
+
+// Remove global skeleton loader once the page is fully loaded
+window.addEventListener('load', function() {
+    document.body.classList.add('loaded-state');
+});
+// Fallback
+setTimeout(function() {
+    document.body.classList.add('loaded-state');
+}, 3000);
 </script>

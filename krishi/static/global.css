@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Grenze+Gotisch:wght@500;600&display=swap');
 
 /* --- GLOBAL CSS VARIABLES & DESIGN SYSTEM --- */
 :root {
@@ -26,6 +26,7 @@
   /* Typography */
   --font-heading: 'Playfair Display', serif;
   --font-body: 'DM Sans', sans-serif;
+  --font-brand: 'Grenze Gotisch', serif;
   
   /* Transitions */
   --transition-page: 400ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -238,11 +239,17 @@ a:hover {
 }
 
 .logo {
-    font-family: "Grenze Gotisch", serif;
+    font-family: var(--font-brand);
     font-size: 2rem;
-    font-weight: 600;
-    color: var(--color-primary-dark);
+    font-weight: 500;
+    color: var(--color-deep-forest);
     letter-spacing: 0.05em;
+}
+
+.brand-heading {
+    font-family: var(--font-brand);
+    font-weight: 500;
+    color: var(--color-deep-forest);
 }
 
 /* --- Responsive foundations (mobile-first utilities) --- */
@@ -279,5 +286,71 @@ canvas {
         min-height: 2.75rem;
         padding-top: 0.75rem;
         padding-bottom: 0.75rem;
+    
+/* --- GLOBAL SKELETON SCREEN --- */
+body:not(.loaded-state)::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background-color: var(--color-bg);
+    background-image: 
+        linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.6) 50%, rgba(255, 255, 255, 0) 100%),
+        linear-gradient(var(--color-surface) 64px, transparent 0),
+        linear-gradient(var(--color-surface) 200px, transparent 0),
+        linear-gradient(var(--color-surface) 300px, transparent 0),
+        linear-gradient(var(--color-surface) 300px, transparent 0),
+        linear-gradient(var(--color-surface) 300px, transparent 0);
+    background-size: 
+        50% 100%,
+        100% 64px,
+        calc(100% - 4rem) 200px,
+        calc(33.333% - 2.5rem) 300px,
+        calc(33.333% - 2.5rem) 300px,
+        calc(33.333% - 2.5rem) 300px;
+    background-position: 
+        -100% 0,
+        0 0,
+        2rem 100px,
+        2rem 340px,
+        calc(50%) 340px,
+        calc(100% - 2rem) 340px;
+    background-repeat: no-repeat;
+    animation: globalShimmer 1.5s infinite ease-in-out;
+    pointer-events: none;
+    transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+}
+
+@keyframes globalShimmer {
+    0% { background-position: -100% 0, 0 0, 2rem 100px, 2rem 340px, calc(50%) 340px, calc(100% - 2rem) 340px; }
+    100% { background-position: 200% 0, 0 0, 2rem 100px, 2rem 340px, calc(50%) 340px, calc(100% - 2rem) 340px; }
+}
+
+@media (max-width: 768px) {
+    body:not(.loaded-state)::after {
+        background-image: 
+            linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.6) 50%, rgba(255, 255, 255, 0) 100%),
+            linear-gradient(var(--color-surface) 64px, transparent 0),
+            linear-gradient(var(--color-surface) 160px, transparent 0),
+            linear-gradient(var(--color-surface) 200px, transparent 0),
+            linear-gradient(var(--color-surface) 200px, transparent 0);
+        background-size: 
+            100% 100%,
+            100% 64px,
+            calc(100% - 2rem) 160px,
+            calc(100% - 2rem) 200px,
+            calc(100% - 2rem) 200px;
+        background-position: 
+            -100% 0,
+            0 0,
+            1rem 80px,
+            1rem 260px,
+            1rem 480px;
     }
+    
+    @keyframes globalShimmer {
+        0% { background-position: -100% 0, 0 0, 1rem 80px, 1rem 260px, 1rem 480px; }
+        100% { background-position: 200% 0, 0 0, 1rem 80px, 1rem 260px, 1rem 480px; }
+    }
+}
 }

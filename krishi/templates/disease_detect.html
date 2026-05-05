@@ -388,14 +388,18 @@
 </div>
 
 <div id="loadingIndicator" style="display: none; text-align: center; margin-top: 40px;">
-    <div style="width: 48px; height: 48px; border: 4px solid #E8F5EC; border-top-color: var(--color-primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px;"></div>
+    <div
+        style="width: 48px; height: 48px; border: 4px solid #E8F5EC; border-top-color: var(--color-primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px;">
+    </div>
     <h3 style="font-family: 'Playfair Display', serif; color: var(--color-deep-forest);">Analyzing Image...</h3>
     <p style="color: var(--color-text-muted);">Our AI is scanning for over 40+ known diseases.</p>
 </div>
 
 <style>
     @keyframes spin {
-        100% { transform: rotate(360deg); }
+        100% {
+            transform: rotate(360deg);
+        }
     }
 </style>
 
@@ -403,23 +407,31 @@
     <div class="left-panel">
         <form method="POST" enctype="multipart/form-data" id="diseaseForm" action="{% url 'disease_detect' %}">
             {% csrf_token %}
-            <input type="file" id="file-upload" name="image" accept="image/*" style="display: none;" onchange="submitForm()">
-            <input type="file" id="camera-upload" name="image" accept="image/*" capture="environment" style="display: none;" onchange="submitForm()">
+            <input type="file" id="file-upload" name="image" accept="image/*" style="display: none;"
+                onchange="submitForm()">
+            <input type="file" id="camera-upload" name="image" accept="image/*" capture="environment"
+                style="display: none;" onchange="submitForm()">
 
             <div class="upload-card">
                 <div class="upload-zone" id="uploadZone" onclick="document.getElementById('file-upload').click()">
-                    <div class="upload-icon"><img src="{% static 'scan-svgrepo-com.svg' %}" width="140px" height="140px" /></div>
+                    <div class="upload-icon"><img src="{% static 'scan-svgrepo-com.svg' %}" width="140px"
+                            height="140px" /></div>
                     <div class="upload-text">Drag & Drop Crop Image Here</div>
-                    <p class="upload-subtext">Supports JPG, PNG (Max 5MB). Ensure the affected area is clearly visible.</p>
+                    <p class="upload-subtext">Supports JPG, PNG (Max 5MB). Ensure the affected area is clearly visible.
+                    </p>
                     <div class="upload-actions">
-                        <button type="button" class="btn btn-primary" onclick="event.stopPropagation(); document.getElementById('file-upload').click()">Browse Files</button>
-                        <button type="button" class="btn btn-secondary" onclick="event.stopPropagation(); openCamera()">Open Camera</button>
+                        <button type="button" class="btn btn-primary"
+                            onclick="event.stopPropagation(); document.getElementById('file-upload').click()">Browse
+                            Files</button>
+                        <button type="button" class="btn btn-secondary"
+                            onclick="event.stopPropagation(); openCamera()">Open Camera</button>
                     </div>
                 </div>
 
                 {% if result %}
                 <div class="image-preview">
-                    <img src="{{ result.image_uri|default:'https://images.unsplash.com/photo-1599839619722-39751411ea63?q=80&w=800&auto=format&fit=crop' }}" alt="Uploaded Crop Image">
+                    <img src="{{ result.image_uri|default:'https://images.unsplash.com/photo-1599839619722-39751411ea63?q=80&w=800&auto=format&fit=crop' }}"
+                        alt="Uploaded Crop Image">
                     <div style="position: absolute; top: 24px; left: 24px;">
                         <span class="badge badge-info">Uploaded Image</span>
                     </div>
@@ -431,54 +443,72 @@
     <div class="right-panel">
         <div class="diagnosis-card">
             {% if result %}
-                {% if result.error %}
-                <div class="alert alert-error" style="color: var(--color-error-text); background-color: var(--color-light-blush); padding: 16px; border-radius: 8px; margin-bottom: 24px; border: 1px solid var(--color-soft-alert);">
-                    <strong>Analysis Failed:</strong> {{ result.error }}
-                </div>
-                <button class="btn btn-secondary" onclick="window.location.href='{% url 'disease_detect' %}'">Try Again</button>
-                {% else %}
-                <div class="diagnosis-header">
-                    <div>
-                        <span class="badge {% if result.confidence > 80 %}badge-success{% else %}badge-warning{% endif %}" style="margin-bottom: 12px;">Analysis Complete</span>
-                        <h2 class="disease-name">{{ result.disease|default:"Healthy Crop" }}</h2>
-                        <p style="color: var(--color-text-muted);">Detected primarily on leaves</p>
-                    </div>
-                    {% with score=result.confidence|default:95 %}
-                    <div class="health-score-ring {% if score > 85 %}danger{% elif score > 60 %}warning{% else %}healthy{% endif %}">
-                        <span>{{ score|floatformat:0 }}</span>
-                    </div>
-                    {% endwith %}
-                </div>
-
-                <div class="confidence-section">
-                    <div class="confidence-label">
-                        <span>AI Confidence Score</span>
-                        <span>{{ result.confidence|default:95|floatformat:1 }}%</span>
-                    </div>
-                    <div class="confidence-bar-bg">
-                        <div class="confidence-bar-fill" style="width: {{ result.confidence|default:95 }}%; {% if result.confidence > 80 %}background: var(--color-soft-alert);{% endif %}"></div>
-                    </div>
-                </div>
-
-                <div class="action-steps">
-                    <h4>Recommended Actions</h4>
-                    <ul class="step-list">
-                        <li><div class="step-icon">1</div><div><strong>Isolate the area:</strong> Prevent the spread by isolating the affected plants immediately.</div></li>
-                        <li><div class="step-icon">2</div><div><strong>Apply Fungicide:</strong> Use a copper-based fungicide to treat the spots.</div></li>
-                        <li><div class="step-icon">3</div><div><strong>Improve Ventilation:</strong> Ensure proper spacing between plants to reduce humidity.</div></li>
-                    </ul>
-                </div>
-
-                <div style="margin-top: 32px; display: flex; gap: 16px; flex-wrap: wrap;">
-                    <button class="btn btn-primary" style="flex: 1; min-width: 140px;">Save Report</button>
-                    <button class="btn btn-secondary" style="flex: 1; min-width: 140px;">Consult Expert</button>
-                </div>
-                {% endif %}
+            {% if result.error %}
+            <div class="alert alert-error"
+                style="color: var(--color-error-text); background-color: var(--color-light-blush); padding: 16px; border-radius: 8px; margin-bottom: 24px; border: 1px solid var(--color-soft-alert);">
+                <strong>Analysis Failed:</strong> {{ result.error }}
+            </div>
+            <button class="btn btn-secondary" onclick="window.location.href='{% url 'disease_detect' %}'">Try
+                Again</button>
             {% else %}
-                <div class="placeholder-text">
-                    <h3>Upload a crop image to start disease detection</h3>
-                    <p>Use the camera or browse button to capture a leaf or crop photo. Results and recommendations will appear here once the image has been processed.</p>
+            <div class="diagnosis-header">
+                <div>
+                    <span class="badge {% if result.confidence > 80 %}badge-success{% else %}badge-warning{% endif %}"
+                        style="margin-bottom: 12px;">Analysis Complete</span>
+                    <h2 class="disease-name">{{ result.disease|default:"Healthy Crop" }}</h2>
+                    <p style="color: var(--color-text-muted);">Detected primarily on leaves</p>
                 </div>
+                {% with score=result.confidence|default:95 %}
+                <div
+                    class="health-score-ring {% if score > 85 %}danger{% elif score > 60 %}warning{% else %}healthy{% endif %}">
+                    <span>{{ score|floatformat:0 }}</span>
+                </div>
+                {% endwith %}
+            </div>
+
+            <div class="confidence-section">
+                <div class="confidence-label">
+                    <span>AI Confidence Score</span>
+                    <span>{{ result.confidence|default:95|floatformat:1 }}%</span>
+                </div>
+                <div class="confidence-bar-bg">
+                    <div class="confidence-bar-fill"
+                        style="width: {{ result.confidence|default:95 }}%; {% if result.confidence > 80 %}background: var(--color-soft-alert);{% endif %}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-steps">
+                <h4>Recommended Actions</h4>
+                <ul class="step-list">
+                    <li>
+                        <div class="step-icon">1</div>
+                        <div><strong>Isolate the area:</strong> Prevent the spread by isolating the affected plants
+                            immediately.</div>
+                    </li>
+                    <li>
+                        <div class="step-icon">2</div>
+                        <div><strong>Apply Fungicide:</strong> Use a copper-based fungicide to treat the spots.</div>
+                    </li>
+                    <li>
+                        <div class="step-icon">3</div>
+                        <div><strong>Improve Ventilation:</strong> Ensure proper spacing between plants to reduce
+                            humidity.</div>
+                    </li>
+                </ul>
+            </div>
+
+            <div style="margin-top: 32px; display: flex; gap: 16px; flex-wrap: wrap;">
+                <button class="btn btn-primary" style="flex: 1; min-width: 140px;">Save Report</button>
+                <!-- <button class="btn btn-secondary" style="flex: 1; min-width: 140px;">Consult Expert</button> -->
+            </div>
+            {% endif %}
+            {% else %}
+            <div class="placeholder-text">
+                <h3>Upload a crop image to start disease detection</h3>
+                <p>Use the camera or browse button to capture a leaf or crop photo. Results and recommendations will
+                    appear here once the image has been processed.</p>
+            </div>
             {% endif %}
         </div>
     </div>

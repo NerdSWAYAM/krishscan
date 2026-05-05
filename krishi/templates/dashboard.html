@@ -5,6 +5,19 @@
 
 {% block extra_css %}
 <style>
+    /* Skeleton Loader */
+    .skeleton-wrapper { width: 100%; display: flex; flex-direction: column; gap: 24px; padding-bottom: 32px; }
+    .skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 16px;
+    }
+    @keyframes shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+    #main-content { opacity: 0; transition: opacity 0.4s ease-in; }
     .dashboard-header {
         display: flex;
         justify-content: space-between;
@@ -333,6 +346,19 @@
 {% endblock %}
 
 {% block content %}
+<div id="skeleton-loader" class="skeleton-wrapper">
+    <div class="skeleton" style="height: 140px; border-radius: 20px;"></div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 24px;">
+        <div class="skeleton" style="height: 120px;"></div>
+        <div class="skeleton" style="height: 120px;"></div>
+        <div class="skeleton" style="height: 120px;"></div>
+    </div>
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+        <div class="skeleton" style="height: 350px; border-radius: 20px;"></div>
+        <div class="skeleton" style="height: 350px; border-radius: 20px;"></div>
+    </div>
+</div>
+<div id="main-content" style="display: none;">
 <div class="dashboard-header">
     <div class="greeting-section">
         <h2>Good morning, {% if request.session.first_name %}{{ request.session.first_name }}{% else %}Farmer{% endif %}
@@ -391,7 +417,7 @@
             <img src="{% static 'rupee-svgrepo-com (1).svg' %}" alt="ruppe-icon" height="30">
         </div>
         <div>
-            <div class="stat-value">00</div>
+            <div class="stat-value" id="avg-market-price">--</div>
             <div class="stat-label">Avg. Market Price</div>
         </div>
     </div>
@@ -400,60 +426,54 @@
 <div class="dashboard-grid">
     <div class="card weather-details-card"
         style="background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); border: 1px solid var(--color-border);">
-        <h3 class="section-title">Weather Forecast - {{ weather_data.city|default:"Location" }}</h3>
-        {% if weather_data %}
-        <div
-            style="display: flex; align-items: center; justify-content: space-around; padding: 20px 0; flex-wrap: wrap; gap: 20px;">
-            <div style="text-align: center;">
-                <img src="http://openweathermap.org/img/wn/{{ weather_data.icon }}@4x.png" alt="Weather icon"
-                    style="width: min(140px, 40vw); height: auto; max-width: 100%; filter: drop-shadow(0px 10px 15px rgba(0,0,0,0.1));">
-                <h2
-                    style="font-size: clamp(1.75rem, 6vw, 2.625rem); margin: 0; color: var(--color-deep-forest); font-family: 'Playfair Display', serif;">
-                    {{ weather_data.temp }}°C</h2>
-                <p style="font-size: clamp(1rem, 3vw, 1.25rem); color: var(--color-text-muted); margin: 5px 0 0 0; font-weight: 500;">
-                    {{weather_data.description }}</p>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 24px;">
-                <div style="display: flex; align-items: center; gap: 16px;">
-                    <div
-                        style="font-size: 28px; width: 48px; height: 48px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-                        <img src="{% static 'temperature-svgrepo-com.svg' %}" alt="Feels like icon" style="width: 30px; height: 30px;">
+        <h3 class="section-title">Weather Forecast - <span id="weather-city">Location</span></h3>
+        <div id="weather-content" style="display: none;">
+            <div style="display: flex; align-items: center; justify-content: space-around; padding: 20px 0; flex-wrap: wrap; gap: 20px;">
+                <div style="text-align: center;">
+                    <img id="weather-icon" src="" alt="Weather icon"
+                        style="width: min(140px, 40vw); height: auto; max-width: 100%; filter: drop-shadow(0px 10px 15px rgba(0,0,0,0.1));">
+                    <h2 id="weather-temp"
+                        style="font-size: clamp(1.75rem, 6vw, 2.625rem); margin: 0; color: var(--color-deep-forest); font-family: 'Playfair Display', serif;">
+                        --°C</h2>
+                    <p id="weather-desc" style="font-size: clamp(1rem, 3vw, 1.25rem); color: var(--color-text-muted); margin: 5px 0 0 0; font-weight: 500;">
+                        --</p>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 24px;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="font-size: 28px; width: 48px; height: 48px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                            <img src="{% static 'temperature-svgrepo-com.svg' %}" alt="Feels like icon" style="width: 30px; height: 30px;">
                         </div>
-                    <div>
-                        <div style="font-weight: 600; color: var(--color-deep-forest); font-size: 16px;">Feels Like
-                        </div>
-                        <div style="color: var(--color-text-muted); font-size: 15px;">{{ weather_data.feels_like }}°C
+                        <div>
+                            <div style="font-weight: 600; color: var(--color-deep-forest); font-size: 16px;">Feels Like</div>
+                            <div id="weather-feels" style="color: var(--color-text-muted); font-size: 15px;">--°C</div>
                         </div>
                     </div>
-                </div>
-                <div style="display: flex; align-items: center; gap: 16px;">
-                    <div
-                        style="font-size: 28px; width: 48px; height: 48px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-                        <img src="{% static 'humidity-svgrepo-com.svg' %}" alt="Humidity icon" style="width: 30px; height: 30px;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="font-size: 28px; width: 48px; height: 48px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                            <img src="{% static 'humidity-svgrepo-com.svg' %}" alt="Humidity icon" style="width: 30px; height: 30px;">
                         </div>
-                    <div>
-                        <div style="font-weight: 600; color: var(--color-deep-forest); font-size: 16px;">Humidity</div>
-                        <div style="color: var(--color-text-muted); font-size: 15px;">{{ weather_data.humidity }}%</div>
+                        <div>
+                            <div style="font-weight: 600; color: var(--color-deep-forest); font-size: 16px;">Humidity</div>
+                            <div id="weather-humidity" style="color: var(--color-text-muted); font-size: 15px;">--%</div>
+                        </div>
                     </div>
-                </div>
-                <div style="display: flex; align-items: center; gap: 16px;">
-                    <div
-                        style="font-size: 28px; width: 48px; height: 48px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-                        <img src="{% static 'wind-svgrepo-com.svg' %}" alt="Wind icon" style="width: 30px; height: 30px;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="font-size: 28px; width: 48px; height: 48px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                            <img src="{% static 'wind-svgrepo-com.svg' %}" alt="Wind icon" style="width: 30px; height: 30px;">
                         </div>
-                    <div>
-                        <div style="font-weight: 600; color: var(--color-deep-forest); font-size: 16px;">Wind Speed
-                        </div>
-                        <div style="color: var(--color-text-muted); font-size: 15px;">{{ weather_data.wind_speed }} m/s
+                        <div>
+                            <div style="font-weight: 600; color: var(--color-deep-forest); font-size: 16px;">Wind Speed</div>
+                            <div id="weather-wind" style="color: var(--color-text-muted); font-size: 15px;">-- m/s</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        {% else %}
-        <p style="text-align: center; color: var(--color-text-muted); padding: 40px; font-size: 16px;">Weather data
-            could not be fetched at the moment.</p>
-        {% endif %}
+        <div id="weather-loading" style="text-align: center; padding: 40px;">
+            <div class="skeleton" style="height: 100px; width: 100px; border-radius: 50%; margin: 0 auto 20px;"></div>
+            <div class="skeleton" style="height: 20px; width: 150px; margin: 0 auto;"></div>
+        </div>
+        <p id="weather-error" style="display: none; text-align: center; color: var(--color-text-muted); padding: 40px; font-size: 16px;">Weather data could not be fetched.</p>
     </div>
 
     <div class="card uploaded-crops-card">
@@ -628,5 +648,48 @@
     // Initial call and interval setup
     updateDateTime();
     setInterval(updateDateTime, 1000);
+
+    window.addEventListener('load', function() {
+        // Show main content immediately since blocking calls are gone
+        const skeleton = document.getElementById('skeleton-loader');
+        const mainContent = document.getElementById('main-content');
+        if(skeleton) skeleton.style.display = 'none';
+        if(mainContent) {
+            mainContent.style.display = 'block';
+            setTimeout(() => mainContent.style.opacity = '1', 10);
+        }
+        
+        // Fetch dynamic data in background
+        fetch('{% url "dashboard_stats_api" %}')
+            .then(res => res.json())
+            .then(data => {
+                if (data.avg_market_price) {
+                    document.getElementById('avg-market-price').textContent = '₹ ' + data.avg_market_price;
+                }
+                
+                if (data.weather_data) {
+                    document.getElementById('weather-city').textContent = data.weather_data.city;
+                    document.getElementById('weather-temp').textContent = data.weather_data.temp + '°C';
+                    document.getElementById('weather-desc').textContent = data.weather_data.description;
+                    document.getElementById('weather-feels').textContent = data.weather_data.feels_like + '°C';
+                    document.getElementById('weather-humidity').textContent = data.weather_data.humidity + '%';
+                    document.getElementById('weather-wind').textContent = data.weather_data.wind_speed + ' m/s';
+                    document.getElementById('weather-icon').src = `http://openweathermap.org/img/wn/${data.weather_data.icon}@4x.png`;
+                    
+                    document.getElementById('weather-loading').style.display = 'none';
+                    document.getElementById('weather-content').style.display = 'block';
+                } else {
+                    document.getElementById('weather-loading').style.display = 'none';
+                    document.getElementById('weather-error').style.display = 'block';
+                }
+            })
+            .catch(() => {
+                document.getElementById('weather-loading').style.display = 'none';
+                document.getElementById('weather-error').style.display = 'block';
+            });
+            
+        initializeCropChart();
+    });
 </script>
+</div>
 {% endblock %}

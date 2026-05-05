@@ -24,11 +24,12 @@
     }
 
     .navbar-logo {
-        font-family: 'Playfair Display', serif;
-        font-size: 20px;
-        font-weight: 700;
+        font-family: 'Grenze Gotisch', serif;
+        font-size: 24px;
+        font-weight: 500;
         color: #3A6F43;
         margin: 0;
+        letter-spacing: 0.03em;
     }
 
     .navbar-toolbar {
@@ -511,7 +512,7 @@
                     <a href="/wishlist/" class="dropdown-item">Wishlist</a>
                     <a href="{% url 'my_orders' %}" class="dropdown-item">MyOrders</a>
                     {% endif %}
-                    <a href="/login/" class="dropdown-item" style="color: #C0392B;">Logout</a>
+                    <a href="{% url 'logout' %}" class="dropdown-item" style="color: #C0392B;">Logout</a>
                 </div>
             </div>
         </div>
@@ -569,7 +570,7 @@
                 <div class="role-badge consumer">Consumer</div>
                 {% endif %}
             </div>
-            <a href="/login/"
+            <a href="{% url 'logout' %}"
                 style="font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; color: #C0392B; text-decoration: none;">Logout</a>
         </div>
     </div>
@@ -738,4 +739,13 @@
 
         loadNotifications();
     });
+
+    // Remove global skeleton loader once the page is fully loaded
+    window.addEventListener('load', function() {
+        document.body.classList.add('loaded-state');
+    });
+    // Fallback: remove skeleton after 3 seconds anyway
+    setTimeout(function() {
+        document.body.classList.add('loaded-state');
+    }, 3000);
 </script>
