@@ -339,12 +339,16 @@ def dashboard(request):
         chat_consumer_ids.update(ChatMessage.objects.filter(receiver_id=user_id).values_list('sender_id', flat=True))
         
         recent_consumers = UserAccount.objects.filter(id__in=chat_consumer_ids, role='Consumer')[:5]
+        
+        user = UserAccount.objects.get(id=user_id)
+        wallet_balance = user.wallet_balance
     else:
         crops_uploaded = 0
         crops_sold_count = 0
         crops_unsold_count = 0
         crops_sold = 0
         uploaded_crops = []
+        wallet_balance = 0
 
     context = {
         'market_prices': market_prices,
@@ -355,6 +359,7 @@ def dashboard(request):
         'crops_unsold_count': crops_unsold_count,
         'uploaded_crops': uploaded_crops,
         'recent_consumers': recent_consumers,
+        'wallet_balance': wallet_balance,
     }
     return render(request, 'dashboard.html', context)
 
@@ -636,38 +641,47 @@ def price_tracker(request):
     
     url = f"https://api.data.gov.in/resource/{RESOURCE_ID}"
     
-    # Use Gujarat and Wheat as default since they have guaranteed data in the snapshot
-    state = request.GET.get('state', 'Gujarat')
-    commodity = request.GET.get('commodity', 'Wheat')
+    # Filters are optional — empty string means "no filter applied"
+    state = request.GET.get('state', '').strip()
+    commodity = request.GET.get('commodity', '').strip()
     
     params = {
         "api-key": API_KEY,
         "format": "json",
-        "filters[state]": state,
-        "filters[commodity]": commodity,
-        "limit": 20
+        "limit": 100,
     }
     
-    cache_key = f'price_tracker_{state}_{commodity}'
+    # Only apply filters when explicitly provided
+    if state:
+        params["filters[state]"] = state
+    if commodity:
+        params["filters[commodity]"] = commodity
+    
+    cache_key = f'price_tracker_{state or "all"}_{commodity or "all"}'
     records = cache.get(cache_key)
+    total = 0
     
     if records is None:
         try:
-            response = requests.get(url, params=params, timeout=3)
+            response = requests.get(url, params=params, timeout=5)
             if response.status_code == 200:
                 data = response.json()
                 records = data.get('records', [])
-                cache.set(cache_key, records, 60 * 60)
+                total = data.get('total', len(records))
+                cache.set(cache_key, records, 60 * 30)  # cache 30 min
             else:
                 records = []
         except requests.exceptions.RequestException as e:
             print("Error fetching data:", e)
             records = []
+    else:
+        total = len(records)
         
     context = {
         'records': records,
         'state': state,
         'commodity': commodity,
+        'total': total,
     }
     return render(request, 'price_tracker.html', context)
 
@@ -1422,7 +1436,9 @@ def dashboard_stats_api(request):
             market_prices = []
 
     # 2. Weather
-    w_cache_key = f'weather_{request.session.get("location", "Bangalore")}_{request.session.get("coordinates", "none")}'
+    import hashlib
+    _w_raw = f'weather_{request.session.get("location", "Bangalore")}_{request.session.get("coordinates", "none")}'
+    w_cache_key = 'weather_' + hashlib.md5(_w_raw.encode('utf-8')).hexdigest()
     weather_data = cache.get(w_cache_key)
     
     if weather_data is None:
@@ -1464,10 +1480,25 @@ def dashboard_stats_api(request):
         except:
             pass
 
+    # Calculate Farmer's Real Cost (Avg of their uploaded crops)
+    real_cost = 0
+    wallet_balance = 0
+    user_id = request.session.get('user_id')
+    if user_id:
+        from .models import Crop, UserAccount
+        user = UserAccount.objects.get(id=user_id)
+        wallet_balance = float(user.wallet_balance)
+        farmer_crops = Crop.objects.filter(farmer_id=user_id)
+        if farmer_crops.exists():
+            from django.db.models import Avg
+            real_cost = int(farmer_crops.aggregate(Avg('price_per_kg'))['price_per_kg__avg'] or 0)
+
     return JsonResponse({
         'market_prices': market_prices,
         'weather_data': weather_data,
-        'avg_market_price': avg_price
+        'avg_market_price': avg_price,
+        'real_cost': real_cost,
+        'wallet_balance': wallet_balance
     })
 
 

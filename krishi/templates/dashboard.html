@@ -1,23 +1,39 @@
 {% extends 'farmer_base.html' %}
 {% load static %}
-
 {% block title %}KrishiScan - Farmer Dashboard{% endblock %}
-
 {% block extra_css %}
-<style>
+    <style>
     /* Skeleton Loader */
-    .skeleton-wrapper { width: 100%; display: flex; flex-direction: column; gap: 24px; padding-bottom: 32px; }
+    .skeleton-wrapper {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        padding-bottom: 32px;
+    }
+
     .skeleton {
         background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
         background-size: 200% 100%;
         animation: shimmer 1.5s infinite;
         border-radius: 16px;
     }
+
     @keyframes shimmer {
-        0% { background-position: 200% 0; }
-        100% { background-position: -200% 0; }
+        0% {
+            background-position: 200% 0;
+        }
+
+        100% {
+            background-position: -200% 0;
+        }
     }
-    #main-content { opacity: 0; transition: opacity 0.4s ease-in; }
+
+    #main-content {
+        opacity: 0;
+        transition: opacity 0.4s ease-in;
+    }
+
     .dashboard-header {
         display: flex;
         justify-content: space-between;
@@ -342,354 +358,560 @@
             min-height: 2.75rem;
         }
     }
-</style>
+    </style>
 {% endblock %}
-
 {% block content %}
-<div id="skeleton-loader" class="skeleton-wrapper">
-    <div class="skeleton" style="height: 140px; border-radius: 20px;"></div>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 24px;">
-        <div class="skeleton" style="height: 120px;"></div>
-        <div class="skeleton" style="height: 120px;"></div>
-        <div class="skeleton" style="height: 120px;"></div>
-    </div>
-    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
-        <div class="skeleton" style="height: 350px; border-radius: 20px;"></div>
-        <div class="skeleton" style="height: 350px; border-radius: 20px;"></div>
-    </div>
-</div>
-<div id="main-content" style="display: none;">
-<div class="dashboard-header">
-    <div class="greeting-section">
-        <h2>Good morning, {% if request.session.first_name %}{{ request.session.first_name }}{% else %}Farmer{% endif %}
-        </h2>
-        <p style="color: black; font-weight: 500; margin-bottom: 6px; font-size: 16px;">
-            <i class="fas fa-envelope"></i> {{ request.session.email|default:"N/A" }} &nbsp;<br><i
-                class="fas fa-map-marker-alt"></i> {{ request.session.location|default:"N/A" }}
-        </p>
-        <p>Here is your farm's status for today.</p>
-    </div>
-
-    <div class="date-time-display" style="text-align: right;">
-        <h3 id="current-time"
-            style="font-family: 'DM Sans', sans-serif; margin: 0; font-size: 28px; color: var(--color-deep-forest); letter-spacing: 1px;">
-            --:--:--</h3>
-        <p id="current-date"
-            style="margin: 4px 0 0 0; color: var(--color-text-muted); font-weight: 500; font-size: 15px;">Loading
-            date...</p>
-    </div>
-</div>
-
-<div class="stats-row">
-    <div class="card stat-card">
-        <div class="stat-icon"><img src="{% static 'cart-check-svgrepo-com.svg' %}" alt="cart-image" height="30"></div>
-        <div>
-            <div class="stat-value"
-                style="font-size: {% if crops_sold > 0 %}32px{% else %}16px{% endif %}; color: {% if crops_sold > 0 %}var(--color-deep-forest){% else %}#969997{% endif %};">
-                {% if crops_sold > 0 %}{{ crops_sold }}{% else %}Not sold any crops yet!{% endif %}</div>
-            <div class="stat-label">Crops Sold</div>
+    <div id="skeleton-loader" class="skeleton-wrapper">
+        <div class="skeleton" style="height: 140px; border-radius: 20px;"></div>
+        <div style="display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+                    gap: 24px">
+            <div class="skeleton" style="height: 120px;"></div>
+            <div class="skeleton" style="height: 120px;"></div>
+            <div class="skeleton" style="height: 120px;"></div>
+        </div>
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+            <div class="skeleton" style="height: 350px; border-radius: 20px;"></div>
+            <div class="skeleton" style="height: 350px; border-radius: 20px;"></div>
         </div>
     </div>
-
-    <div class="card stat-card">
-        <div class="stat-icon"><img src="{% static 'upload-minimalistic-svgrepo-com.svg' %}" alt="upload-icon"
-                height="30"></div>
-        <div class="stat-label">Crops Uploaded</div>
-
-        <div>
-            <div class="stat-value"
-                style="font-size: {% if crops_uploaded > 0 %}32px{% else %}16px{% endif %}; color: {% if crops_uploaded > 0 %}var(--color-deep-forest){% else %}#969997{% endif %};">
-                {% if crops_uploaded > 0 %}{{ crops_uploaded }}{% else %}You have not uploaded any crops yet!{% endif %}
+    <div id="main-content" style="display: none;">
+        <div class="dashboard-header">
+            <div class="greeting-section">
+                <h2>
+                    Wel-Come,
+                    {% if request.session.first_name %}
+                        {{ request.session.first_name }}
+                    {% else %}
+                        Farmer
+                    {% endif %}
+                </h2>
+                <p style="color: black;
+                          font-weight: 500;
+                          margin-bottom: 6px;
+                          font-size: 16px">
+                    <i class="fas fa-envelope"></i> {{ request.session.email|default:"N/A" }} &nbsp;
+                    <br>
+                    <i class="fas fa-map-marker-alt"></i> {{ request.session.location|default:"N/A" }}
+                </p>
+                <p>Here is your farm's status for today.</p>
+            </div>
+            <div class="date-time-display" style="text-align: right;">
+                <h3 id="current-time"
+                    style="font-family: 'DM Sans', sans-serif;
+                           margin: 0;
+                           font-size: 28px;
+                           color: var(--color-deep-forest);
+                           letter-spacing: 1px">--:--:--</h3>
+                <p id="current-date"
+                   style="margin: 4px 0 0 0;
+                          color: var(--color-text-muted);
+                          font-weight: 500;
+                          font-size: 15px">
+                    Loading
+                    date...
+                </p>
             </div>
         </div>
-    </div>
-
-    <!-- <div class="card stat-card">
-        <div class="stat-icon" style="background: var(--color-light-blush);">⚠️</div>
-        <div>
-            <div class="stat-value">2</div>
-            <div class="stat-label">Alerts</div>
-        </div>
-    </div> -->
-
-    <div class="card stat-card">
-        <div class="stat-icon">
-            <img src="{% static 'rupee-svgrepo-com (1).svg' %}" alt="ruppe-icon" height="30">
-        </div>
-        <div>
-            <div class="stat-value" id="avg-market-price">--</div>
-            <div class="stat-label">Avg. Market Price</div>
-        </div>
-    </div>
-</div>
-
-<div class="dashboard-grid">
-    <div class="card weather-details-card"
-        style="background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); border: 1px solid var(--color-border);">
-        <h3 class="section-title">Weather Forecast - <span id="weather-city">Location</span></h3>
-        <div id="weather-content" style="display: none;">
-            <div style="display: flex; align-items: center; justify-content: space-around; padding: 20px 0; flex-wrap: wrap; gap: 20px;">
-                <div style="text-align: center;">
-                    <img id="weather-icon" src="" alt="Weather icon"
-                        style="width: min(140px, 40vw); height: auto; max-width: 100%; filter: drop-shadow(0px 10px 15px rgba(0,0,0,0.1));">
-                    <h2 id="weather-temp"
-                        style="font-size: clamp(1.75rem, 6vw, 2.625rem); margin: 0; color: var(--color-deep-forest); font-family: 'Playfair Display', serif;">
-                        --°C</h2>
-                    <p id="weather-desc" style="font-size: clamp(1rem, 3vw, 1.25rem); color: var(--color-text-muted); margin: 5px 0 0 0; font-weight: 500;">
-                        --</p>
+        <div class="stats-row">
+            <div class="card stat-card">
+                <div class="stat-icon">
+                    <img src="{% static 'cart-check-svgrepo-com.svg' %}"
+                         alt="cart-image"
+                         height="30">
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 24px;">
-                    <div style="display: flex; align-items: center; gap: 16px;">
-                        <div style="font-size: 28px; width: 48px; height: 48px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-                            <img src="{% static 'temperature-svgrepo-com.svg' %}" alt="Feels like icon" style="width: 30px; height: 30px;">
-                        </div>
-                        <div>
-                            <div style="font-weight: 600; color: var(--color-deep-forest); font-size: 16px;">Feels Like</div>
-                            <div id="weather-feels" style="color: var(--color-text-muted); font-size: 15px;">--°C</div>
-                        </div>
+                <div>
+                    <div class="stat-value"
+                         style="font-size: {% if crops_sold > 0 %}32px{% else %}16px{% endif %};
+                                color: {% if crops_sold > 0 %}var(--color-deep-forest){% else %}#969997{% endif %}">
+                        {% if crops_sold > 0 %}
+                            {{ crops_sold }}
+                        {% else %}
+                            Not sold any crops yet!
+                        {% endif %}
                     </div>
-                    <div style="display: flex; align-items: center; gap: 16px;">
-                        <div style="font-size: 28px; width: 48px; height: 48px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-                            <img src="{% static 'humidity-svgrepo-com.svg' %}" alt="Humidity icon" style="width: 30px; height: 30px;">
-                        </div>
-                        <div>
-                            <div style="font-weight: 600; color: var(--color-deep-forest); font-size: 16px;">Humidity</div>
-                            <div id="weather-humidity" style="color: var(--color-text-muted); font-size: 15px;">--%</div>
-                        </div>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 16px;">
-                        <div style="font-size: 28px; width: 48px; height: 48px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-                            <img src="{% static 'wind-svgrepo-com.svg' %}" alt="Wind icon" style="width: 30px; height: 30px;">
-                        </div>
-                        <div>
-                            <div style="font-weight: 600; color: var(--color-deep-forest); font-size: 16px;">Wind Speed</div>
-                            <div id="weather-wind" style="color: var(--color-text-muted); font-size: 15px;">-- m/s</div>
-                        </div>
-                    </div>
+                    <div class="stat-label">Crops Sold</div>
                 </div>
             </div>
+            <div class="card stat-card">
+                <div class="stat-icon">
+                    <img src="{% static 'upload-minimalistic-svgrepo-com.svg' %}"
+                         alt="upload-icon"
+                         height="30">
+                </div>
+                <div class="stat-label">Crops Uploaded</div>
+                <div class="stat-value"
+                     style="font-size: {% if crops_uploaded > 0 %}32px{% else %}16px{% endif %};
+                            color: {% if crops_uploaded > 0 %}var(--color-deep-forest){% else %}#969997{% endif %}">
+                    {% if crops_uploaded > 0 %}
+                        {{ crops_uploaded }}
+                    {% else %}
+                        You have not uploaded any crops yet!
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card stat-card"
+                 onclick="window.location.href='{% url 'wallet' %}'"
+                 style="cursor: pointer;
+                        transition: transform 0.2s"
+                 onmouseover="this.style.transform='translateY(-4px)'"
+                 onmouseout="this.style.transform='translateY(0)'">
+                <div class="stat-icon" style="background: #FFF9E6;">
+                    <img src="{% static 'rupee-svgrepo-com.svg' %}"
+                         alt="wallet-icon"
+                         height="30">
+                </div>
+                <div>
+                    <div class="stat-value"
+                         id="wallet-balance"
+                         style="font-size: 32px;
+                                color: #B98900">
+                        ₹ {{ wallet_balance|floatformat:2 }}
+                    </div>
+                    <div class="stat-label">Wallet Balance</div>
+                </div>
+            </div>
+            <!-- <div class="card stat-card">
+            <div class="stat-icon">
+                <img src="{% static 'rupee-svgrepo-com (1).svg' %}" alt="ruppe-icon" height="30">
+            </div>
+            <div>
+                <div class="stat-value" id="price-display" style="display: flex; flex-direction: column; gap: 2px;">
+                    <span style="font-size: 28px;">₹ <span id="val-real-cost">--</span></span>
+                    <span style="font-size: 13px; color: var(--color-text-muted); font-weight: 500; font-family: 'DM Sans', sans-serif;">Market Avg: ₹ <span id="val-avg-price">--</span></span>
+                </div>
+                <div class="stat-label" style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
+                    Real Cost & Avg Price
+                    <span style="font-size: 9px; background: #E8F5EC; color: #3A6F43; padding: 2px 6px; border-radius: 4px; font-weight: 800; letter-spacing: 0.5px; border: 1px solid rgba(58,111,67,0.1);">UPDATED</span>
+                </div>
+            </div> 
+        </div> -->
         </div>
-        <div id="weather-loading" style="text-align: center; padding: 40px;">
-            <div class="skeleton" style="height: 100px; width: 100px; border-radius: 50%; margin: 0 auto 20px;"></div>
-            <div class="skeleton" style="height: 20px; width: 150px; margin: 0 auto;"></div>
-        </div>
-        <p id="weather-error" style="display: none; text-align: center; color: var(--color-text-muted); padding: 40px; font-size: 16px;">Weather data could not be fetched.</p>
-    </div>
-
-    <div class="card uploaded-crops-card">
-        <h3 class="section-title">Your Uploaded Crops</h3>
-        {% if uploaded_crops %}
-        <div class="uploaded-crops-list">
-            {% for crop in uploaded_crops %}
-            <div class="uploaded-crop-item">
-                {% if crop.image %}
-                <img src="{{ crop.image.url }}" alt="{{ crop.name }}" class="uploaded-crop-thumbnail">
+        <div class="dashboard-grid">
+            <div class="card weather-details-card"
+                 style="background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+                        border: 1px solid var(--color-border)">
+                <h3 class="section-title">
+                    Weather Forecast - <span id="weather-city">Location</span>
+                </h3>
+                <div id="weather-content" style="display: none;">
+                    <div style="display: flex;
+                                align-items: center;
+                                justify-content: space-around;
+                                padding: 20px 0;
+                                flex-wrap: wrap;
+                                gap: 20px">
+                        <div style="text-align: center;">
+                            <img id="weather-icon"
+                                 src=""
+                                 alt="Weather icon"
+                                 style="width: min(140px, 40vw);
+                                        height: auto;
+                                        max-width: 100%;
+                                        filter: drop-shadow(0px 10px 15px rgba(0,0,0,0.1))">
+                            <h2 id="weather-temp"
+                                style="font-size: clamp(1.75rem, 6vw, 2.625rem);
+                                       margin: 0;
+                                       color: var(--color-deep-forest);
+                                       font-family: 'Playfair Display', serif">--°C</h2>
+                            <p id="weather-desc"
+                               style="font-size: clamp(1rem, 3vw, 1.25rem);
+                                      color: var(--color-text-muted);
+                                      margin: 5px 0 0 0;
+                                      font-weight: 500">--</p>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 24px;">
+                            <div style="display: flex; align-items: center; gap: 16px;">
+                                <div style="font-size: 28px;
+                                            width: 48px;
+                                            height: 48px;
+                                            background: white;
+                                            border-radius: 12px;
+                                            display: flex;
+                                            align-items: center;
+                                            justify-content: center;
+                                            box-shadow: 0 4px 10px rgba(0,0,0,0.05)">
+                                    <img src="{% static 'temperature-svgrepo-com.svg' %}"
+                                         alt="Feels like icon"
+                                         style="width: 30px;
+                                                height: 30px">
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600;
+                                                color: var(--color-deep-forest);
+                                                font-size: 16px">
+                                        Feels
+                                        Like
+                                    </div>
+                                    <div id="weather-feels"
+                                         style="color: var(--color-text-muted);
+                                                font-size: 15px">--°C</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 16px;">
+                                <div style="font-size: 28px;
+                                            width: 48px;
+                                            height: 48px;
+                                            background: white;
+                                            border-radius: 12px;
+                                            display: flex;
+                                            align-items: center;
+                                            justify-content: center;
+                                            box-shadow: 0 4px 10px rgba(0,0,0,0.05)">
+                                    <img src="{% static 'humidity-svgrepo-com.svg' %}"
+                                         alt="Humidity icon"
+                                         style="width: 30px;
+                                                height: 30px">
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600;
+                                                color: var(--color-deep-forest);
+                                                font-size: 16px">Humidity</div>
+                                    <div id="weather-humidity"
+                                         style="color: var(--color-text-muted);
+                                                font-size: 15px">--%</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 16px;">
+                                <div style="font-size: 28px;
+                                            width: 48px;
+                                            height: 48px;
+                                            background: white;
+                                            border-radius: 12px;
+                                            display: flex;
+                                            align-items: center;
+                                            justify-content: center;
+                                            box-shadow: 0 4px 10px rgba(0,0,0,0.05)">
+                                    <img src="{% static 'wind-svgrepo-com.svg' %}"
+                                         alt="Wind icon"
+                                         style="width: 30px;
+                                                height: 30px">
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600;
+                                                color: var(--color-deep-forest);
+                                                font-size: 16px">
+                                        Wind
+                                        Speed
+                                    </div>
+                                    <div id="weather-wind"
+                                         style="color: var(--color-text-muted);
+                                                font-size: 15px">-- m/s</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="weather-loading" style="text-align: center; padding: 40px;">
+                    <div class="skeleton"
+                         style="height: 100px;
+                                width: 100px;
+                                border-radius: 50%;
+                                margin: 0 auto 20px"></div>
+                    <div class="skeleton" style="height: 20px; width: 150px; margin: 0 auto;"></div>
+                </div>
+                <p id="weather-error"
+                   style="display: none;
+                          text-align: center;
+                          color: var(--color-text-muted);
+                          padding: 40px;
+                          font-size: 16px">Weather data could not be fetched.</p>
+            </div>
+            <div class="card uploaded-crops-card">
+                <h3 class="section-title">Your Uploaded Crops</h3>
+                {% if uploaded_crops %}
+                    <div class="uploaded-crops-list">
+                        {% for crop in uploaded_crops %}
+                            <div class="uploaded-crop-item">
+                                {% if crop.image %}
+                                    <img src="{{ crop.image.url }}"
+                                         alt="{{ crop.name }}"
+                                         class="uploaded-crop-thumbnail">
+                                {% else %}
+                                    <div class="uploaded-crop-thumbnail"
+                                         style="display:flex;
+                                                align-items:center;
+                                                justify-content:center;
+                                                color:var(--color-text-muted);
+                                                font-size:0.75rem;
+                                                font-weight:600;
+                                                text-transform:uppercase">No image</div>
+                                {% endif %}
+                                <div class="uploaded-crop-info">
+                                    <div class="uploaded-crop-name">{{ crop.name }}</div>
+                                    <div class="uploaded-crop-meta">Qty: {{ crop.quantity }} kg · ₹{{ crop.price_per_kg }} / kg</div>
+                                    <div class="uploaded-crop-meta">Listed on {{ crop.created_at|date:"M d, Y" }}</div>
+                                </div>
+                                <button class="btn-remove-crop"
+                                        onclick="removeCrop({{ crop.id }})"
+                                        type="button">Remove</button>
+                            </div>
+                        {% endfor %}
+                    </div>
                 {% else %}
-                <div class="uploaded-crop-thumbnail"
-                    style="display:flex;align-items:center;justify-content:center;color:var(--color-text-muted);font-size:0.75rem;font-weight:600;text-transform:uppercase;">No image</div>
-                {% endif %}
-                <div class="uploaded-crop-info">
-                    <div class="uploaded-crop-name">{{ crop.name }}</div>
-                    <div class="uploaded-crop-meta">Qty: {{ crop.quantity }} kg · ₹{{ crop.price_per_kg }} / kg</div>
-                    <div class="uploaded-crop-meta">Listed on {{ crop.created_at|date:"M d, Y" }}</div>
+                    <p style="color: var(--color-text-muted); font-size: 15px; margin: 0;">
+                        You have not uploaded any crops yet.
+                        <a href="{% url 'upload_crop' %}"
+                           style="color: var(--color-primary);
+                                  font-weight: 600;
+                                  text-decoration: none">Upload your first
+                            crop</a>.
+                        </p>
+                    {% endif %}
                 </div>
-                <button class="btn-remove-crop" onclick="removeCrop({{ crop.id }})" type="button">Remove</button>
-            </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <p style="color: var(--color-text-muted); font-size: 15px; margin: 0;">You have not uploaded any crops yet. <a
-                href="{% url 'upload_crop' %}"
-                style="color: var(--color-primary); font-weight: 600; text-decoration: none;">Upload your first
-                crop</a>.</p>
-        {% endif %}
-    </div>
-
-    <div class="dashboard-bottom-grid">
-        <div style="background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 12px rgba(58,111,67,0.06); border: 1px solid var(--color-border); cursor: pointer; transition: transform 0.2s; display: flex; flex-direction: column; align-items: center;"
-            onclick="window.location.href='{% url 'crop_history' %}'" onmouseover="this.style.transform='translateY(-4px)'"
-            onmouseout="this.style.transform='translateY(0)'">
-            <h3 class="section-title" style="margin-top: 0; margin-bottom: 16px; align-self: flex-start;">Crop Status
-                Overview</h3>
-            <div class="chart-panel-canvas">
-                <canvas id="cropStatusChart" style="display: block; width: 100% !important; height: 100% !important;"></canvas>
-            </div>
-            <div
-                style="text-align: center; margin-top: 16px; font-size: 14px; color: var(--color-text-muted); font-weight: 500;">
-                Click to view detailed crop & order history
-            </div>
-        </div>
-
-        <div class="card" id="recent-chats" style="padding: 24px; border-radius: 20px; border: 1px solid var(--color-border); background: var(--color-surface);">
-            <h3 class="section-title">Recently Connected Consumers</h3>
-            <div class="farmers-list" style="display: flex; flex-direction: column; gap: 12px;">
-                {% if recent_consumers %}
-                    {% for consumer in recent_consumers %}
-                    <div class="farmer-card" style="display: flex; align-items: center; gap: 16px; padding: 16px; background: var(--color-bg); border-radius: 12px; border: 1px solid var(--color-border);">
-                        <div class="farmer-avatar" style="width: 50px; height: 50px; border-radius: 50%; background: var(--color-primary); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 600; font-size: 18px;">
-                            {{ consumer.first_name|slice:":1"|upper }}{{ consumer.last_name|slice:":1"|upper }}
+                <div class="dashboard-bottom-grid">
+                    <div style="background: white;
+                                border-radius: 16px;
+                                padding: 20px;
+                                box-shadow: 0 4px 12px rgba(58,111,67,0.06);
+                                border: 1px solid var(--color-border);
+                                cursor: pointer;
+                                transition: transform 0.2s;
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center"
+                         onclick="window.location.href='{% url 'crop_history' %}'"
+                         onmouseover="this.style.transform='translateY(-4px)'"
+                         onmouseout="this.style.transform='translateY(0)'">
+                        <h3 class="section-title"
+                            style="margin-top: 0;
+                                   margin-bottom: 16px;
+                                   align-self: flex-start">
+                            Crop
+                            Status
+                            Overview
+                        </h3>
+                        <div class="chart-panel-canvas">
+                            <canvas id="cropStatusChart"
+                                    style="display: block;
+                                           width: 100% !important;
+                                           height: 100% !important"></canvas>
                         </div>
-                        <div class="farmer-info">
-                            <h4 style="margin: 0 0 4px 0; font-size: 15px; font-family: 'DM Sans', sans-serif;">{{ consumer.first_name }} {{ consumer.last_name }}</h4>
-                            <p style="margin: 0; font-size: 13px; color: var(--color-text-muted);">{{ consumer.location }}</p>
-                        </div>
-                        <div class="farmer-card-actions" style="margin-left: auto;">
-                            <a href="{% url 'chat_view' consumer.id %}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px; text-decoration: none; color: #3A6F43; background: #F7FBF8; border: 1px solid rgba(58,111,67,0.2);">Chat</a>
+                        <div style="text-align: center;
+                                    margin-top: 16px;
+                                    font-size: 14px;
+                                    color: var(--color-text-muted);
+                                    font-weight: 500">Click to view detailed crop & order history</div>
+                    </div>
+                    <div class="card"
+                         id="recent-chats"
+                         style="padding: 24px;
+                                border-radius: 20px;
+                                border: 1px solid var(--color-border);
+                                background: var(--color-surface)">
+                        <h3 class="section-title">Recently Connected Consumers</h3>
+                        <div class="farmers-list"
+                             style="display: flex;
+                                    flex-direction: column;
+                                    gap: 12px">
+                            {% if recent_consumers %}
+                                {% for consumer in recent_consumers %}
+                                    <div class="farmer-card"
+                                         style="display: flex;
+                                                align-items: center;
+                                                gap: 16px;
+                                                padding: 16px;
+                                                background: var(--color-bg);
+                                                border-radius: 12px;
+                                                border: 1px solid var(--color-border)">
+                                        <div class="farmer-avatar"
+                                             style="width: 50px;
+                                                    height: 50px;
+                                                    border-radius: 50%;
+                                                    background: var(--color-primary);
+                                                    display: flex;
+                                                    align-items: center;
+                                                    justify-content: center;
+                                                    color: #fff;
+                                                    font-weight: 600;
+                                                    font-size: 18px">
+                                            {{ consumer.first_name|slice:":1"|upper }}{{ consumer.last_name|slice:":1"|upper }}
+                                        </div>
+                                        <div class="farmer-info">
+                                            <h4 style="margin: 0 0 4px 0;
+                                                       font-size: 15px;
+                                                       font-family: 'DM Sans', sans-serif">
+                                                {{ consumer.first_name }} {{ consumer.last_name }}
+                                            </h4>
+                                            <p style="margin: 0; font-size: 13px; color: var(--color-text-muted);">{{ consumer.location }}</p>
+                                        </div>
+                                        <div class="farmer-card-actions" style="margin-left: auto;">
+                                            <a href="{% url 'chat_view' consumer.id %}"
+                                               class="btn btn-secondary"
+                                               style="padding: 6px 12px;
+                                                      font-size: 13px;
+                                                      text-decoration: none;
+                                                      color: #3A6F43;
+                                                      background: #F7FBF8;
+                                                      border: 1px solid rgba(58,111,67,0.2)">Chat</a>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <p style="color: var(--color-text-muted);
+                                          font-size: 14px;
+                                          text-align: center;
+                                          padding: 20px">
+                                    No
+                                    recent connections.
+                                </p>
+                            {% endif %}
                         </div>
                     </div>
-                    {% endfor %}
-                {% else %}
-                    <p style="color: var(--color-text-muted); font-size: 14px; text-align: center; padding: 20px;">No recent connections.</p>
-                {% endif %}
+                </div>
             </div>
-        </div>
-    </div>
-</div>
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script>
+        // Initialize Crop Status Pie Chart
+        let cropStatusChartInstance = null;
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    // Initialize Crop Status Pie Chart
-    let cropStatusChartInstance = null;
-    
-    function initializeCropChart() {
-        const ctx = document.getElementById('cropStatusChart');
-        if (ctx) {
-            const soldCount = parseInt('{{ crops_sold_count|default:"0" }}');
-            const unsoldCount = parseInt('{{ crops_unsold_count|default:"0" }}');
-            
-            // Destroy existing chart if it exists
-            if (cropStatusChartInstance) {
-                cropStatusChartInstance.destroy();
-            }
-            
-            cropStatusChartInstance = new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: ['Sold', 'Unsold'],
-                    datasets: [{
-                        data: [soldCount, unsoldCount],
-                        backgroundColor: ['#59AC77', '#E8F5EC'],
-                        borderColor: ['#3A6F43', '#59AC77'],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                font: {
-                                    family: "'DM Sans', sans-serif"
-                                },
-                                usePointStyle: true,
-                                padding: 20
+        function initializeCropChart() {
+            const ctx = document.getElementById('cropStatusChart');
+            if (ctx) {
+                const soldCount = parseInt('{{ crops_sold_count|default:"0" }}');
+                const unsoldCount = parseInt('{{ crops_unsold_count|default:"0" }}');
+
+                // Destroy existing chart if it exists
+                if (cropStatusChartInstance) {
+                    cropStatusChartInstance.destroy();
+                }
+
+                cropStatusChartInstance = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Sold', 'Unsold'],
+                        datasets: [{
+                            data: [soldCount, unsoldCount],
+                            backgroundColor: ['#59AC77', '#E8F5EC'],
+                            borderColor: ['#3A6F43', '#59AC77'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    font: {
+                                        family: "'DM Sans', sans-serif"
+                                    },
+                                    usePointStyle: true,
+                                    padding: 20
+                                }
                             }
                         }
                     }
-                }
-            });
-        }
-    }
-    
-    document.addEventListener('DOMContentLoaded', function () {
-        initializeCropChart();
-    });
-
-    function removeCrop(cropId) {
-        fetch('{% url "remove_crop" %}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify({ crop_id: cropId })
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                } else {
-                    alert(data.message || 'Unable to remove crop.');
-                }
-            })
-            .catch(() => {
-                alert('Unable to remove crop. Please try again.');
-            });
-    }
-
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
+                });
             }
         }
-        return cookieValue;
-    }
 
-    function updateDateTime() {
-        const now = new Date();
-        const timeElement = document.getElementById('current-time');
-        const dateElement = document.getElementById('current-date');
+        document.addEventListener('DOMContentLoaded', function () {
+            initializeCropChart();
+        });
 
-        if (timeElement && dateElement) {
-            timeElement.textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
-            dateElement.textContent = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        function removeCrop(cropId) {
+            fetch('{% url "remove_crop" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ crop_id: cropId })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert(data.message || 'Unable to remove crop.');
+                    }
+                })
+                .catch(() => {
+                    alert('Unable to remove crop. Please try again.');
+                });
         }
-    }
 
-    // Initial call and interval setup
-    updateDateTime();
-    setInterval(updateDateTime, 1000);
-
-    window.addEventListener('load', function() {
-        // Show main content immediately since blocking calls are gone
-        const skeleton = document.getElementById('skeleton-loader');
-        const mainContent = document.getElementById('main-content');
-        if(skeleton) skeleton.style.display = 'none';
-        if(mainContent) {
-            mainContent.style.display = 'block';
-            setTimeout(() => mainContent.style.opacity = '1', 10);
-        }
-        
-        // Fetch dynamic data in background
-        fetch('{% url "dashboard_stats_api" %}')
-            .then(res => res.json())
-            .then(data => {
-                if (data.avg_market_price) {
-                    document.getElementById('avg-market-price').textContent = '₹ ' + data.avg_market_price;
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
                 }
-                
-                if (data.weather_data) {
-                    document.getElementById('weather-city').textContent = data.weather_data.city;
-                    document.getElementById('weather-temp').textContent = data.weather_data.temp + '°C';
-                    document.getElementById('weather-desc').textContent = data.weather_data.description;
-                    document.getElementById('weather-feels').textContent = data.weather_data.feels_like + '°C';
-                    document.getElementById('weather-humidity').textContent = data.weather_data.humidity + '%';
-                    document.getElementById('weather-wind').textContent = data.weather_data.wind_speed + ' m/s';
-                    document.getElementById('weather-icon').src = `http://openweathermap.org/img/wn/${data.weather_data.icon}@4x.png`;
-                    
-                    document.getElementById('weather-loading').style.display = 'none';
-                    document.getElementById('weather-content').style.display = 'block';
-                } else {
+            }
+            return cookieValue;
+        }
+
+        function updateDateTime() {
+            const now = new Date();
+            const timeElement = document.getElementById('current-time');
+            const dateElement = document.getElementById('current-date');
+
+            if (timeElement && dateElement) {
+                timeElement.textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+                dateElement.textContent = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            }
+        }
+
+        // Initial call and interval setup
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+
+        window.addEventListener('load', function () {
+            // Show main content immediately since blocking calls are gone
+            const skeleton = document.getElementById('skeleton-loader');
+            const mainContent = document.getElementById('main-content');
+            if (skeleton) skeleton.style.display = 'none';
+            if (mainContent) {
+                mainContent.style.display = 'block';
+                setTimeout(() => mainContent.style.opacity = '1', 10);
+            }
+
+            // Fetch dynamic data in background
+            fetch('{% url "dashboard_stats_api" %}')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.avg_market_price !== undefined) {
+                        const realCostElem = document.getElementById('val-real-cost');
+                        const avgPriceElem = document.getElementById('val-avg-price');
+                        if (realCostElem) realCostElem.textContent = data.real_cost || '0';
+                        if (avgPriceElem) avgPriceElem.textContent = data.avg_market_price || '0';
+                    }
+
+                    if (data.wallet_balance !== undefined) {
+                        const walletElem = document.getElementById('wallet-balance');
+                        if (walletElem) walletElem.textContent = '₹ ' + parseFloat(data.wallet_balance).toFixed(2);
+                    }
+
+                    if (data.weather_data) {
+                        document.getElementById('weather-city').textContent = data.weather_data.city;
+                        document.getElementById('weather-temp').textContent = data.weather_data.temp + '°C';
+                        document.getElementById('weather-desc').textContent = data.weather_data.description;
+                        document.getElementById('weather-feels').textContent = data.weather_data.feels_like + '°C';
+                        document.getElementById('weather-humidity').textContent = data.weather_data.humidity + '%';
+                        document.getElementById('weather-wind').textContent = data.weather_data.wind_speed + ' m/s';
+                        document.getElementById('weather-icon').src = `http://openweathermap.org/img/wn/${data.weather_data.icon}@4x.png`;
+
+                        document.getElementById('weather-loading').style.display = 'none';
+                        document.getElementById('weather-content').style.display = 'block';
+                    } else {
+                        document.getElementById('weather-loading').style.display = 'none';
+                        document.getElementById('weather-error').style.display = 'block';
+                    }
+                })
+                .catch(() => {
                     document.getElementById('weather-loading').style.display = 'none';
                     document.getElementById('weather-error').style.display = 'block';
-                }
-            })
-            .catch(() => {
-                document.getElementById('weather-loading').style.display = 'none';
-                document.getElementById('weather-error').style.display = 'block';
-            });
-            
-        initializeCropChart();
-    });
-</script>
-</div>
-{% endblock %}
+                });
+
+            initializeCropChart();
+        });
+            </script>
+        </div>
+    {% endblock %}

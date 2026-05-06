@@ -98,6 +98,46 @@
             background-color: var(--color-deep-forest);
         }
 
+        .btn-clear {
+            background: transparent;
+            color: var(--color-text-muted);
+            border: 1px solid var(--color-border);
+            padding: 0.9rem 1.5rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            margin-top: 1.6rem;
+            font-family: "Inter", sans-serif;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-clear:hover {
+            background: var(--color-bg-tint);
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .results-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: var(--color-bg-tint);
+            border: 1px solid var(--color-border);
+            border-radius: 999px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.85rem;
+            color: var(--color-text-muted);
+        }
+
+        .results-badge strong {
+            color: var(--color-primary);
+        }
+
         /* --- CARDS GRID --- */
         .results-container {
             max-width: 1200px;
@@ -264,16 +304,16 @@
     <main>
     <div class="tracker-hero">
         <h1 class="cinematic-heading-dark text-center tracker-title" style="margin-bottom: 0.5rem; color: var(--color-deep-forest);">Live Market Prices</h1>
-        <p class="cinematic-text-dark mx-auto text-center" style="max-width: 600px; color: var(--color-primary);">
+        <!-- <p class="cinematic-text-dark mx-auto text-center" style="max-width: 600px; color: var(--color-primary);">
             Access real-time Mandi figures across India to ensure you always get the fair value for your harvest.
-        </p>
+        </p> -->
 
         <div class="search-container">
             <form class="search-form" method="GET" action="{% url 'price_tracker' %}">
                 <div class="form-group">
                     <label for="state">State</label>
-                    <select id="state" name="state" class="search-input" required>
-                        <option value="" disabled {% if not state %}selected{% endif %}>Select a State</option>
+                    <select id="state" name="state" class="search-input">
+                        <option value="" {% if not state %}selected{% endif %}>All States</option>
                         <option value="Andhra Pradesh" {% if state == 'Andhra Pradesh' %}selected{% endif %}>Andhra Pradesh</option>
                         <option value="Assam" {% if state == 'Assam' %}selected{% endif %}>Assam</option>
                         <option value="Chandigarh" {% if state == 'Chandigarh' %}selected{% endif %}>Chandigarh</option>
@@ -301,8 +341,8 @@
                 </div>
                 <div class="form-group">
                     <label for="commodity">Commodity</label>
-                    <select id="commodity" name="commodity" class="search-input" required>
-                        <option value="" disabled {% if not commodity %}selected{% endif %}>Select a Commodity</option>
+                    <select id="commodity" name="commodity" class="search-input">
+                        <option value="" {% if not commodity %}selected{% endif %}>All Commodities</option>
                         <option value="Banana" {% if commodity == 'Banana' %}selected{% endif %}>Banana</option>
                         <option value="Beetroot" {% if commodity == 'Beetroot' %}selected{% endif %}>Beetroot</option>
                         <option value="Bottle gourd" {% if commodity == 'Bottle gourd' %}selected{% endif %}>Bottle gourd</option>
@@ -325,7 +365,10 @@
                         <option value="Wood" {% if commodity == 'Wood' %}selected{% endif %}>Wood</option>
                     </select>
                 </div>
-                <button type="submit" class="btn-search">Track Prices</button>
+                <button type="submit" class="btn-search">Search</button>
+                {% if state or commodity %}
+                <a href="{% url 'price_tracker' %}" class="btn-clear">&#x2715; Clear</a>
+                {% endif %}
             </form>
         </div>
     </div>
@@ -333,7 +376,22 @@
     <div class="results-container">
         <div class="results-header">
             <h2 class="cinematic-heading-dark" style="font-size: 2rem; margin: 0;">Market Updates</h2>
-            <div class="results-count">Showing results for <strong style="color: #111;">{{ commodity }}</strong> in <strong style="color: #111;">{{ state }}</strong></div>
+            <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+                <div class="results-badge">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+                    <span>Live Data</span>
+                </div>
+                <div class="results-count">
+                    {% if records %}
+                        Showing <strong style="color: #111;">{{ records|length }}</strong> record{% if records|length != 1 %}s{% endif %}
+                        {% if state and commodity %} for <strong style="color: #111;">{{ commodity }}</strong> in <strong style="color: #111;">{{ state }}</strong>
+                        {% elif state %} in <strong style="color: #111;">{{ state }}</strong>
+                        {% elif commodity %} for <strong style="color: #111;">{{ commodity }}</strong>
+                        {% else %} across all markets
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
         </div>
 
         {% if records %}
@@ -372,7 +430,18 @@
         {% else %}
         <div class="empty-state">
             <h3 class="cinematic-heading-dark" style="color: #111; font-size: 1.8rem; margin-bottom: 1rem;">No data available</h3>
-            <p class="cinematic-text-dark mx-auto" style="color: #555;">We couldn't find any recent price records for {{ commodity }} in {{ state }}. Try adjusting your search parameters.</p>
+            {% if state or commodity %}
+            <p class="cinematic-text-dark mx-auto" style="color: #555;">
+                We couldn't find any recent price records
+                {% if commodity %}for <strong>{{ commodity }}</strong>{% endif %}
+                {% if state %}in <strong>{{ state }}</strong>{% endif %}.
+                Try adjusting your filters or <a href="{% url 'price_tracker' %}" style="color: var(--color-primary); text-decoration: underline;">show all prices</a>.
+            </p>
+            {% else %}
+            <p class="cinematic-text-dark mx-auto" style="color: #555;">
+                No market prices could be fetched right now. The data service may be temporarily unavailable. Please try again in a moment.
+            </p>
+            {% endif %}
         </div>
         {% endif %}
     </div>
