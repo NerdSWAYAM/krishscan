@@ -263,15 +263,17 @@
     <h1 class="market-title">KrishiScan</h1>
 
     <div class="filter-bar">
-        <input type="text" class="form-control search-input" placeholder="Search crops, farmers, or regions...">
-        <select class="form-select filter-select">
+        <input type="text" id="marketplace-search" class="form-control search-input"
+            placeholder="Search crops, farmers, or regions..."
+            oninput="applyFilters()">
+        <select id="marketplace-sort" class="form-select filter-select" onchange="applyFilters()">
             <option value="relevance">Relevance</option>
             <option value="newest">Newest First</option>
             <option value="price_low">Low Price</option>
             <option value="nearest">Nearest</option>
         </select>
-        <button type="button" class="btn btn-primary btn-search-toolbar"
-            style="padding: 12px 24px; min-height: 2.75rem;">Search</button>
+        <button type="button" id="btn-search" class="btn btn-primary btn-search-toolbar"
+            style="padding: 12px 24px; min-height: 2.75rem;" onclick="applyFilters()">Search</button>
     </div>
 </div>
 
@@ -366,6 +368,73 @@
 </div>
 
 <script>
+    function applyFilters() {
+        const query = document.getElementById('marketplace-search').value.trim().toLowerCase();
+        const sort  = document.getElementById('marketplace-sort').value;
+        const grid  = document.querySelector('.product-grid');
+        const cards = Array.from(grid.querySelectorAll('.product-card'));
+
+        // ── Filter ────────────────────────────────────────────────────────────
+        const visible = cards.filter(card => {
+            if (!query) return true;
+            const text = card.innerText.toLowerCase();
+            return text.includes(query);
+        });
+
+        const hidden = cards.filter(card => !visible.includes(card));
+
+        // ── Sort ──────────────────────────────────────────────────────────────
+        if (sort === 'price_low') {
+            visible.sort((a, b) => {
+                const priceOf = el => {
+                    const m = el.querySelector('.price-display');
+                    if (!m) return Infinity;
+                    return parseFloat(m.innerText.replace(/[^\d.]/g, '')) || Infinity;
+                };
+                return priceOf(a) - priceOf(b);
+            });
+        } else if (sort === 'nearest') {
+            visible.sort((a, b) => {
+                const distOf = el => {
+                    const spans = el.querySelectorAll('.location-pill span');
+                    for (const s of spans) {
+                        const m = s.innerText.match(/([\d.]+)\s*km/);
+                        if (m) return parseFloat(m[1]);
+                    }
+                    return Infinity;
+                };
+                return distOf(a) - distOf(b);
+            });
+        }
+        // 'newest' and 'relevance' keep the original DOM order (server already
+        // orders by -created_at for newest; relevance is the default).
+
+        // ── Re-render ─────────────────────────────────────────────────────────
+        // Remove all cards, then append visible (sorted) then hidden
+        cards.forEach(c => c.remove());
+        visible.forEach(c => { c.style.display = ''; grid.appendChild(c); });
+        hidden.forEach(c => { c.style.display = 'none'; grid.appendChild(c); });
+
+        // Show empty-state placeholder when nothing matches
+        let emptyState = grid.querySelector('.search-empty-state');
+        if (visible.length === 0) {
+            if (!emptyState) {
+                emptyState = document.createElement('div');
+                emptyState.className = 'search-empty-state';
+                emptyState.style.cssText = 'grid-column:1/-1;text-align:center;padding:60px 20px;background:var(--color-surface);border-radius:20px;border:1px dashed var(--color-border);';
+                emptyState.innerHTML = '<p style="color:var(--color-text-muted);font-size:16px;">No listings match your search. Try a different keyword.</p>';
+                grid.appendChild(emptyState);
+            }
+        } else if (emptyState) {
+            emptyState.remove();
+        }
+    }
+
+    // Also allow pressing Enter in the search box
+    document.getElementById('marketplace-search').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') applyFilters();
+    });
+
     function showCartPopup(btn, cropId) {
         document.querySelectorAll('.cart-popup').forEach(p => p.style.display = 'none');
         document.getElementById('cart-popup-' + cropId).style.display = 'block';

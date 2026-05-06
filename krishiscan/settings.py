@@ -178,3 +178,5 @@ RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET")
 # Authentication
 LOGIN_URL = 'login'
 AUTHENTICATION_BACKENDS = ['krishi.views.UserAccountBackend']
+
+
