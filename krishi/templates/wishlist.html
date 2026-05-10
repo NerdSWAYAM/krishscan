@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
-{% load static %}
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KrishiScan - Wishlist & Cart</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@400;500;600;700&display=swap"
-        rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'global.css' %}">
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <style>
+    {% load static %}
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/png" href="{% static 'Krishi-Scan-ico.png' %}">
+        <title>KrishiScan - Wishlist & Cart</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@400;500;600;700&display=swap"
+              rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+              rel="stylesheet">
+        <link rel="stylesheet" href="{% static 'global.css' %}">
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+        <style>
         body {
             background-color: var(--color-bg-base);
             font-family: 'DM Sans', sans-serif;
@@ -623,157 +623,194 @@
                 box-sizing: border-box;
             }
         }
-    </style>
-</head>
-
-<body>
-    {% include 'navbar.html' %}
-
-    <div class="cart-container">
-        <!-- Cart Items -->
-        <div>
-            <div class="cart-header">
-                <h1 class="cart-title">Your Wishlist</h1>
-                <p class="cart-subtitle">Review your selected farm-fresh produce before checkout.</p>
+        </style>
+    </head>
+    <body>
+        {% include 'navbar.html' %}
+        <div class="cart-container">
+            <!-- Cart Items -->
+            <div>
+                <div class="cart-header">
+                    <h1 class="cart-title">Your Wishlist</h1>
+                    <p class="cart-subtitle">Review your selected farm-fresh produce before checkout.</p>
+                </div>
+                {% if cart_items %}
+                    <div class="cart-items">
+                        {% for item in cart_items %}
+                            <div class="cart-item">
+                                {% if item.crop.image %}
+                                    <img src="{{ item.crop.image.url }}"
+                                         alt="{{ item.crop.name }}"
+                                         class="item-image">
+                                {% else %}
+                                    <div class="item-image" aria-hidden="true">No img</div>
+                                {% endif %}
+                                <div class="item-details">
+                                    <div class="item-name">{{ item.crop.name }}</div>
+                                    <div class="item-farmer">
+                                        Sold by: {{ item.crop.farmer.first_name }} {{
+                                        item.crop.farmer.last_name }}
+                                    </div>
+                                    <div class="item-location"
+                                         style="font-size: 12px;
+                                                color: var(--color-text-muted);
+                                                margin-bottom: 4px">
+                                        {{ item.crop.farmer.location|default:"India" }}
+                                        {% if item.distance %}<span style="color: #59AC77; font-weight: 600;">• {{ item.distance }} km away</span>{% endif %}
+                                    </div>
+                                    <div class="item-price">₹{{ item.crop.price_per_kg }} / kg</div>
+                                </div>
+                                <div class="item-actions">
+                                    <div style="display: flex; gap: 8px; align-items: center;">
+                                        <a href="{% url 'chat_view' item.crop.farmer.id %}"
+                                           style="text-decoration:none;
+                                                  font-size: 18px;
+                                                  padding: 4px;
+                                                  background: #E8F5EC;
+                                                  border-radius: 8px;
+                                                  display: inline-flex"
+                                           title="Chat with Farmer">
+                                            <img src="{% static 'chat-dots-svgrepo-com.svg' %}"
+                                                 width="24px"
+                                                 height="24px">
+                                        </a>
+                                        <button class="btn-remove"
+                                                onclick="removeItem({{ item.crop.id }})"
+                                                title="Remove item">Remove</button>
+                                    </div>
+                                    <div class="line-total">₹{{ item.line_total|floatformat:2 }}</div>
+                                    <div class="item-qty">Quantity: {{ item.quantity|floatformat:1 }} kg</div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-cart">
+                        <div style="font-size: 64px; margin-bottom: 16px;">
+                            <img src="{% static 'cart-large-svgrepo-com.svg' %}"
+                                 height="130"
+                                 width="130">
+                        </div>
+                        <h2 style="font-family: 'Playfair Display', serif;
+                                   font-size: 24px;
+                                   color: var(--color-deep-forest);
+                                   margin-bottom: 8px">Your Wishlist is Empty</h2>
+                        <p style="color: var(--color-text-muted); margin-bottom: 24px;">
+                            Looks like you haven't added any fresh
+                            produce yet.
+                        </p>
+                        <a href="{% url 'marketplace' %}"
+                           class="btn-checkout"
+                           style="display: inline-block;
+                                  width: auto;
+                                  padding: 12px 24px;
+                                  text-decoration: none">Browse
+                        Market</a>
+                    </div>
+                {% endif %}
             </div>
-
             {% if cart_items %}
-            <div class="cart-items">
-                {% for item in cart_items %}
-                <div class="cart-item">
-                    {% if item.crop.image %}
-                    <img src="{{ item.crop.image.url }}" alt="{{ item.crop.name }}" class="item-image">
+                <!-- Order Summary -->
+                <div class="order-summary">
+                    <h2 class="summary-title">Order Summary</h2>
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span>₹{{ grand_total|floatformat:2 }}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Platform Fee</span>
+                        <span style="color: var(--color-primary);">Free</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Delivery Estimate</span>
+                        <span>Calculated at checkout</span>
+                    </div>
+                    <div class="summary-total">
+                        <span>Total</span>
+                        <span>₹{{ grand_total|floatformat:2 }}</span>
+                    </div>
+                    {% if request.session.user_id %}
+                        {% if request.session.role == 'Consumer' %}
+                            <button class="btn-checkout" onclick="openPaymentModal()">Proceed to Payment</button>
+                        {% else %}
+                            <button class="btn-checkout" disabled style="opacity:0.5;cursor:not-allowed;">
+                                Only Consumers can
+                                Purchase
+                            </button>
+                        {% endif %}
                     {% else %}
-                    <div class="item-image" aria-hidden="true">No img</div>
+                        <a href="{% url 'login' %}"
+                           class="btn-checkout"
+                           style="text-decoration: none;
+                                  display: block;
+                                  text-align: center">Login to Checkout</a>
                     {% endif %}
-
-                    <div class="item-details">
-                        <div class="item-name">{{ item.crop.name }}</div>
-                        <div class="item-farmer">Sold by: {{ item.crop.farmer.first_name }} {{
-                            item.crop.farmer.last_name }}</div>
-                        <div class="item-location"
-                            style="font-size: 12px; color: var(--color-text-muted); margin-bottom: 4px;">
-                            {{ item.crop.farmer.location|default:"India" }}
-                            {% if item.distance %}
-                            <span style="color: #59AC77; font-weight: 600;">• {{ item.distance }} km away</span>
-                            {% endif %}
-                        </div>
-                        <div class="item-price">₹{{ item.crop.price_per_kg }} / kg</div>
+                </div>
+            {% endif %}
+        </div>
+        <!-- ── UPI Payment Modal ── -->
+        <div class="modal-overlay" id="paymentModal">
+            <div class="payment-modal">
+                <button class="modal-close"
+                        id="modal-close-btn"
+                        onclick="closePaymentModal()"
+                        title="Close"
+                        style="display:none">✕</button>
+                <div class="modal-header">
+                    <div class="modal-title">UPI Checkout</div>
+                    <div class="modal-subtitle">Pay each farmer directly via UPI — no middleman involved</div>
+                </div>
+                <div class="amount-badge">
+                    <span style="font-size: 24px;"></span>
+                    Total: ₹{{ grand_total|floatformat:2 }}
+                </div>
+                <!-- Step 1: Initiate -->
+                <div id="step-initiate" style="text-align: center; padding: 10px 0;">
+                    <p style="font-size: 16px;
+                              color: #4b5563;
+                              margin-bottom: 32px;
+                              line-height: 1.6">
+                        Your cart will be split by farmer. You'll make direct payments to each farmer, and they'll confirm
+                        your order.
+                    </p>
+                    <button class="btn-pay"
+                            id="btn-initiate"
+                            onclick="initiateCheckout()"
+                            style="max-width: 320px;
+                                   margin: 0 auto">
+                        <span id="btn-initiate-text">Proceed to Payments</span>
+                        <div class="spinner" id="initiate-spinner" style="display:none;"></div>
+                    </button>
+                    <div class="secure-note"
+                         style="margin-top: 24px;
+                                color: var(--color-primary);
+                                font-weight: 600">
+                        <img src="{% static 'lock-password-svgrepo-com.svg' %}"
+                             width="18px"
+                             height="18px">
+                        Direct Peer-to-Peer UPI Transfer
                     </div>
-
-                    <div class="item-actions">
-                        <div style="display: flex; gap: 8px; align-items: center;">
-                            <a href="{% url 'chat_view' item.crop.farmer.id %}"
-                                style="text-decoration:none; font-size: 18px; padding: 4px; background: #E8F5EC; border-radius: 8px; display: inline-flex;"
-                                title="Chat with Farmer"><img src="{% static 'chat-dots-svgrepo-com.svg' %}"
-                                    width="24px" height="24px"></a>
-                            <button class="btn-remove" onclick="removeItem({{ item.crop.id }})"
-                                title="Remove item">Remove</button>
-                        </div>
-                        <div class="line-total">₹{{ item.line_total|floatformat:2 }}</div>
-                        <div class="item-qty">Quantity: {{ item.quantity|floatformat:1 }} kg</div>
+                </div>
+                <!-- Step 2: Payment groups (shown after initiate) -->
+                <div id="step-payments"
+                     style="display:none;
+                            max-height: 500px;
+                            overflow-y: auto;
+                            padding-right: 8px">
+                    <div id="farmer-payment-groups"></div>
+                    <div class="secure-note"
+                         style="text-align: center;
+                                margin-top: 24px;
+                                background: #E8F5EC;
+                                padding: 12px;
+                                border-radius: 12px;
+                                color: var(--color-deep-forest)">
+                        ✨ After uploading proofs, farmers will verify your fresh produce order.
                     </div>
                 </div>
-                {% endfor %}
-            </div>
-            {% else %}
-            <div class="empty-cart">
-                <div style="font-size: 64px; margin-bottom: 16px;"><img src="{% static 'cart-large-svgrepo-com.svg' %}" height="130" width="130"></div>
-                <h2
-                    style="font-family: 'Playfair Display', serif; font-size: 24px; color: var(--color-deep-forest); margin-bottom: 8px;">
-                    Your Wishlist is Empty</h2>
-                <p style="color: var(--color-text-muted); margin-bottom: 24px;">Looks like you haven't added any fresh
-                    produce yet.</p>
-                <a href="{% url 'marketplace' %}" class="btn-checkout"
-                    style="display: inline-block; width: auto; padding: 12px 24px; text-decoration: none;">Browse
-                    Market</a>
-            </div>
-            {% endif %}
-        </div>
-
-        {% if cart_items %}
-        <!-- Order Summary -->
-        <div class="order-summary">
-            <h2 class="summary-title">Order Summary</h2>
-            <div class="summary-row">
-                <span>Subtotal</span>
-                <span>₹{{ grand_total|floatformat:2 }}</span>
-            </div>
-            <div class="summary-row">
-                <span>Platform Fee</span>
-                <span style="color: var(--color-primary);">Free</span>
-            </div>
-            <div class="summary-row">
-                <span>Delivery Estimate</span>
-                <span>Calculated at checkout</span>
-            </div>
-            <div class="summary-total">
-                <span>Total</span>
-                <span>₹{{ grand_total|floatformat:2 }}</span>
-            </div>
-
-            {% if request.session.user_id %}
-            {% if request.session.role == 'Consumer' %}
-            <button class="btn-checkout" onclick="openPaymentModal()">Proceed to Payment</button>
-            {% else %}
-            <button class="btn-checkout" disabled style="opacity:0.5;cursor:not-allowed;">Only Consumers can
-                Purchase</button>
-            {% endif %}
-            {% else %}
-            <a href="{% url 'login' %}" class="btn-checkout"
-                style="text-decoration: none; display: block; text-align: center;">Login to Checkout</a>
-            {% endif %}
-        </div>
-        {% endif %}
-    </div>
-
-    <!-- ── UPI Payment Modal ── -->
-    <div class="modal-overlay" id="paymentModal">
-        <div class="payment-modal">
-            <button class="modal-close" id="modal-close-btn" onclick="closePaymentModal()" title="Close"
-                style="display:none;">✕</button>
-
-            <div class="modal-header">
-                <div class="modal-title">UPI Checkout</div>
-                <div class="modal-subtitle">Pay each farmer directly via UPI — no middleman involved</div>
-            </div>
-
-            <div class="amount-badge">
-                <span style="font-size: 24px;"></span>
-                Total: ₹{{ grand_total|floatformat:2 }}
-            </div>
-
-            <!-- Step 1: Initiate -->
-            <div id="step-initiate" style="text-align: center; padding: 10px 0;">
-                <p style="font-size: 16px; color: #4b5563; margin-bottom: 32px; line-height: 1.6;">
-                    Your cart will be split by farmer. You'll make direct payments to each farmer, and they'll confirm
-                    your order.
-                </p>
-
-                <button class="btn-pay" id="btn-initiate" onclick="initiateCheckout()"
-                    style="max-width: 320px; margin: 0 auto;">
-                    <span id="btn-initiate-text">Proceed to Payments</span>
-                    <div class="spinner" id="initiate-spinner" style="display:none;"></div>
-                </button>
-
-                <div class="secure-note" style="margin-top: 24px; color: var(--color-primary); font-weight: 600;">
-                    <img src="{% static 'lock-password-svgrepo-com.svg' %}" width="18px" height="18px">
-                    Direct Peer-to-Peer UPI Transfer
-                </div>
-            </div>
-
-            <!-- Step 2: Payment groups (shown after initiate) -->
-            <div id="step-payments" style="display:none; max-height: 500px; overflow-y: auto; padding-right: 8px;">
-                <div id="farmer-payment-groups"></div>
-                <div class="secure-note"
-                    style="text-align: center; margin-top: 24px; background: #E8F5EC; padding: 12px; border-radius: 12px; color: var(--color-deep-forest);">
-                    ✨ After uploading proofs, farmers will verify your fresh produce order.
-                </div>
             </div>
         </div>
-    </div>
-
-    <script>
+        <script>
         let checkoutData = null;
 
         function openPaymentModal() {
@@ -856,9 +893,7 @@
                         </div>
                     </div>
 
-                    <a href="${group.upi_link}" class="btn-pay"
-                       style="text-decoration:none; margin-bottom:24px; background: var(--color-deep-forest);"
-                       target="_blank">
+                    <a href="${group.upi_link}" class="btn-pay" style="text-decoration:none; margin-bottom:24px; background: var(--color-deep-forest);" target="_blank">
                         Pay ₹${group.subtotal.toFixed(2)} via UPI app
                     </a>
 
@@ -887,12 +922,8 @@
                                     Screenshot for "${item.crop_name}"
                                 </label>
                                 <div style="display: flex; flex-direction: column; gap: 10px;">
-                                    <input type="file" id="file-${item.order_item_id}" accept="image/jpeg,image/png,image/webp"
-                                        style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:13px; background:#fff;">
-                                    <button onclick="submitProof(${item.order_item_id})" 
-                                        id="btn-upload-${item.order_item_id}"
-                                        class="btn-pay"
-                                        style="padding: 10px; font-size:14px;">
+                                    <input type="file" id="file-${item.order_item_id}" accept="image/jpeg,image/png,image/webp" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:13px; background:#fff;">
+                                    <button onclick="submitProof(${item.order_item_id})" id="btn-upload-${item.order_item_id}" class="btn-pay" style="padding: 10px; font-size:14px;">
                                         <span id="upload-text-${item.order_item_id}">Upload & Confirm</span>
                                         <div class="spinner" id="upload-spinner-${item.order_item_id}" style="display:none;"></div>
                                     </button>
@@ -997,7 +1028,6 @@
             }
             return value;
         }
-    </script>
-</body>
-
+        </script>
+    </body>
 </html>

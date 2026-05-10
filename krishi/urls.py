@@ -23,6 +23,7 @@ urlpatterns = [
     path('experts/', views.experts, name='experts'),
     path('upload-crop/', views.upload_crop, name='upload_crop'),
     path('send-otp/', views.send_otp_api, name='send_otp'),
+    path('verify-otp/', views.verify_otp_api, name='verify_otp'),
     path('reset-password/', views.reset_password_api, name='reset_password'),
     path('weather/', views.weather, name='weather'),
     path('crop-history/', views.crop_history, name='crop_history'),

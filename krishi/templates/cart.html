@@ -1,48 +1,41 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crop Marketplace – KrishiScan</title>
-    <link rel="stylesheet" href="{% static 'global.css' %}">
-    <link rel="stylesheet" href="{% static 'cart.css' %}">
-</head>
-
-<body>
-    {% include 'navbar.html' %}
-
-    <main class="cart-page">
-        <h1>Crop marketplace</h1>
-
-        <section class="products" aria-labelledby="available-heading">
-            <h2 id="available-heading">Available crops</h2>
-
-            <div class="item">
-                <span>Rice – ₹30/kg</span>
-                <button type="button" onclick="addToCart('Rice', 30)">Add to cart</button>
-            </div>
-
-            <div class="item">
-                <span>Wheat – ₹25/kg</span>
-                <button type="button" onclick="addToCart('Wheat', 25)">Add to cart</button>
-            </div>
-
-            <div class="item">
-                <span>Maize – ₹20/kg</span>
-                <button type="button" onclick="addToCart('Maize', 20)">Add to cart</button>
-            </div>
-        </section>
-
-        <section class="cart" aria-labelledby="cart-heading">
-            <h2 id="cart-heading">Cart</h2>
-            <ul id="cartList"></ul>
-            <p id="total" class="cart-total">Total: ₹0</p>
-        </section>
-    </main>
-
-    <script>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/png" href="{% static 'Krishi-Scan-ico.png' %}">
+        <title>Crop Marketplace – KrishiScan</title>
+        <link rel="stylesheet" href="{% static 'global.css' %}">
+        <link rel="stylesheet" href="{% static 'cart.css' %}">
+    </head>
+    <body>
+        {% include 'navbar.html' %}
+        <main class="cart-page">
+            <h1>Crop marketplace</h1>
+            <section class="products" aria-labelledby="available-heading">
+                <h2 id="available-heading">Available crops</h2>
+                <div class="item">
+                    <span>Rice – ₹30/kg</span>
+                    <button type="button" onclick="addToCart('Rice', 30)">Add to cart</button>
+                </div>
+                <div class="item">
+                    <span>Wheat – ₹25/kg</span>
+                    <button type="button" onclick="addToCart('Wheat', 25)">Add to cart</button>
+                </div>
+                <div class="item">
+                    <span>Maize – ₹20/kg</span>
+                    <button type="button" onclick="addToCart('Maize', 20)">Add to cart</button>
+                </div>
+            </section>
+            <section class="cart" aria-labelledby="cart-heading">
+                <h2 id="cart-heading">Cart</h2>
+                <ul id="cartList">
+                </ul>
+                <p id="total" class="cart-total">Total: ₹0</p>
+            </section>
+        </main>
+        <script>
         let cart = [];
 
         function addToCart(name, price) {
@@ -74,8 +67,6 @@
 
             document.getElementById("total").innerText = "Total: ₹" + total;
         }
-    </script>
-
-</body>
-
+        </script>
+    </body>
 </html>

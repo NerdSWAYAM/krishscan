@@ -1,17 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
-{% load static %}
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KrishiScan — AI-Powered Agriculture Platform</title>
-    <meta name="description" content="KrishiScan helps farmers detect plant diseases, get crop recommendations, and connect with buyers through an AI-powered marketplace platform.">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
-    <!-- <link rel="stylesheet" href="{% static 'index.css' %}"> -->
-    <link rel="stylesheet" href="{% static 'global.css' %}">
-    <style>
+    {% load static %}
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/png" href="{% static 'Krishi-Scan-ico.png' %}">
+        <title>KrishiScan — AI-Powered Agriculture Platform</title>
+        <meta name="description"
+              content="KrishiScan helps farmers detect plant diseases, get crop recommendations, and connect with buyers through an AI-powered marketplace platform.">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap"
+              rel="stylesheet">
+        <!-- <link rel="stylesheet" href="{% static 'index.css' %}"> -->
+        <link rel="stylesheet" href="{% static 'global.css' %}">
+        <style>
         :root {
         --forest: #2c5332;
         --forest-mid: #3A6F43;
@@ -1642,554 +1645,736 @@
             align-items: flex-start;
         }
     }
-    </style>
-</head>
-<body>
-
-<!-- ═══════════════════════════════════════════════
+        </style>
+    </head>
+    <body>
+        <!-- ═══════════════════════════════════════════════
      NAVIGATION
 ═══════════════════════════════════════════════ -->
-<nav class="nav" id="nav" role="navigation" aria-label="Main navigation">
-    <div class="nav-inner">
-        <a href="/" class="nav-logo" aria-label="KrishiScan home">
-            KrishiScan
-        </a>
-
-        <ul class="nav-links" role="list">
-            <li><a href="#features">Features</a></li>
-            <li><a href="#how-it-works">How it Works</a></li>
-            <li><a href="#benefits">Benefits</a></li>
-            <li><a href="{% url 'marketplace' %}">Marketplace</a></li>
-        </ul>
-
-        <div class="nav-actions">
-            <a href="{% url 'login' %}" class="nav-login">Log in</a>
-            <a href="{% url 'signup' %}" class="btn btn-primary">Get Started</a>
-        </div>
-
-        <button class="mobile-toggle" aria-label="Open menu">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="3" y1="6" x2="21" y2="6"/>
-                <line x1="3" y1="12" x2="21" y2="12"/>
-                <line x1="3" y1="18" x2="21" y2="18"/>
-            </svg>
-        </button>
-    </div>
-</nav>
-
-
-<!-- ═══════════════════════════════════════════════
+        <nav class="nav" id="nav" role="navigation" aria-label="Main navigation">
+            <div class="nav-inner">
+                <a href="/" class="nav-logo" aria-label="KrishiScan home">KrishiScan</a>
+                <ul class="nav-links" role="list">
+                    <li>
+                        <a href="#features">Features</a>
+                    </li>
+                    <li>
+                        <a href="#how-it-works">How it Works</a>
+                    </li>
+                    <li>
+                        <a href="#benefits">Benefits</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'marketplace' %}">Marketplace</a>
+                    </li>
+                </ul>
+                <div class="nav-actions">
+                    <a href="{% url 'login' %}" class="nav-login">Log in</a>
+                    <a href="{% url 'signup' %}" class="btn btn-primary">Get Started</a>
+                </div>
+                <button class="mobile-toggle" aria-label="Open menu">
+                    <svg width="22"
+                         height="22"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <line x1="3" y1="12" x2="21" y2="12" />
+                        <line x1="3" y1="18" x2="21" y2="18" />
+                    </svg>
+                </button>
+            </div>
+        </nav>
+        <!-- ═══════════════════════════════════════════════
      HERO
 ═══════════════════════════════════════════════ -->
-<section class="hero" aria-labelledby="hero-title">
-    <div class="hero-inner">
-
-        <div class="hero-content">
-            <div class="hero-badge" role="status">
-                <div class="hero-badge-dot" aria-hidden="true"></div>
-                AI-Powered Agriculture Platform
-            </div>
-
-            <h1 class="heading-xl hero-title" id="hero-title">
-                Smart Farming<br>
-                Starts with<br>
-                <em>Better Data</em>
-            </h1>
-
-            <p class="body-lg hero-desc">
-                KrishiScan uses artificial intelligence to detect plant diseases, recommend crops, and connect farmers directly with buyers — all in one platform.
-            </p>
-
-            <div class="hero-cta">
-                <a href="{% url 'signup' %}" class="btn btn-primary btn-lg">
-                    Get Started Free
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M5 12h14M12 5l7 7-7 7"/>
-                    </svg>
-                </a>
-                <a href="#features" class="btn btn-outline btn-lg">
-                    Explore Features
-                </a>
-            </div>
-
-        </div>
-
-        <div class="hero-visual" aria-hidden="true">
-            <div class="hero-float-1">
-                <div class="float-label">Active Farmers</div>
-                <div class="float-value">2,400+</div>
-            </div>
-
-            <div class="hero-card-main">
-                <div class="scan-area">
-                    <div class="scan-line"></div>
-                    <div class="scan-corners">
-                        <div class="scan-corner scan-corner--tl"></div>
-                        <div class="scan-corner scan-corner--tr"></div>
-                        <div class="scan-corner scan-corner--bl"></div>
-                        <div class="scan-corner scan-corner--br"></div>
+        <section class="hero" aria-labelledby="hero-title">
+            <div class="hero-inner">
+                <div class="hero-content">
+                    <div class="hero-badge" role="status">
+                        <div class="hero-badge-dot" aria-hidden="true"></div>
+                        AI-Powered Agriculture Platform
                     </div>
-                    <!-- Leaf SVG illustration -->
-                    <svg width="120" height="140" viewBox="0 0 120 140" fill="none" xmlns="http://www.w3.org/2000/svg" opacity="0.7">
-                        <path d="M60 10 C20 30 10 70 30 100 C45 125 75 130 90 110 C110 85 105 45 60 10Z" fill="#4A8C65" opacity="0.3"/>
-                        <path d="M60 10 C20 30 10 70 30 100 C45 125 75 130 90 110 C110 85 105 45 60 10Z" stroke="#2E6B4A" stroke-width="1.5" fill="none"/>
-                        <path d="M60 15 C60 15 58 70 50 115" stroke="#2E6B4A" stroke-width="1.5" stroke-linecap="round"/>
-                        <path d="M58 45 C40 40 25 50 22 60" stroke="#4A8C65" stroke-width="1" stroke-linecap="round"/>
-                        <path d="M58 65 C38 58 22 65 20 78" stroke="#4A8C65" stroke-width="1" stroke-linecap="round"/>
-                        <path d="M58 85 C42 80 32 88 30 96" stroke="#4A8C65" stroke-width="1" stroke-linecap="round"/>
-                        <path d="M62 45 C78 38 92 48 94 58" stroke="#4A8C65" stroke-width="1" stroke-linecap="round"/>
-                        <path d="M62 65 C80 58 94 65 96 76" stroke="#4A8C65" stroke-width="1" stroke-linecap="round"/>
-                        <!-- Disease spots -->
-                        <circle cx="40" cy="52" r="4" fill="#B8894A" opacity="0.7"/>
-                        <circle cx="78" cy="62" r="3" fill="#B8894A" opacity="0.6"/>
-                        <circle cx="52" cy="78" r="3.5" fill="#B8894A" opacity="0.65"/>
-                    </svg>
+                    <h1 class="heading-xl hero-title" id="hero-title">
+                        Smart Farming
+                        <br>
+                        Starts with
+                        <br>
+                        <em>Better Data</em>
+                    </h1>
+                    <p class="body-lg hero-desc">
+                        KrishiScan uses artificial intelligence to detect plant diseases, recommend crops, and connect farmers directly with buyers — all in one platform.
+                    </p>
+                    <div class="hero-cta">
+                        <a href="{% url 'signup' %}" class="btn btn-primary btn-lg">
+                            Get Started Free
+                            <svg width="16"
+                                 height="16"
+                                 viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="2.5"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round"
+                                 aria-hidden="true">
+                                <path d="M5 12h14M12 5l7 7-7 7" />
+                            </svg>
+                        </a>
+                        <a href="#features" class="btn btn-outline btn-lg">Explore Features</a>
+                    </div>
                 </div>
-
-                <div class="card-scan-result">
-                    <div>
-                        <div class="scan-label">Disease Detected</div>
-                        <div style="font-size:12px; color: var(--ink-muted); margin-top: 3px;">Early Blight — Alternaria solani</div>
-                        <div class="confidence-bar">
-                            <div class="confidence-fill"></div>
+                <div class="hero-visual" aria-hidden="true">
+                    <div class="hero-float-1">
+                        <div class="float-label">Active Farmers</div>
+                        <div class="float-value">2,400+</div>
+                    </div>
+                    <div class="hero-card-main">
+                        <div class="scan-area">
+                            <div class="scan-line"></div>
+                            <div class="scan-corners">
+                                <div class="scan-corner scan-corner--tl"></div>
+                                <div class="scan-corner scan-corner--tr"></div>
+                                <div class="scan-corner scan-corner--bl"></div>
+                                <div class="scan-corner scan-corner--br"></div>
+                            </div>
+                            <!-- Leaf SVG illustration -->
+                            <svg width="120"
+                                 height="140"
+                                 viewBox="0 0 120 140"
+                                 fill="none"
+                                 xmlns="http://www.w3.org/2000/svg"
+                                 opacity="0.7">
+                                <path d="M60 10 C20 30 10 70 30 100 C45 125 75 130 90 110 C110 85 105 45 60 10Z" fill="#4A8C65" opacity="0.3" />
+                                <path d="M60 10 C20 30 10 70 30 100 C45 125 75 130 90 110 C110 85 105 45 60 10Z" stroke="#2E6B4A" stroke-width="1.5" fill="none" />
+                                <path d="M60 15 C60 15 58 70 50 115" stroke="#2E6B4A" stroke-width="1.5" stroke-linecap="round" />
+                                <path d="M58 45 C40 40 25 50 22 60" stroke="#4A8C65" stroke-width="1" stroke-linecap="round" />
+                                <path d="M58 65 C38 58 22 65 20 78" stroke="#4A8C65" stroke-width="1" stroke-linecap="round" />
+                                <path d="M58 85 C42 80 32 88 30 96" stroke="#4A8C65" stroke-width="1" stroke-linecap="round" />
+                                <path d="M62 45 C78 38 92 48 94 58" stroke="#4A8C65" stroke-width="1" stroke-linecap="round" />
+                                <path d="M62 65 C80 58 94 65 96 76" stroke="#4A8C65" stroke-width="1" stroke-linecap="round" />
+                                <!-- Disease spots -->
+                                <circle cx="40" cy="52" r="4" fill="#B8894A" opacity="0.7" />
+                                <circle cx="78" cy="62" r="3" fill="#B8894A" opacity="0.6" />
+                                <circle cx="52" cy="78" r="3.5" fill="#B8894A" opacity="0.65" />
+                            </svg>
+                        </div>
+                        <div class="card-scan-result">
+                            <div>
+                                <div class="scan-label">Disease Detected</div>
+                                <div style="font-size:12px; color: var(--ink-muted); margin-top: 3px;">Early Blight — Alternaria solani</div>
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill"></div>
+                                </div>
+                            </div>
+                            <div class="scan-value">87% confidence</div>
+                        </div>
+                        <div style="display:flex; gap:10px;">
+                            <div style="flex:1;
+                                        background:var(--cream);
+                                        border-radius:10px;
+                                        padding:12px 14px">
+                                <div style="font-size:10px;
+                                            font-weight:600;
+                                            text-transform:uppercase;
+                                            letter-spacing:0.07em;
+                                            color:var(--ink-muted);
+                                            margin-bottom:4px">Crop</div>
+                                <div style="font-size:14px; font-weight:600; color:var(--forest);">Tomato</div>
+                            </div>
+                            <div style="flex:1;
+                                        background:var(--mint);
+                                        border-radius:10px;
+                                        padding:12px 14px;
+                                        border:1px solid rgba(46,107,74,0.15)">
+                                <div style="font-size:10px;
+                                            font-weight:600;
+                                            text-transform:uppercase;
+                                            letter-spacing:0.07em;
+                                            color:var(--sage);
+                                            margin-bottom:4px">Severity</div>
+                                <div style="font-size:14px; font-weight:600; color:var(--forest);">Moderate</div>
+                            </div>
                         </div>
                     </div>
-                    <div class="scan-value">87% confidence</div>
-                </div>
-
-                <div style="display:flex; gap:10px;">
-                    <div style="flex:1; background:var(--cream); border-radius:10px; padding:12px 14px;">
-                        <div style="font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--ink-muted); margin-bottom:4px;">Crop</div>
-                        <div style="font-size:14px; font-weight:600; color:var(--forest);">Tomato</div>
-                    </div>
-                    <div style="flex:1; background:var(--mint); border-radius:10px; padding:12px 14px; border:1px solid rgba(46,107,74,0.15);">
-                        <div style="font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--sage); margin-bottom:4px;">Severity</div>
-                        <div style="font-size:14px; font-weight:600; color:var(--forest);">Moderate</div>
+                    <div class="hero-float-2">
+                        <div class="float-label">Accuracy Rate</div>
+                        <div class="float-value">94.2%</div>
                     </div>
                 </div>
             </div>
-
-            <div class="hero-float-2">
-                <div class="float-label">Accuracy Rate</div>
-                <div class="float-value">94.2%</div>
-            </div>
-        </div>
-
-    </div>
-</section>
-
-
-<!-- ═══════════════════════════════════════════════
+        </section>
+        <!-- ═══════════════════════════════════════════════
      LOGOS STRIP
 ═══════════════════════════════════════════════ -->
-<div class="logos-strip" aria-label="Partner organizations">
-    <div class="logos-inner">
-        <span class="logos-label">Trusted by</span>
-        <div class="logos-divider" aria-hidden="true"></div>
-        <div class="logos-list" aria-hidden="true">
-            <span class="logo-item">AgroIndia</span>
-            <span class="logo-item">FarmCo</span>
-            <span class="logo-item">GreenHarvest</span>
-            <span class="logo-item">KisanNet</span>
-            <span class="logo-item">RuralTech</span>
+        <div class="logos-strip" aria-label="Partner organizations">
+            <div class="logos-inner">
+                <span class="logos-label">Trusted by</span>
+                <div class="logos-divider" aria-hidden="true"></div>
+                <div class="logos-list" aria-hidden="true">
+                    <span class="logo-item">AgroIndia</span>
+                    <span class="logo-item">FarmCo</span>
+                    <span class="logo-item">GreenHarvest</span>
+                    <span class="logo-item">KisanNet</span>
+                    <span class="logo-item">RuralTech</span>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
-
-
-<!-- ═══════════════════════════════════════════════
+        <!-- ═══════════════════════════════════════════════
      FEATURES
 ═══════════════════════════════════════════════ -->
-<section class="section features" id="features" aria-labelledby="features-title">
-    <div class="container">
-        <div class="features-header">
-            <div class="eyebrow reveal">
-                <div class="eyebrow-line" aria-hidden="true"></div>
-                Platform Features
+        <section class="section features"
+                 id="features"
+                 aria-labelledby="features-title">
+            <div class="container">
+                <div class="features-header">
+                    <div class="eyebrow reveal">
+                        <div class="eyebrow-line" aria-hidden="true"></div>
+                        Platform Features
+                    </div>
+                    <h2 class="heading-lg reveal reveal-delay-1" id="features-title">Everything a farmer needs</h2>
+                    <p class="body-md reveal reveal-delay-2" style="margin-top:14px;">
+                        From disease diagnosis to direct sales, KrishiScan brings modern technology to agricultural challenges.
+                    </p>
+                </div>
+                <div class="features-grid" role="list">
+                    <article class="feature-card reveal" role="listitem">
+                        <div class="feature-icon" aria-hidden="true">
+                            <svg width="22"
+                                 height="22"
+                                 viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.75"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8" />
+                                <path d="M21 21l-4.35-4.35" />
+                                <path d="M11 8v6M8 11h6" />
+                            </svg>
+                        </div>
+                        <h3 class="feature-title">Disease Detection</h3>
+                        <p class="feature-desc">
+                            Upload a photo of your crop and our AI model identifies diseases instantly with high confidence, saving time and reducing crop loss.
+                        </p>
+                    </article>
+                    <article class="feature-card reveal reveal-delay-1" role="listitem">
+                        <div class="feature-icon" aria-hidden="true">
+                            <svg width="22"
+                                 height="22"
+                                 viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.75"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                            </svg>
+                        </div>
+                        <h3 class="feature-title">Smart Recommendations</h3>
+                        <p class="feature-desc">
+                            Receive personalized crop recommendations and treatment plans based on your soil, location, and seasonal conditions.
+                        </p>
+                    </article>
+                    <article class="feature-card reveal reveal-delay-2" role="listitem">
+                        <div class="feature-icon" aria-hidden="true">
+                            <svg width="22"
+                                 height="22"
+                                 viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.75"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                                <line x1="3" y1="6" x2="21" y2="6" />
+                                <path d="M16 10a4 4 0 01-8 0" />
+                            </svg>
+                        </div>
+                        <h3 class="feature-title">Crop Marketplace</h3>
+                        <p class="feature-desc">
+                            List your produce and connect with verified buyers directly. No middlemen, fair prices, and transparent transactions.
+                        </p>
+                    </article>
+                    <article class="feature-card reveal reveal-delay-1" role="listitem">
+                        <div class="feature-icon" aria-hidden="true">
+                            <svg width="22"
+                                 height="22"
+                                 viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.75"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+                            </svg>
+                        </div>
+                        <h3 class="feature-title">Direct Chat</h3>
+                        <p class="feature-desc">
+                            Communicate directly with buyers and agricultural experts. Get answers to your questions in real time.
+                        </p>
+                    </article>
+                    <article class="feature-card reveal reveal-delay-2" role="listitem">
+                        <div class="feature-icon" aria-hidden="true">
+                            <svg width="22"
+                                 height="22"
+                                 viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.75"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                                <path d="M13.73 21a2 2 0 01-3.46 0" />
+                            </svg>
+                        </div>
+                        <h3 class="feature-title">Smart Notifications</h3>
+                        <p class="feature-desc">
+                            Stay informed about order updates, price alerts, and seasonal reminders tailored to your crops and region.
+                        </p>
+                    </article>
+                    <article class="feature-card reveal reveal-delay-3" role="listitem">
+                        <div class="feature-icon" aria-hidden="true">
+                            <svg width="22"
+                                 height="22"
+                                 viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.75"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
+                                <rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
+                            </svg>
+                        </div>
+                        <h3 class="feature-title">Unified Dashboard</h3>
+                        <p class="feature-desc">
+                            Manage your crops, orders, earnings, and analytics from a single, intuitive dashboard built for farmers.
+                        </p>
+                    </article>
+                </div>
             </div>
-            <h2 class="heading-lg reveal reveal-delay-1" id="features-title">
-                Everything a farmer needs
-            </h2>
-            <p class="body-md reveal reveal-delay-2" style="margin-top:14px;">
-                From disease diagnosis to direct sales, KrishiScan brings modern technology to agricultural challenges.
-            </p>
-        </div>
-
-        <div class="features-grid" role="list">
-
-            <article class="feature-card reveal" role="listitem">
-                <div class="feature-icon" aria-hidden="true">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
-                        <path d="M11 8v6M8 11h6"/>
-                    </svg>
-                </div>
-                <h3 class="feature-title">Disease Detection</h3>
-                <p class="feature-desc">Upload a photo of your crop and our AI model identifies diseases instantly with high confidence, saving time and reducing crop loss.</p>
-            </article>
-
-            <article class="feature-card reveal reveal-delay-1" role="listitem">
-                <div class="feature-icon" aria-hidden="true">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-                    </svg>
-                </div>
-                <h3 class="feature-title">Smart Recommendations</h3>
-                <p class="feature-desc">Receive personalized crop recommendations and treatment plans based on your soil, location, and seasonal conditions.</p>
-            </article>
-
-            <article class="feature-card reveal reveal-delay-2" role="listitem">
-                <div class="feature-icon" aria-hidden="true">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
-                        <line x1="3" y1="6" x2="21" y2="6"/>
-                        <path d="M16 10a4 4 0 01-8 0"/>
-                    </svg>
-                </div>
-                <h3 class="feature-title">Crop Marketplace</h3>
-                <p class="feature-desc">List your produce and connect with verified buyers directly. No middlemen, fair prices, and transparent transactions.</p>
-            </article>
-
-            <article class="feature-card reveal reveal-delay-1" role="listitem">
-                <div class="feature-icon" aria-hidden="true">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-                    </svg>
-                </div>
-                <h3 class="feature-title">Direct Chat</h3>
-                <p class="feature-desc">Communicate directly with buyers and agricultural experts. Get answers to your questions in real time.</p>
-            </article>
-
-            <article class="feature-card reveal reveal-delay-2" role="listitem">
-                <div class="feature-icon" aria-hidden="true">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                        <path d="M13.73 21a2 2 0 01-3.46 0"/>
-                    </svg>
-                </div>
-                <h3 class="feature-title">Smart Notifications</h3>
-                <p class="feature-desc">Stay informed about order updates, price alerts, and seasonal reminders tailored to your crops and region.</p>
-            </article>
-
-            <article class="feature-card reveal reveal-delay-3" role="listitem">
-                <div class="feature-icon" aria-hidden="true">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-                        <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
-                    </svg>
-                </div>
-                <h3 class="feature-title">Unified Dashboard</h3>
-                <p class="feature-desc">Manage your crops, orders, earnings, and analytics from a single, intuitive dashboard built for farmers.</p>
-            </article>
-
-        </div>
-    </div>
-</section>
-
-
-<!-- ═══════════════════════════════════════════════
+        </section>
+        <!-- ═══════════════════════════════════════════════
      HOW IT WORKS
 ═══════════════════════════════════════════════ -->
-<section class="section how" id="how-it-works" aria-labelledby="how-title">
-    <div class="container">
-        <div class="how-header">
-            <div class="eyebrow reveal">
-                <div class="eyebrow-line" aria-hidden="true"></div>
-                How It Works
-            </div>
-            <h2 class="heading-lg reveal reveal-delay-1" id="how-title">From scan to solution in minutes</h2>
-            <p class="body-md reveal reveal-delay-2" style="margin-top:14px;">
-                A simple, guided workflow that makes advanced agricultural technology accessible to every farmer.
-            </p>
-        </div>
-
-        <div class="steps" role="list">
-
-            <div class="step reveal" role="listitem">
-                <div class="step-icon-wrap" aria-hidden="true">
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
-                        <circle cx="12" cy="13" r="4"/>
-                    </svg>
+        <section class="section how" id="how-it-works" aria-labelledby="how-title">
+            <div class="container">
+                <div class="how-header">
+                    <div class="eyebrow reveal">
+                        <div class="eyebrow-line" aria-hidden="true"></div>
+                        How It Works
+                    </div>
+                    <h2 class="heading-lg reveal reveal-delay-1" id="how-title">From scan to solution in minutes</h2>
+                    <p class="body-md reveal reveal-delay-2" style="margin-top:14px;">
+                        A simple, guided workflow that makes advanced agricultural technology accessible to every farmer.
+                    </p>
                 </div>
-                <h3 class="step-title">Upload Image</h3>
-                <p class="step-desc">Take a clear photo of your affected plant and upload it directly through the app or web platform.</p>
-            </div>
-
-            <div class="step reveal reveal-delay-1" role="listitem">
-                <div class="step-icon-wrap" aria-hidden="true">
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="3"/>
-                        <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
-                    </svg>
+                <div class="steps" role="list">
+                    <div class="step reveal" role="listitem">
+                        <div class="step-icon-wrap" aria-hidden="true">
+                            <svg width="26"
+                                 height="26"
+                                 viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.75"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" />
+                                <circle cx="12" cy="13" r="4" />
+                            </svg>
+                        </div>
+                        <h3 class="step-title">Upload Image</h3>
+                        <p class="step-desc">
+                            Take a clear photo of your affected plant and upload it directly through the app or web platform.
+                        </p>
+                    </div>
+                    <div class="step reveal reveal-delay-1" role="listitem">
+                        <div class="step-icon-wrap" aria-hidden="true">
+                            <svg width="26"
+                                 height="26"
+                                 viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.75"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="3" />
+                                <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83" />
+                            </svg>
+                        </div>
+                        <h3 class="step-title">AI Analysis</h3>
+                        <p class="step-desc">
+                            Our deep learning model processes the image and identifies diseases, pests, or nutrient deficiencies with precision.
+                        </p>
+                    </div>
+                    <div class="step reveal reveal-delay-2" role="listitem">
+                        <div class="step-icon-wrap" aria-hidden="true">
+                            <svg width="26"
+                                 height="26"
+                                 viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.75"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                                <polyline points="14 2 14 8 20 8" />
+                                <line x1="16" y1="13" x2="8" y2="13" />
+                                <line x1="16" y1="17" x2="8" y2="17" />
+                                <polyline points="10 9 9 9 8 9" />
+                            </svg>
+                        </div>
+                        <h3 class="step-title">Get Insights</h3>
+                        <p class="step-desc">
+                            Receive a detailed report with diagnosis, severity level, and science-backed treatment recommendations.
+                        </p>
+                    </div>
+                    <div class="step reveal reveal-delay-3" role="listitem">
+                        <div class="step-icon-wrap" aria-hidden="true">
+                            <svg width="26"
+                                 height="26"
+                                 viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.75"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                        </div>
+                        <h3 class="step-title">Take Action</h3>
+                        <p class="step-desc">
+                            Apply the recommended treatment, connect with suppliers, or consult an expert — all within the platform.
+                        </p>
+                    </div>
                 </div>
-                <h3 class="step-title">AI Analysis</h3>
-                <p class="step-desc">Our deep learning model processes the image and identifies diseases, pests, or nutrient deficiencies with precision.</p>
             </div>
-
-            <div class="step reveal reveal-delay-2" role="listitem">
-                <div class="step-icon-wrap" aria-hidden="true">
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                        <line x1="16" y1="13" x2="8" y2="13"/>
-                        <line x1="16" y1="17" x2="8" y2="17"/>
-                        <polyline points="10 9 9 9 8 9"/>
-                    </svg>
-                </div>
-                <h3 class="step-title">Get Insights</h3>
-                <p class="step-desc">Receive a detailed report with diagnosis, severity level, and science-backed treatment recommendations.</p>
-            </div>
-
-            <div class="step reveal reveal-delay-3" role="listitem">
-                <div class="step-icon-wrap" aria-hidden="true">
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                </div>
-                <h3 class="step-title">Take Action</h3>
-                <p class="step-desc">Apply the recommended treatment, connect with suppliers, or consult an expert — all within the platform.</p>
-            </div>
-
-        </div>
-    </div>
-</section>
-
-
-<!-- ═══════════════════════════════════════════════
+        </section>
+        <!-- ═══════════════════════════════════════════════
      BENEFITS
 ═══════════════════════════════════════════════ -->
-<section class="section benefits" id="benefits" aria-labelledby="benefits-title">
-    <div class="container">
-        <div class="benefits-inner">
-
-            <div class="benefits-visual reveal">
-                <div class="stat-badge" aria-hidden="true">
-                    <div class="stat-badge-icon">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-                            <polyline points="17 6 23 6 23 12"/>
-                        </svg>
+        <section class="section benefits"
+                 id="benefits"
+                 aria-labelledby="benefits-title">
+            <div class="container">
+                <div class="benefits-inner">
+                    <div class="benefits-visual reveal">
+                        <div class="stat-badge" aria-hidden="true">
+                            <div class="stat-badge-icon">
+                                <svg width="18"
+                                     height="18"
+                                     viewBox="0 0 24 24"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="2"
+                                     stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                                    <polyline points="17 6 23 6 23 12" />
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="stat-badge-text">Yield Improved</div>
+                                <div class="stat-badge-sub">Season over season</div>
+                            </div>
+                        </div>
+                        <div class="benefit-stat-card">
+                            <div class="stat-grid">
+                                <div class="stat-item">
+                                    <div class="stat-num">
+                                        94<span>%</span>
+                                    </div>
+                                    <div class="stat-label">Detection accuracy</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-num">
+                                        2.4<span>k</span>
+                                    </div>
+                                    <div class="stat-label">Active farmers</div>
+                                </div>
+                                <div class="stat-divider" aria-hidden="true"></div>
+                                <div class="stat-item">
+                                    <div class="stat-num">
+                                        38<span>%</span>
+                                    </div>
+                                    <div class="stat-label">Avg. yield increase</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-num">
+                                        12<span>k+</span>
+                                    </div>
+                                    <div class="stat-label">Scans completed</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <div class="stat-badge-text">Yield Improved</div>
-                        <div class="stat-badge-sub">Season over season</div>
-                    </div>
-                </div>
-
-                <div class="benefit-stat-card">
-                    <div class="stat-grid">
-                        <div class="stat-item">
-                            <div class="stat-num">94<span>%</span></div>
-                            <div class="stat-label">Detection accuracy</div>
+                    <div class="benefits-content">
+                        <div class="eyebrow reveal">
+                            <div class="eyebrow-line" aria-hidden="true"></div>
+                            Why KrishiScan
                         </div>
-                        <div class="stat-item">
-                            <div class="stat-num">2.4<span>k</span></div>
-                            <div class="stat-label">Active farmers</div>
-                        </div>
-                        <div class="stat-divider" aria-hidden="true"></div>
-                        <div class="stat-item">
-                            <div class="stat-num">38<span>%</span></div>
-                            <div class="stat-label">Avg. yield increase</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-num">12<span>k+</span></div>
-                            <div class="stat-label">Scans completed</div>
+                        <h2 class="heading-lg reveal reveal-delay-1" id="benefits-title">Built for the modern farmer</h2>
+                        <p class="body-md reveal reveal-delay-2"
+                           style="margin-top:12px;
+                                  margin-bottom:32px">
+                            We combine advanced AI with practical tools, designed for farmers who want to grow smarter, not harder.
+                        </p>
+                        <div class="benefits-list">
+                            <div class="benefit-item reveal reveal-delay-2">
+                                <div class="benefit-icon" aria-hidden="true">
+                                    <svg width="20"
+                                         height="20"
+                                         viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.75"
+                                         stroke-linecap="round"
+                                         stroke-linejoin="round">
+                                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="benefit-title">Instant AI Diagnosis</div>
+                                    <div class="benefit-desc">
+                                        Results in under 5 seconds. No waiting, no guesswork — just accurate, actionable information.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="benefit-item reveal reveal-delay-3">
+                                <div class="benefit-icon" aria-hidden="true">
+                                    <svg width="20"
+                                         height="20"
+                                         viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.75"
+                                         stroke-linecap="round"
+                                         stroke-linejoin="round">
+                                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="benefit-title">Reduce Crop Loss</div>
+                                    <div class="benefit-desc">
+                                        Early detection means early intervention. Farmers using KrishiScan report up to 40% reduction in losses.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="benefit-item reveal reveal-delay-4">
+                                <div class="benefit-icon" aria-hidden="true">
+                                    <svg width="20"
+                                         height="20"
+                                         viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.75"
+                                         stroke-linecap="round"
+                                         stroke-linejoin="round">
+                                        <line x1="12" y1="1" x2="12" y2="23" />
+                                        <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="benefit-title">Better Income</div>
+                                    <div class="benefit-desc">
+                                        Sell directly to buyers at fair prices. Our marketplace eliminates intermediaries and maximizes your earnings.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="benefit-item reveal reveal-delay-5">
+                                <div class="benefit-icon" aria-hidden="true">
+                                    <svg width="20"
+                                         height="20"
+                                         viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.75"
+                                         stroke-linecap="round"
+                                         stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10" />
+                                        <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="benefit-title">Available Anywhere</div>
+                                    <div class="benefit-desc">
+                                        Works on any device with internet access. Designed with low-bandwidth performance in mind.
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <div class="benefits-content">
-                <div class="eyebrow reveal">
-                    <div class="eyebrow-line" aria-hidden="true"></div>
-                    Why KrishiScan
-                </div>
-                <h2 class="heading-lg reveal reveal-delay-1" id="benefits-title">
-                    Built for the modern farmer
-                </h2>
-                <p class="body-md reveal reveal-delay-2" style="margin-top:12px; margin-bottom:32px;">
-                    We combine advanced AI with practical tools, designed for farmers who want to grow smarter, not harder.
-                </p>
-
-                <div class="benefits-list">
-
-                    <div class="benefit-item reveal reveal-delay-2">
-                        <div class="benefit-icon" aria-hidden="true">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <div class="benefit-title">Instant AI Diagnosis</div>
-                            <div class="benefit-desc">Results in under 5 seconds. No waiting, no guesswork — just accurate, actionable information.</div>
-                        </div>
-                    </div>
-
-                    <div class="benefit-item reveal reveal-delay-3">
-                        <div class="benefit-icon" aria-hidden="true">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <div class="benefit-title">Reduce Crop Loss</div>
-                            <div class="benefit-desc">Early detection means early intervention. Farmers using KrishiScan report up to 40% reduction in losses.</div>
-                        </div>
-                    </div>
-
-                    <div class="benefit-item reveal reveal-delay-4">
-                        <div class="benefit-icon" aria-hidden="true">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="12" y1="1" x2="12" y2="23"/>
-                                <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <div class="benefit-title">Better Income</div>
-                            <div class="benefit-desc">Sell directly to buyers at fair prices. Our marketplace eliminates intermediaries and maximizes your earnings.</div>
-                        </div>
-                    </div>
-
-                    <div class="benefit-item reveal reveal-delay-5">
-                        <div class="benefit-icon" aria-hidden="true">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"/>
-                                <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <div class="benefit-title">Available Anywhere</div>
-                            <div class="benefit-desc">Works on any device with internet access. Designed with low-bandwidth performance in mind.</div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-        </div>
-    </div>
-</section>
-
-
-<!-- ═══════════════════════════════════════════════
+        </section>
+        <!-- ═══════════════════════════════════════════════
      CTA
 ═══════════════════════════════════════════════ -->
-<section class="section cta-section" aria-labelledby="cta-title">
-    <div class="container">
-        <div class="cta-inner reveal">
-            <div>
-                <div class="cta-eyebrow">Start Today — It's Free</div>
-                <h2 class="cta-title" id="cta-title">
-                    Your crops deserve<br>
-                    smarter care
-                </h2>
-                <p class="cta-desc">
-                    Join thousands of farmers already using KrishiScan to protect their harvest, increase income, and farm with confidence.
-                </p>
+        <section class="section cta-section" aria-labelledby="cta-title">
+            <div class="container">
+                <div class="cta-inner reveal">
+                    <div>
+                        <div class="cta-eyebrow">Start Today — It's Free</div>
+                        <h2 class="cta-title" id="cta-title">
+                            Your crops deserve
+                            <br>
+                            smarter care
+                        </h2>
+                        <p class="cta-desc">
+                            Join thousands of farmers already using KrishiScan to protect their harvest, increase income, and farm with confidence.
+                        </p>
+                    </div>
+                    <div class="cta-actions">
+                        <a href="{% url 'signup' %}" class="btn btn-white btn-lg">
+                            Create Free Account
+                            <svg width="16"
+                                 height="16"
+                                 viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="2.5"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round"
+                                 aria-hidden="true">
+                                <path d="M5 12h14M12 5l7 7-7 7" />
+                            </svg>
+                        </a>
+                        <a href="{% url 'marketplace' %}" class="btn btn-ghost-white btn-lg">Browse Marketplace</a>
+                        <p class="cta-note">No credit card required</p>
+                    </div>
+                </div>
             </div>
-            <div class="cta-actions">
-                <a href="{% url 'signup' %}" class="btn btn-white btn-lg">
-                    Create Free Account
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M5 12h14M12 5l7 7-7 7"/>
-                    </svg>
-                </a>
-                <a href="{% url 'marketplace' %}" class="btn btn-ghost-white btn-lg">
-                    Browse Marketplace
-                </a>
-                <p class="cta-note">No credit card required</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-
-<!-- ═══════════════════════════════════════════════
+        </section>
+        <!-- ═══════════════════════════════════════════════
      FOOTER
 ═══════════════════════════════════════════════ -->
-<footer class="footer" role="contentinfo">
-    <div class="container">
-        <div class="footer-grid">
-
-            <div class="footer-brand">
-                <div class="footer-logo">
-                    
-                    KrishiScan
+        <footer class="footer" role="contentinfo">
+            <div class="container">
+                <div class="footer-grid">
+                    <div class="footer-brand">
+                        <div class="footer-logo">KrishiScan</div>
+                        <p class="footer-tagline">AI-powered agriculture platform for modern farmers and conscious buyers.</p>
+                        <div class="footer-social" aria-label="Social media links">
+                            <a href="#" class="social-btn" aria-label="Twitter">
+                                <svg width="15"
+                                     height="15"
+                                     viewBox="0 0 24 24"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="2"
+                                     stroke-linecap="round"
+                                     stroke-linejoin="round"
+                                     aria-hidden="true">
+                                    <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z" />
+                                </svg>
+                            </a>
+                            <a href="#" class="social-btn" aria-label="LinkedIn">
+                                <svg width="15"
+                                     height="15"
+                                     viewBox="0 0 24 24"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="2"
+                                     stroke-linecap="round"
+                                     stroke-linejoin="round"
+                                     aria-hidden="true">
+                                    <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z" />
+                                    <circle cx="4" cy="4" r="2" />
+                                </svg>
+                            </a>
+                            <a href="#" class="social-btn" aria-label="Instagram">
+                                <svg width="15"
+                                     height="15"
+                                     viewBox="0 0 24 24"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="2"
+                                     stroke-linecap="round"
+                                     stroke-linejoin="round"
+                                     aria-hidden="true">
+                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                                    <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" />
+                                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="footer-col-title">Platform</h3>
+                        <ul class="footer-links" role="list">
+                            <li>
+                                <a href="{% url 'marketplace' %}">Marketplace</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'disease_detect' %}">Disease Detection</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'price_tracker' %}">Price Tracker</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'weather' %}">Weather</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'experts' %}">Expert Advice</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="footer-col-title">Account</h3>
+                        <ul class="footer-links" role="list">
+                            <li>
+                                <a href="{% url 'signup' %}">Create Account</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'login' %}">Sign In</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'dashboard' %}">Farmer Dashboard</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'consumerdash' %}">Consumer Dashboard</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="footer-col-title">Company</h3>
+                        <ul class="footer-links" role="list">
+                            <li>
+                                <a href="#">About Us</a>
+                            </li>
+                            <li>
+                                <a href="#">Blog</a>
+                            </li>
+                            <li>
+                                <a href="#">Careers</a>
+                            </li>
+                            <li>
+                                <a href="#">Contact</a>
+                            </li>
+                            <li>
+                                <a href="#">Privacy Policy</a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-                <p class="footer-tagline">AI-powered agriculture platform for modern farmers and conscious buyers.</p>
-                <div class="footer-social" aria-label="Social media links">
-                    <a href="#" class="social-btn" aria-label="Twitter">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/>
-                        </svg>
-                    </a>
-                    <a href="#" class="social-btn" aria-label="LinkedIn">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/>
-                            <circle cx="4" cy="4" r="2"/>
-                        </svg>
-                    </a>
-                    <a href="#" class="social-btn" aria-label="Instagram">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-                            <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/>
-                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
-                        </svg>
-                    </a>
+                <div class="footer-bottom">
+                    <span>&copy; 2025 KrishiScan. All rights reserved.</span>
+                    <div class="footer-bottom-links">
+                        <a href="#">Privacy</a>
+                        <a href="#">Terms</a>
+                        <a href="#">Cookies</a>
+                    </div>
                 </div>
             </div>
-
-            <div>
-                <h3 class="footer-col-title">Platform</h3>
-                <ul class="footer-links" role="list">
-                    <li><a href="{% url 'marketplace' %}">Marketplace</a></li>
-                    <li><a href="{% url 'disease_detect' %}">Disease Detection</a></li>
-                    <li><a href="{% url 'price_tracker' %}">Price Tracker</a></li>
-                    <li><a href="{% url 'weather' %}">Weather</a></li>
-                    <li><a href="{% url 'experts' %}">Expert Advice</a></li>
-                </ul>
-            </div>
-
-            <div>
-                <h3 class="footer-col-title">Account</h3>
-                <ul class="footer-links" role="list">
-                    <li><a href="{% url 'signup' %}">Create Account</a></li>
-                    <li><a href="{% url 'login' %}">Sign In</a></li>
-                    <li><a href="{% url 'dashboard' %}">Farmer Dashboard</a></li>
-                    <li><a href="{% url 'consumerdash' %}">Consumer Dashboard</a></li>
-                </ul>
-            </div>
-
-            <div>
-                <h3 class="footer-col-title">Company</h3>
-                <ul class="footer-links" role="list">
-                    <li><a href="#">About Us</a></li>
-                    <li><a href="#">Blog</a></li>
-                    <li><a href="#">Careers</a></li>
-                    <li><a href="#">Contact</a></li>
-                    <li><a href="#">Privacy Policy</a></li>
-                </ul>
-            </div>
-
-        </div>
-
-        <div class="footer-bottom">
-            <span>&copy; 2025 KrishiScan. All rights reserved.</span>
-            <div class="footer-bottom-links">
-                <a href="#">Privacy</a>
-                <a href="#">Terms</a>
-                <a href="#">Cookies</a>
-            </div>
-        </div>
-    </div>
-</footer>
-
-
-<!-- ═══════════════════════════════════════════════
+        </footer>
+        <!-- ═══════════════════════════════════════════════
      JAVASCRIPT
 ═══════════════════════════════════════════════ -->
-<script>
+        <script>
     /* Sticky nav */
     const nav = document.getElementById('nav');
     window.addEventListener('scroll', () => {
@@ -2227,7 +2412,6 @@
     setTimeout(function() {
         document.body.classList.add('loaded-state');
     }, 3000);
-</script>
-
-</body>
+        </script>
+    </body>
 </html>

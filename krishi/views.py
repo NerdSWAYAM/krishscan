@@ -540,14 +540,9 @@ def wishlist_view(request):
     }
     return render(request, 'wishlist.html', context)
 
-from .ml_services import get_disease_model, get_resnet_model, CLASS_NAMES
-
 @login_required(login_url='/login/')
 def disease_detect(request):
-    import torch
-    from torchvision import transforms
     from PIL import Image
-    import numpy as np
     import base64
     from io import BytesIO
 
@@ -562,59 +557,69 @@ def disease_detect(request):
             img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
             img_data_uri = f"data:image/jpeg;base64,{img_str}"
 
-            # Transform for HuggingFace model
-            transform_hf = transforms.Compose([
-                transforms.Resize((300, 300)),
-                transforms.ToTensor(),
-                transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                     std=[0.229, 0.224, 0.225])
-            ])
-            input_tensor = transform_hf(img).unsqueeze(0)
+            import requests
+            import json
+
+            invoke_url = "https://integrate.api.nvidia.com/v1/chat/completions"
+            headers = {
+                "Authorization": os.getenv("NVIDIA_API_KEY"),
+                "Accept": "application/json"
+            }
+            payload = {
+                "model": "google/gemma-4-31b-it",
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": "Analyze this crop image and identify the disease. You MUST return ONLY a valid JSON object. The JSON should have exactly two keys: 'disease' (string, the name of the disease or 'Healthy Crop' or 'Unknown') and 'confidence' (number between 0 and 100, representing your confidence score). Do not include markdown formatting or any other text."},
+                            {"type": "image_url", "image_url": {"url": img_data_uri}}
+                        ]
+                    }
+                ],
+                "max_tokens": 1024,
+                "temperature": 0.2,
+                "top_p": 0.95,
+                "stream": False,
+            }
             
-            hf_model = get_disease_model()
-            with torch.no_grad():
-                logits = hf_model(input_tensor)
-                probs = torch.nn.functional.softmax(logits, dim=1)
-                confidence, predicted_idx = torch.max(probs, dim=1)
-                
-                predicted_idx = predicted_idx.item()
-                confidence_score_hf = confidence.item() * 100
-                
-            if predicted_idx < len(CLASS_NAMES):
-                predicted_label_hf = CLASS_NAMES[predicted_idx]
-            else:
-                predicted_label_hf = "Unknown"
-
-            # Transform and infer for Resnet50 Model
-            resnet_model = get_resnet_model()
-            import tensorflow as tf
-            # Resnet50 usually takes 224x224
-            img_resized = img.resize((224, 224))
-            img_array = tf.keras.preprocessing.image.img_to_array(img_resized)
-            img_array = np.expand_dims(img_array, axis=0)
-            img_array = tf.keras.applications.resnet50.preprocess_input(img_array)
-            
-            predictions = resnet_model.predict(img_array)
-            # applying softmax to predictions if not already outputting probabilities
-            if np.min(predictions[0]) < 0 or np.sum(predictions[0]) > 1.1:
-                 predictions_probs = tf.nn.softmax(predictions[0]).numpy()
-            else:
-                 predictions_probs = predictions[0]
-
-            confidence_score_resnet = np.max(predictions_probs) * 100
-
-            # Ensemble logic
-            if confidence_score_hf > 50.0 and confidence_score_resnet > 50.0:
-                result = {
-                    'disease': predicted_label_hf.replace('___', ' - ').replace('_', ' '),
-                    'confidence': confidence_score_hf,
-                    'image_uri': img_data_uri
-                }
+            response = requests.post(invoke_url, headers=headers, json=payload)
+            if response.status_code == 200:
+                data = response.json()
+                content = data['choices'][0]['message']['content']
+                # Clean up potential markdown formatting
+                content = content.replace('```json', '').replace('```', '').strip()
+                try:
+                    parsed_result = json.loads(content)
+                    disease = parsed_result.get('disease', "Unknown")
+                    confidence = float(parsed_result.get('confidence', 0))
+                    
+                    if disease.lower() in ["healthy crop", "healthy"]:
+                        result = {
+                            'disease': "Healthy Crop",
+                            'confidence': confidence,
+                            'image_uri': img_data_uri
+                        }
+                    elif confidence > 50.0 and disease.lower() != "unknown":
+                        result = {
+                            'disease': disease.title(),
+                            'confidence': confidence,
+                            'image_uri': img_data_uri
+                        }
+                    else:
+                        result = {
+                            'disease': "Can't recognize disease",
+                            'confidence': confidence,
+                            'error': "Can't recognize disease. The uploaded image does not appear to be a known crop disease.",
+                            'image_uri': img_data_uri
+                        }
+                except json.JSONDecodeError:
+                    result = {
+                        'error': "Failed to parse API response.",
+                        'image_uri': img_data_uri
+                    }
             else:
                 result = {
-                    'disease': "Can't recognize disease",
-                    'confidence': min(confidence_score_hf, confidence_score_resnet),
-                    'error': "Can't recognize disease. The uploaded image does not appear to be a known crop disease.",
+                    'error': f"API call failed with status {response.status_code}",
                     'image_uri': img_data_uri
                 }
         except Exception as e:
@@ -735,6 +740,29 @@ def send_otp_api(request):
         except Exception as e:
             return JsonResponse({'success': False, 'message': str(e)})
 
+    return JsonResponse({'success': False, 'message': 'Invalid request method'})
+
+def verify_otp_api(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            email = data.get('email')
+            otp = data.get('otp')
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'message': 'Invalid JSON format'})
+            
+        if not email or not otp:
+            return JsonResponse({'success': False, 'message': 'Email and OTP are required'})
+            
+        stored_otp = EmailOTP.objects.filter(email=email).order_by('-created_at').first()
+        if not stored_otp or stored_otp.otp != otp:
+            return JsonResponse({'success': False, 'message': 'Invalid OTP'})
+            
+        if not stored_otp.is_valid():
+            return JsonResponse({'success': False, 'message': 'OTP has expired. Please request a new one.'})
+            
+        return JsonResponse({'success': True, 'message': 'OTP verified successfully'})
+        
     return JsonResponse({'success': False, 'message': 'Invalid request method'})
 
 @login_required(login_url='/login/')
@@ -1517,6 +1545,21 @@ def order_map(request, item_id):
     consumer_coords = item.order.consumer.coordinates if item.order.consumer else None
     farmer_coords = item.crop.farmer.coordinates if item.crop.farmer else None
     
+    from django.utils import timezone
+    now = timezone.now()
+    dynamic_eta = 120
+    if consumer_coords and farmer_coords:
+        try:
+            c_lat, c_lon = map(float, consumer_coords.split(','))
+            f_lat, f_lon = map(float, farmer_coords.split(','))
+            dist = calculate_distance(c_lat, c_lon, f_lat, f_lon)
+            dynamic_eta = max(15, int(dist * 1.5))
+        except Exception:
+            pass
+
+    elapsed_seconds = int((now - item.created_at).total_seconds())
+    total_seconds = dynamic_eta * 60
+
     context = {
         'item': item,
         'consumer_coords': consumer_coords,
@@ -1524,6 +1567,8 @@ def order_map(request, item_id):
         'consumer_name': f"{item.order.consumer.first_name} {item.order.consumer.last_name}",
         'farmer_name': f"{item.crop.farmer.first_name} {item.crop.farmer.last_name}",
         'crop_name': item.crop.name,
+        'elapsed_seconds': elapsed_seconds,
+        'total_seconds': total_seconds,
     }
     
     return render(request, 'map.html', context)

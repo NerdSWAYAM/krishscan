@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-{% load static %}
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KrishiScan - Weather Advisory</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'global.css' %}">
-    <link rel="stylesheet" href="{% static 'farmer-sidebar.css' %}">
-    <style>
+    {% load static %}
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/png" href="{% static 'Krishi-Scan-ico.png' %}">
+        <title>KrishiScan - Weather Advisory</title>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+              rel="stylesheet">
+        <link rel="stylesheet" href="{% static 'global.css' %}">
+        <link rel="stylesheet" href="{% static 'farmer-sidebar.css' %}">
+        <style>
         .banner-bg {
             position: absolute;
             top: 0;
@@ -139,58 +141,70 @@
             font-size: clamp(0.9rem, 2.5vw, 1rem);
             margin: 0;
         }
-    </style>
-</head>
-<body class="farmer-profile-layout">
-
-    {% include 'farmer_sidebar.html' %}
-
-    <main class="main-content">
-        <object data="{% static 'weather_banner.svg' %}" type="image/svg+xml" class="banner-bg"></object>
-        <div class="content-wrapper">
-            <div class="header-row">
-                <div class="greeting">
-                    <h2>Live weather forecast</h2>
-                    <p>Precise climatic insights for your area</p>
-                </div>
-            </div>
-
-            <div class="weather-card">
-                <div class="weather-temp">
-                    <span aria-hidden="true">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg>
-                    </span>
-                    <span>24°C</span>
-                </div>
-                <div class="weather-desc">Partly cloudy · Maharashtra, India</div>
-                <div class="weather-details">
-                    <div class="weather-stat">
-                        <span class="w-val">78%</span>
-                        <span class="w-label">Humidity</span>
-                    </div>
-                    <div class="weather-stat">
-                        <span class="w-val">12 km/h</span>
-                        <span class="w-label">Wind</span>
-                    </div>
-                    <div class="weather-stat">
-                        <span class="w-val">20%</span>
-                        <span class="w-label">Precipitation</span>
+        </style>
+    </head>
+    <body class="farmer-profile-layout">
+        {% include 'farmer_sidebar.html' %}
+        <main class="main-content">
+            <object data="{% static 'weather_banner.svg' %}"
+                    type="image/svg+xml"
+                    class="banner-bg"></object>
+            <div class="content-wrapper">
+                <div class="header-row">
+                    <div class="greeting">
+                        <h2>Live weather forecast</h2>
+                        <p>Precise climatic insights for your area</p>
                     </div>
                 </div>
-            </div>
-
-            <div class="advice-panel">
-                <div class="advice-icon" aria-hidden="true">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                <div class="weather-card">
+                    <div class="weather-temp">
+                        <span aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                 width="48"
+                                 height="48"
+                                 fill="none"
+                                 viewBox="0 0 24 24"
+                                 stroke="currentColor"
+                                 stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                            </svg>
+                        </span>
+                        <span>24°C</span>
+                    </div>
+                    <div class="weather-desc">Partly cloudy · Maharashtra, India</div>
+                    <div class="weather-details">
+                        <div class="weather-stat">
+                            <span class="w-val">78%</span>
+                            <span class="w-label">Humidity</span>
+                        </div>
+                        <div class="weather-stat">
+                            <span class="w-val">12 km/h</span>
+                            <span class="w-label">Wind</span>
+                        </div>
+                        <div class="weather-stat">
+                            <span class="w-val">20%</span>
+                            <span class="w-label">Precipitation</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="advice-content">
-                    <h3>Smart farming advisory</h3>
-                    <p>Moisture levels are optimal today. Wait another 48 hours before applying heavy irrigation. Good time to begin light pesticide sprays as rain chances are minimal for the next 2 days.</p>
+                <div class="advice-panel">
+                    <div class="advice-icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             fill="none"
+                             viewBox="0 0 24 24"
+                             stroke="currentColor"
+                             stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        </svg>
+                    </div>
+                    <div class="advice-content">
+                        <h3>Smart farming advisory</h3>
+                        <p>
+                            Moisture levels are optimal today. Wait another 48 hours before applying heavy irrigation. Good time to begin light pesticide sprays as rain chances are minimal for the next 2 days.
+                        </p>
+                    </div>
                 </div>
             </div>
-
-        </div>
-    </main>
-
-</body>
+        </main>
+    </body>
 </html>
