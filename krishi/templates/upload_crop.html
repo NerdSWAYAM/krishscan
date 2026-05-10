@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
-{% load static %}
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KrishiScan — Upload Crop</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <style>
+    {% load static %}
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/png" href="{% static 'Krishi-Scan-ico.png' %}">
+        <title>KrishiScan — Upload Crop</title>
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap"
+              rel="stylesheet">
+        <style>
         :root {
             --primary:      #59AC77;
             --primary-dark: #3A6F43;
@@ -363,74 +365,79 @@
                 min-height: 2.75rem;
             }
         }
-    </style>
-</head>
-<body>
-
-    <div class="card">
-        <a href="javascript:history.back()" class="close-link">&times;</a>
-
-        <div class="card-header">
-            <p class="eyebrow">Farmer Portal</p>
-            <h1 class="card-title">List a New Crop</h1>
-            <p class="card-subtitle">Fill in the details to publish your produce to the marketplace.</p>
-        </div>
-
-        {% if messages %}
-            {% for message in messages %}
-                <div class="{% if message.tags == 'error' %}msg-error{% else %}msg-success{% endif %}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
-
-        <form method="POST" action="{% url 'upload_crop' %}" enctype="multipart/form-data">
-            {% csrf_token %}
-
-            <p class="section-label">Crop Details</p>
-
-            <div class="field">
-                <label class="field-label">Name of Crop</label>
-                <input type="text" name="name" placeholder="e.g. Organic Tomatoes" required>
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <a href="javascript:history.back()" class="close-link">&times;</a>
+            <div class="card-header">
+                <p class="eyebrow">Farmer Portal</p>
+                <h1 class="card-title">List a New Crop</h1>
+                <p class="card-subtitle">Fill in the details to publish your produce to the marketplace.</p>
             </div>
-
-            <div class="row-2">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="{% if message.tags == 'error' %}msg-error{% else %}msg-success{% endif %}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+            <form method="POST"
+                  action="{% url 'upload_crop' %}"
+                  enctype="multipart/form-data">
+                {% csrf_token %}
+                <p class="section-label">Crop Details</p>
                 <div class="field">
-                    <label class="field-label">Quantity (kg)</label>
-                    <input type="number" step="0.01" name="quantity" placeholder="e.g. 150" required>
-                    <p class="field-hint">Total available stock</p>
+                    <label class="field-label">Name of Crop</label>
+                    <input type="text" name="name" placeholder="e.g. Organic Tomatoes" required>
                 </div>
-                <div class="field">
-                    <label class="field-label">Price / kg</label>
-                    <div class="input-prefix-wrap">
-                        <span class="prefix">₹</span>
-                        <input type="number" step="0.01" name="price_per_kg" placeholder="45.50" required>
+                <div class="row-2">
+                    <div class="field">
+                        <label class="field-label">Quantity (kg)</label>
+                        <input type="number"
+                               step="0.01"
+                               name="quantity"
+                               placeholder="e.g. 150"
+                               required>
+                        <p class="field-hint">Total available stock</p>
+                    </div>
+                    <div class="field">
+                        <label class="field-label">Price / kg</label>
+                        <div class="input-prefix-wrap">
+                            <span class="prefix">₹</span>
+                            <input type="number"
+                                   step="0.01"
+                                   name="price_per_kg"
+                                   placeholder="45.50"
+                                   required>
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <p class="section-label" style="margin-top: 6px;">Crop Image</p>
-
-            <div class="field">
-                <label class="field-label">Upload Photo</label>
-                <div class="upload-zone" id="upload-zone">
-                    <input type="file" name="image" accept="image/*" required id="file-input">
-                    <div class="upload-icon"><img src="{% static 'upload-minimalistic-svgrepo-com.svg' %}" alt="upload" style="height: 40px; width: 40px;"></div>
-                    <p class="upload-title">Drop image here</p>
-                    <p class="upload-sub">or <span>browse files</span> · JPG, PNG, WEBP</p>
+                <p class="section-label" style="margin-top: 6px;">Crop Image</p>
+                <div class="field">
+                    <label class="field-label">Upload Photo</label>
+                    <div class="upload-zone" id="upload-zone">
+                        <input type="file" name="image" accept="image/*" required id="file-input">
+                        <div class="upload-icon">
+                            <img src="{% static 'upload-minimalistic-svgrepo-com.svg' %}"
+                                 alt="upload"
+                                 style="height: 40px;
+                                        width: 40px">
+                        </div>
+                        <p class="upload-title">Drop image here</p>
+                        <p class="upload-sub">
+                            or <span>browse files</span> · JPG, PNG, WEBP
+                        </p>
+                    </div>
+                    <div id="preview-wrap">
+                        <img id="preview-img" src="" alt="Crop preview">
+                    </div>
                 </div>
-                <div id="preview-wrap">
-                    <img id="preview-img" src="" alt="Crop preview">
-                </div>
-            </div>
-
-            <button type="submit" class="btn-submit"><span>Publish to Marketplace →</span></button>
-        </form>
-
-        <p class="footer-note">© 2026 KrishiScan · Your listing will be visible to consumers immediately.</p>
-    </div>
-
-    <script>
+                <button type="submit" class="btn-submit">
+                    <span>Publish to Marketplace →</span>
+                </button>
+            </form>
+            <p class="footer-note">© 2026 KrishiScan · Your listing will be visible to consumers immediately.</p>
+        </div>
+        <script>
         const zone = document.getElementById('upload-zone');
         const fileInput = document.getElementById('file-input');
         const previewWrap = document.getElementById('preview-wrap');
@@ -472,6 +479,6 @@
         setTimeout(function() {
             document.body.classList.add('loaded-state');
         }, 3000);
-    </script>
-</body>
+        </script>
+    </body>
 </html>

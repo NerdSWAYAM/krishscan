@@ -1,18 +1,20 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Track Order - {{ crop_name }}</title>
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
-    
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-    
-    <style>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/png" href="{% static 'Krishi-Scan-ico.png' %}">
+        <title>Track Order - {{ crop_name }}</title>
+        <!-- Google Fonts -->
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@600&display=swap"
+              rel="stylesheet">
+        <!-- Leaflet CSS -->
+        <link rel="stylesheet"
+              href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+              integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+              crossorigin="" />
+        <style>
         :root {
             --color-primary: #59AC77;
             --color-deep-forest: #014525;
@@ -85,25 +87,22 @@
             font-size: 14px;
             font-weight: 500;
         }
-    </style>
-</head>
-<body>
-
-    <a href="{% url 'my_orders' %}" class="back-btn">
-        ← Back to Orders
-    </a>
-
-    <div class="header-card">
-        <h2>Order Tracking</h2>
-        <p><strong>{{ crop_name }}</strong> from {{ farmer_name }}</p>
-    </div>
-
-    <div id="map"></div>
-
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    
-    <script>
+        </style>
+    </head>
+    <body>
+        <a href="{% url 'my_orders' %}" class="back-btn">← Back to Orders</a>
+        <div class="header-card">
+            <h2>Order Tracking</h2>
+            <p>
+                <strong>{{ crop_name }}</strong> from {{ farmer_name }}
+            </p>
+        </div>
+        <div id="map"></div>
+        <!-- Leaflet JS -->
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+                integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+                crossorigin=""></script>
+        <script>
         document.addEventListener('DOMContentLoaded', function() {
             var consumerCoordsStr = "{{ consumer_coords|default:'' }}";
             var farmerCoordsStr = "{{ farmer_coords|default:'' }}";
@@ -170,6 +169,7 @@
                 fetch(osrmUrl)
                     .then(response => response.json())
                     .then(data => {
+                        var pathCoords = [];
                         if (data.routes && data.routes.length > 0) {
                             var routeGeoJSON = data.routes[0].geometry;
                             var routeLayer = L.geoJSON(routeGeoJSON, {
@@ -181,14 +181,22 @@
                                 }
                             }).addTo(map);
                             map.fitBounds(routeLayer.getBounds(), {padding: [50, 50]});
+                            
+                            if (routeGeoJSON.coordinates) {
+                                pathCoords = routeGeoJSON.coordinates.map(function(coord) {
+                                    return [coord[1], coord[0]];
+                                });
+                            }
                         } else {
                             // Fallback to straight line
-                            fallbackLine();
+                            pathCoords = fallbackLine();
                         }
+                        simulateMovement(pathCoords);
                     })
                     .catch(err => {
                         console.error('Routing error:', err);
-                        fallbackLine();
+                        var pathCoords = fallbackLine();
+                        simulateMovement(pathCoords);
                     });
                     
                 function fallbackLine() {
@@ -199,6 +207,84 @@
                         opacity: 0.8
                     }).addTo(map);
                     map.fitBounds(polyline.getBounds(), {padding: [50, 50]});
+                    
+                    var start = latlngs[1];
+                    var end = latlngs[0];
+                    var steps = 20;
+                    var path = [];
+                    for (var i=0; i<=steps; i++) {
+                        var lat = start[0] + (end[0] - start[0]) * (i / steps);
+                        var lng = start[1] + (end[1] - start[1]) * (i / steps);
+                        path.push([lat, lng]);
+                    }
+                    return path;
+                }
+                
+                function simulateMovement(pathCoords) {
+                    if (!pathCoords || pathCoords.length === 0) return;
+                    
+                    var elapsedSeconds = {{ elapsed_seconds|default:0 }};
+                    var totalSeconds = {{ total_seconds|default:3600 }};
+                    
+                    var cartIcon = L.divIcon({
+                        className: 'custom-div-icon',
+                        html: "<div style='font-size: 24px; text-shadow: 0 0 5px rgba(0,0,0,0.5);'><img src='{% static 'truck-fast-svgrepo-com.svg' %}' width='25' height='25'></div>",
+                        iconSize: [24, 24],
+                        iconAnchor: [12, 12]
+                    });
+                    
+                    var cartMarker = L.marker(pathCoords[0], {icon: cartIcon}).addTo(map)
+                        .bindPopup("<b>Delivery in progress</b>");
+                        
+                    // Calculate total distance of path
+                    var totalDist = 0;
+                    var segmentDists = [];
+                    for (var i=0; i<pathCoords.length-1; i++) {
+                        var p1 = L.latLng(pathCoords[i]);
+                        var p2 = L.latLng(pathCoords[i+1]);
+                        var d = p1.distanceTo(p2);
+                        totalDist += d;
+                        segmentDists.push(d);
+                    }
+                    
+                    function updatePosition() {
+                        var progress = Math.min(1, Math.max(0, elapsedSeconds / totalSeconds));
+                        if (progress >= 1) {
+                            cartMarker.setLatLng(pathCoords[pathCoords.length-1]);
+                            cartMarker.bindPopup("<b>Arrived!</b>").openPopup();
+                            return true; // done
+                        }
+                        
+                        var targetDist = progress * totalDist;
+                        var currentDist = 0;
+                        for (var i=0; i<segmentDists.length; i++) {
+                            // Prevent division by zero if segment is extremely short
+                            if (segmentDists[i] <= 0) continue;
+                            
+                            if (currentDist + segmentDists[i] >= targetDist) {
+                                // Interpolate along this segment
+                                var segmentProgress = (targetDist - currentDist) / segmentDists[i];
+                                var p1 = pathCoords[i];
+                                var p2 = pathCoords[i+1];
+                                var lat = p1[0] + (p2[0] - p1[0]) * segmentProgress;
+                                var lng = p1[1] + (p2[1] - p1[1]) * segmentProgress;
+                                cartMarker.setLatLng([lat, lng]);
+                                break;
+                            }
+                            currentDist += segmentDists[i];
+                        }
+                        return false;
+                    }
+                    
+                    var isDone = updatePosition();
+                    if (!isDone) {
+                        var timer = setInterval(function() {
+                            elapsedSeconds += 1;
+                            if (updatePosition()) {
+                                clearInterval(timer);
+                            }
+                        }, 1000);
+                    }
                 }
             } else if (latlngs.length === 1) {
                 map.setView(latlngs[0], 12);
@@ -213,6 +299,6 @@
         setTimeout(function() {
             document.body.classList.add('loaded-state');
         }, 3000);
-    </script>
-</body>
+        </script>
+    </body>
 </html>

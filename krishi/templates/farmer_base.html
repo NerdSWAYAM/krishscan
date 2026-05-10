@@ -1,22 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
-{% load static %}
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}KrishiScan{% endblock %}</title>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'global.css' %}">
-    <script>
+    {% load static %}
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/png" href="{% static 'Krishi-Scan-ico.png' %}">
+        <title>
+            {% block title %}KrishiScan{% endblock %}
+        </title>
+        <!-- Google Fonts -->
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
+              rel="stylesheet">
+        <link rel="stylesheet" href="{% static 'global.css' %}">
+        <script>
         window.KrishiScanAuth = {
             isAuthenticated: {% if request.user.is_authenticated or request.session.user_id %}true{% else %}false{% endif %},
             loginUrl: "{% url 'login' %}"
         };
-    </script>
-    <script src="{% static 'auth-guard.js' %}" defer></script>
-    {% block extra_css %}{% endblock %}
-    <style>
+        </script>
+        <script src="{% static 'auth-guard.js' %}" defer></script>
+        {% block extra_css %}{% endblock %}
+        <style>
         body {
             display: flex;
             flex-direction: column;
@@ -33,21 +37,16 @@
             width: 100%;
             box-sizing: border-box;
         }
-    </style>
-</head>
-<body>
-
-    <!-- Universal Navbar -->
-    {% include 'navbar.html' %}
-
-    <!-- Page Content wrapped with transition class -->
-    <main class="main-content page-enter">
-        {% block banner %}{% endblock %}
-        {% block content %}
-        {% endblock %}
-    </main>
-
-    {% block extra_js %}{% endblock %}
-
-</body>
+        </style>
+    </head>
+    <body>
+        <!-- Universal Navbar -->
+        {% include 'navbar.html' %}
+        <!-- Page Content wrapped with transition class -->
+        <main class="main-content page-enter">
+            {% block banner %}{% endblock %}
+            {% block content %}{% endblock %}
+        </main>
+        {% block extra_js %}{% endblock %}
+    </body>
 </html>

@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-{% load static %}
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KrishiScan - Expert Consultation</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'global.css' %}">
-    <link rel="stylesheet" href="{% static 'farmer-sidebar.css' %}">
-    <style>
+    {% load static %}
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/png" href="{% static 'Krishi-Scan-ico.png' %}">
+        <title>KrishiScan - Expert Consultation</title>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+              rel="stylesheet">
+        <link rel="stylesheet" href="{% static 'global.css' %}">
+        <link rel="stylesheet" href="{% static 'farmer-sidebar.css' %}">
+        <style>
         .banner-bg {
             position: absolute;
             top: 0;
@@ -109,50 +111,45 @@
         }
 
         .btn-call:hover { background-color: var(--color-primary); }
-    </style>
-</head>
-<body class="farmer-profile-layout">
-
-    {% include 'farmer_sidebar.html' %}
-
-    <main class="main-content">
-        <object data="{% static 'expert_banner.svg' %}" type="image/svg+xml" class="banner-bg"></object>
-        <div class="content-wrapper">
-            <div class="header-row">
-                <div class="greeting">
-                    <h2>Connect with experts</h2>
-                    <p>Professional agriculture consulting when you need it.</p>
+        </style>
+    </head>
+    <body class="farmer-profile-layout">
+        {% include 'farmer_sidebar.html' %}
+        <main class="main-content">
+            <object data="{% static 'expert_banner.svg' %}"
+                    type="image/svg+xml"
+                    class="banner-bg"></object>
+            <div class="content-wrapper">
+                <div class="header-row">
+                    <div class="greeting">
+                        <h2>Connect with experts</h2>
+                        <p>Professional agriculture consulting when you need it.</p>
+                    </div>
+                </div>
+                <div class="expert-grid">
+                    <div class="expert-card">
+                        <div class="exp-avatar" aria-hidden="true">AS</div>
+                        <div class="exp-name">Dr. Anil Sharma</div>
+                        <div class="exp-spec">Pathologist &amp; soil expert</div>
+                        <p class="exp-desc">Extensive knowledge in treating soil deficiencies and early blight.</p>
+                        <a href="#" class="btn-call">Book call</a>
+                    </div>
+                    <div class="expert-card">
+                        <div class="exp-avatar" aria-hidden="true">NG</div>
+                        <div class="exp-name">Dr. Neha Gupta</div>
+                        <div class="exp-spec">Botany specialist</div>
+                        <p class="exp-desc">Specializes in organic farming methods and natural pest control.</p>
+                        <a href="#" class="btn-call">Book call</a>
+                    </div>
+                    <div class="expert-card">
+                        <div class="exp-avatar" aria-hidden="true">RK</div>
+                        <div class="exp-name">Ravi Kumar</div>
+                        <div class="exp-spec">Agriculture tech</div>
+                        <p class="exp-desc">Helps you with KrishiScan IoT integrations and drone sweeps.</p>
+                        <a href="#" class="btn-call">Book call</a>
+                    </div>
                 </div>
             </div>
-
-            <div class="expert-grid">
-                <div class="expert-card">
-                    <div class="exp-avatar" aria-hidden="true">AS</div>
-                    <div class="exp-name">Dr. Anil Sharma</div>
-                    <div class="exp-spec">Pathologist &amp; soil expert</div>
-                    <p class="exp-desc">Extensive knowledge in treating soil deficiencies and early blight.</p>
-                    <a href="#" class="btn-call">Book call</a>
-                </div>
-
-                <div class="expert-card">
-                    <div class="exp-avatar" aria-hidden="true">NG</div>
-                    <div class="exp-name">Dr. Neha Gupta</div>
-                    <div class="exp-spec">Botany specialist</div>
-                    <p class="exp-desc">Specializes in organic farming methods and natural pest control.</p>
-                    <a href="#" class="btn-call">Book call</a>
-                </div>
-
-                <div class="expert-card">
-                    <div class="exp-avatar" aria-hidden="true">RK</div>
-                    <div class="exp-name">Ravi Kumar</div>
-                    <div class="exp-spec">Agriculture tech</div>
-                    <p class="exp-desc">Helps you with KrishiScan IoT integrations and drone sweeps.</p>
-                    <a href="#" class="btn-call">Book call</a>
-                </div>
-            </div>
-
-        </div>
-    </main>
-
-</body>
+        </main>
+    </body>
 </html>

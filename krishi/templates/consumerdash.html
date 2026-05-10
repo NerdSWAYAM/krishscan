@@ -1,11 +1,9 @@
 {% extends 'farmer_base.html' %}
 {% load static %}
-
 {% block title %}KrishiScan - Consumer Dashboard{% endblock %}
-
 {% block extra_css %}
-<style>
-    /* Skeleton Loader */
+    <style>
+    /* ─── Skeleton Loader ─────────────────────────────────────────── */
     .skeleton-wrapper { width: 100%; display: flex; flex-direction: column; gap: 24px; padding-bottom: 32px; }
     .skeleton {
         background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
@@ -14,17 +12,19 @@
         border-radius: 16px;
     }
     @keyframes shimmer {
-        0% { background-position: 200% 0; }
+        0%   { background-position: 200% 0; }
         100% { background-position: -200% 0; }
     }
     #main-content { opacity: 0; transition: opacity 0.4s ease-in; }
+
+    /* ─── Hero Banner ─────────────────────────────────────────────── */
     .hero-banner {
         position: relative;
         background: var(--color-surface);
         border-radius: 20px;
         padding: clamp(1.25rem, 5vw, 3rem);
         color: var(--color-text-primary);
-        margin-bottom: 40px;
+        margin-bottom: 32px;
         overflow: hidden;
         box-shadow: 0 0 10px 0 var(--color-border);
     }
@@ -44,139 +44,123 @@
         max-width: 600px;
     }
 
-    .hero-eyebrow {
-        font-family: 'DM Sans', sans-serif;
-        font-size: 13px;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        font-weight: 700;
-        color: #E8F5EC;
-        margin-bottom: 12px;
-    }
-
     .hero-title {
         font-family: 'Playfair Display', serif;
-        font-size: clamp(1.5rem, 5vw, 2.625rem);
+        font-size: clamp(1.2rem, 4vw, 2.625rem);
         line-height: 1.15;
-        margin-bottom: 16px;
+        margin-bottom: 14px;
         color: var(--color-deep-forest);
     }
 
     .hero-subtitle {
-        font-size: 16px;
+        font-size: clamp(13px, 2.5vw, 16px);
         color: var(--color-text-primary);
-        margin-bottom: 24px;
-        line-height: 1.6;
+        margin-bottom: 20px;
+        line-height: 1.7;
     }
 
+    /* ─── Section Title ───────────────────────────────────────────── */
     .section-title {
         font-family: 'Playfair Display', serif;
-        font-size: 24px;
+        font-size: clamp(1rem, 2.5vw, 1.5rem);
         color: var(--color-deep-forest);
-        margin-bottom: 20px;
+        margin-bottom: 18px;
     }
 
-    /* Category Grid */
-    .category-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        gap: 16px;
-        margin-bottom: 40px;
-    }
-
-    .category-card {
-        background: var(--color-surface);
-        border: 1px solid var(--color-border);
-        border-radius: 16px;
-        padding: 24px 16px;
-        text-align: center;
-        transition: all var(--transition-card);
-        cursor: pointer;
-        text-decoration: none;
-        color: var(--color-text-primary);
-    }
-
-    .category-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 20px rgba(58, 111, 67, 0.1);
-        border-color: var(--color-primary);
-    }
-
-    .category-icon {
-        font-size: 32px;
-        margin-bottom: 12px;
-    }
-
-    .category-name {
-        font-family: 'DM Sans', sans-serif;
-        font-size: 15px;
-        font-weight: 600;
-    }
-
-    /* Split Section */
+    /* ─── Split Section ───────────────────────────────────────────── */
     .split-section {
         display: grid;
         grid-template-columns: 1.5fr 1fr;
         gap: 24px;
     }
 
-    /* Orders List */
+    .split-section > * {
+        min-width: 0;
+    }
+
+    /* ─── Orders List ─────────────────────────────────────────────── */
     .order-item {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 16px 0;
+        padding: 14px 0;
+        gap: 12px;
         border-bottom: 1px solid var(--color-border);
     }
 
-    .order-item:last-child {
-        border-bottom: none;
-    }
+    .order-item:last-child { border-bottom: none; }
 
     .order-details {
         display: flex;
         align-items: center;
-        gap: 16px;
+        gap: 14px;
+        min-width: 0;
+        flex: 1;
     }
 
     .order-icon {
-        width: 48px;
-        height: 48px;
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
         background: #F7FBF8;
         border: 1px solid var(--color-border);
         border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 24px;
+        font-size: 22px;
+        overflow: hidden;
     }
 
+    .order-meta { min-width: 0; }
+
     .order-meta h4 {
-        margin: 0 0 4px 0;
-        font-size: 15px;
+        margin: 0 0 3px 0;
+        font-size: 14px;
         font-family: 'DM Sans', sans-serif;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .order-meta p {
         margin: 0;
-        font-size: 13px;
+        font-size: 12px;
         color: var(--color-text-muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
-    /* Farmers Section */
+    .price-badge {
+        background: #FFFFFF;
+        color: #000000;
+        font-size: 14px;
+        font-weight: 700;
+        padding: 5px 10px;
+        border-radius: 8px;
+        border: 1px solid var(--color-border);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    /* ─── Farmer Cards ────────────────────────────────────────────── */
     .farmer-card {
         display: flex;
         align-items: center;
-        gap: 16px;
-        padding: 16px;
+        gap: 14px;
+        padding: 14px;
         background: var(--color-bg);
         border-radius: 12px;
-        margin-bottom: 12px;
+        border: 1px solid var(--color-border);
+        margin-bottom: 10px;
     }
 
     .farmer-avatar {
-        width: 50px;
-        height: 50px;
+        width: 46px;
+        height: 46px;
+        min-width: 46px;
         border-radius: 50%;
         background: var(--color-primary);
         display: flex;
@@ -184,53 +168,132 @@
         justify-content: center;
         color: #fff;
         font-weight: 600;
-        font-size: 18px;
+        font-size: 16px;
     }
 
+    .farmer-info { min-width: 0; flex: 1; }
+
     .farmer-info h4 {
-        margin: 0 0 4px 0;
-        font-size: 15px;
+        margin: 0 0 3px 0;
+        font-size: 14px;
         font-family: 'DM Sans', sans-serif;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .farmer-info p {
         margin: 0;
-        font-size: 13px;
+        font-size: 12px;
         color: var(--color-text-muted);
-        display: flex;
-        align-items: center;
-        gap: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
-    .price-badge {
-        background: #FFFFFF;
-        color: #000000;
-        font-size: 16px;
-        font-weight: 700;
-        padding: 6px 12px;
-        border-radius: 8px;
-        border: 1px solid var(--color-border);
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    .farmer-card-actions { margin-left: auto; flex-shrink: 0; }
+
+    /* ─── Skeleton responsive ─────────────────────────────────────── */
+    .skeleton-split-grid {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 24px;
     }
 
-    .farmer-card-actions {
-        margin-left: auto;
-    }
+    /* ══════════════════════════════════════════════════════════════
+       RESPONSIVE BREAKPOINTS
+    ══════════════════════════════════════════════════════════════ */
 
+    /* ─── Tablet (≤ 900px) ────────────────────────────────────────── */
     @media (max-width: 900px) {
         .split-section { grid-template-columns: 1fr; }
+        .skeleton-split-grid { grid-template-columns: 1fr; }
     }
 
-    @media (max-width: 600px) {
+    /* ─── Mobile (≤ 768px) ───────────────────────────────────────── */
+    @media (max-width: 768px) {
+        .hero-banner {
+            border-radius: 16px;
+            margin-bottom: 20px;
+        }
+
+        .hero-title { font-size: clamp(1.1rem, 4.5vw, 1.6rem); }
+
+        .hero-subtitle {
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+
+        .hero-content .btn {
+            width: 100%;
+            text-align: center;
+            justify-content: center;
+            min-height: 2.75rem;
+            font-size: 14px;
+        }
+
+        .split-section { gap: 16px; }
+
+        .section-title {
+            font-size: 1rem;
+            margin-bottom: 14px;
+        }
+
+        /* Orders */
+        .order-item {
+            padding: 12px 0;
+            gap: 10px;
+        }
+
+        .order-icon {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            border-radius: 10px;
+        }
+
+        .order-meta h4 { font-size: 13px; }
+        .order-meta p  { font-size: 11px; }
+
+        .price-badge {
+            font-size: 13px;
+            padding: 4px 8px;
+        }
+
+        /* Farmer cards */
+        .farmer-card { padding: 12px; gap: 12px; }
+
+        .farmer-avatar {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            font-size: 14px;
+        }
+
+        .farmer-info h4 { font-size: 13px; }
+        .farmer-info p  { font-size: 11px; }
+    }
+
+    /* ─── Small phone (≤ 480px) ──────────────────────────────────── */
+    @media (max-width: 480px) {
+        .hero-banner { border-radius: 14px; }
+
+        /* Stack order items on tiny screens */
         .order-item {
             flex-direction: column;
             align-items: flex-start;
-            gap: 12px;
+            gap: 10px;
         }
 
-        .farmer-card {
-            flex-wrap: wrap;
+        .order-details { width: 100%; }
+
+        .price-badge {
+            align-self: flex-end;
+            font-size: 13px;
         }
+
+        /* Farmer card full-width action */
+        .farmer-card { flex-wrap: wrap; }
 
         .farmer-card-actions {
             margin-left: 0;
@@ -241,108 +304,149 @@
             width: 100%;
             text-align: center;
             justify-content: center;
-            min-height: 2.75rem;
+            min-height: 2.5rem;
+            font-size: 13px;
         }
 
         .empty-orders-visual {
-            max-width: 100%;
+            max-width: 100% !important;
             height: auto !important;
-            margin: 2rem auto !important;
+            margin: 1.5rem auto !important;
         }
     }
-</style>
+    </style>
 {% endblock %}
-
 {% block content %}
-<div id="skeleton-loader" class="skeleton-wrapper">
-    <div class="skeleton" style="height: 220px; border-radius: 20px;"></div>
-    <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px;">
-        <div class="skeleton" style="height: 400px; border-radius: 20px;"></div>
-        <div class="skeleton" style="height: 400px; border-radius: 20px;"></div>
-    </div>
-</div>
-<div id="main-content" style="display: none;">
-<div class="hero-banner">
-    <div class="hero-content">
-        <!-- <div class="hero-eyebrow"></div> -->
-        <h2 class="hero-title">Welcome back, {{ request.session.first_name }}!</h2>
-        <p class="hero-subtitle">
-            <img src="{% static 'mail-svgrepo-com.svg' %}" style="height: 20px; width: 20px;"> {{ request.session.email }}<br>
-            <img src="{% static 'location-pin-svgrepo-com.svg' %}" style="height: 20px; width: 20px;"> {{ request.session.location }}
-        </p>
-        <a href="{% url 'marketplace' %}" class="btn btn-primary" style="background: var(--color-primary); color: var(--color-bg); min-height: 2.75rem;">Shop Seasonal Produce</a>
-    </div>
-</div>
-
-<div class="split-section">
-    <div class="card">
-        <h3 class="section-title">Recent Orders</h3>
-        <div class="orders-list">
-            {% if recent_orders %}
-                {% for order in recent_orders %}
-                <div class="order-item">
-                    <div class="order-details">
-                        <div class="order-icon">
-                            {% if order.crop.image %}
-                                <img src="{{ order.crop.image.url }}" alt="{{ order.crop.name }}" style="height: 100%; width: 100%; object-fit: cover; border-radius: 12px;">
-                            {% else %}
-                                <img src="{% static 'box--svgrepo-com.svg' %}" alt="order box" style="height: 20px; width: 20px;">
-                            {% endif %}
-                        </div>
-                        <div class="order-meta">
-                            <h4>{{ order.crop.name }} ({{ order.quantity }}kg)</h4>
-                            <p>Order #ORD-{{ order.id }} • {{ order.status }}</p>
-                        </div>
-                    </div>
-                    <div>
-                        <span class="price-badge">₹ {{ order.amount }}</span>
-                    </div>
-                </div>
-                {% endfor %}
-            {% else %}
-                
-                <img src="{% static 'box-svgrepo-com (1).svg' %}" alt="" class="empty-orders-visual" style="display: block; max-width: 12.5rem; width: 50vw; height: auto; margin: 2rem auto;">
-                <p style="color: var(--color-text-muted); font-size: clamp(0.95rem, 3vw, 1.125rem); text-align: center; margin-top: 1rem;">No recent orders found.</p>
-            {% endif %}
+    <!-- Skeleton Loader -->
+    <div id="skeleton-loader" class="skeleton-wrapper">
+        <div class="skeleton" style="height: 200px; border-radius: 20px;"></div>
+        <div class="skeleton-split-grid">
+            <div class="skeleton" style="height: 380px; border-radius: 20px;"></div>
+            <div class="skeleton" style="height: 380px; border-radius: 20px;"></div>
         </div>
     </div>
 
-    <div class="card">
-        <h3 class="section-title">Recently Connected Farmers</h3>
-        <div class="farmers-list">
-            {% if recent_farmers %}
-                {% for farmer in recent_farmers %}
-                <div class="farmer-card">
-                    <div class="farmer-avatar">
-                        {{ farmer.first_name|slice:":1"|upper }}{{ farmer.last_name|slice:":1"|upper }}
+    <!-- Main Content -->
+    <div id="main-content" style="display: none;">
+
+        <!-- Hero Banner -->
+        <div class="hero-banner">
+            <div class="hero-content">
+                <h2 class="hero-title">Welcome back, {{ request.session.first_name }}!</h2>
+                <div class="hero-subtitle" style="max-width: 100%; overflow: hidden;">
+                    <div style="margin-bottom: 6px; display: flex; align-items: center; gap: 8px; max-width: 100%;">
+                        <img src="{% static 'mail-svgrepo-com.svg' %}" style="height: 18px; width: 18px; flex-shrink: 0;">
+                        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; display: block;">{{ request.session.email }}</span>
                     </div>
-                    <div class="farmer-info">
-                        <h4>{{ farmer.first_name }} {{ farmer.last_name }}</h4>
-                        <p>{{ farmer.location }}</p>
-                    </div>
-                    <div class="farmer-card-actions">
-                        <a href="{% url 'chat_view' farmer.id %}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px; text-decoration: none; color: #3A6F43; background: #F7FBF8; border: 1px solid rgba(58,111,67,0.2);">Chat</a>
+                    <div style="display: flex; align-items: center; gap: 8px; max-width: 100%;">
+                        <img src="{% static 'location-pin-svgrepo-com.svg' %}" style="height: 18px; width: 18px; flex-shrink: 0;">
+                        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; display: block;">{{ request.session.location }}</span>
                     </div>
                 </div>
-                {% endfor %}
-            {% else %}
-                <p style="color: var(--color-text-muted); font-size: 14px; text-align: center; margin-top: 20px;">No recent connections.</p>
-            {% endif %}
+                <a href="{% url 'marketplace' %}"
+                   class="btn btn-primary"
+                   style="background: var(--color-primary);
+                          color: var(--color-bg);
+                          min-height: 2.75rem;
+                          display: inline-flex;
+                          align-items: center">
+                    Shop Seasonal Produce
+                </a>
+            </div>
         </div>
-    </div>
-</div>
-</div>
-<script>
-    window.addEventListener('load', function() {
+
+        <!-- Split Section -->
+        <div class="split-section">
+
+            <!-- Recent Orders -->
+            <div class="card" style="padding: 20px; border-radius: 20px;">
+                <h3 class="section-title">Recent Orders</h3>
+                <div class="orders-list">
+                    {% if recent_orders %}
+                        {% for order in recent_orders %}
+                            <div class="order-item">
+                                <div class="order-details">
+                                    <div class="order-icon">
+                                        {% if order.crop.image %}
+                                            <img src="{{ order.crop.image.url }}"
+                                                 alt="{{ order.crop.name }}"
+                                                 style="height: 100%; width: 100%; object-fit: cover; border-radius: 12px">
+                                        {% else %}
+                                            <img src="{% static 'box--svgrepo-com.svg' %}"
+                                                 alt="order box"
+                                                 style="height: 20px; width: 20px">
+                                        {% endif %}
+                                    </div>
+                                    <div class="order-meta">
+                                        <h4>{{ order.crop.name }} ({{ order.quantity }}kg)</h4>
+                                        <p>Order #ORD-{{ order.id }} · {{ order.status }}</p>
+                                    </div>
+                                </div>
+                                <span class="price-badge">₹ {{ order.amount }}</span>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <img src="{% static 'box-svgrepo-com (1).svg' %}"
+                             alt=""
+                             class="empty-orders-visual"
+                             style="display: block; max-width: 12.5rem; width: 50vw; height: auto; margin: 2rem auto">
+                        <p style="color: var(--color-text-muted);
+                                  font-size: clamp(0.9rem, 3vw, 1.1rem);
+                                  text-align: center;
+                                  margin-top: 1rem">No recent orders found.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recently Connected Farmers -->
+            <div class="card" style="padding: 20px; border-radius: 20px;">
+                <h3 class="section-title">Recently Connected Farmers</h3>
+                <div class="farmers-list">
+                    {% if recent_farmers %}
+                        {% for farmer in recent_farmers %}
+                            <div class="farmer-card">
+                                <div class="farmer-avatar">
+                                    {{ farmer.first_name|slice:":1"|upper }}{{ farmer.last_name|slice:":1"|upper }}
+                                </div>
+                                <div class="farmer-info">
+                                    <h4>{{ farmer.first_name }} {{ farmer.last_name }}</h4>
+                                    <p>{{ farmer.location }}</p>
+                                </div>
+                                <div class="farmer-card-actions">
+                                    <a href="{% url 'chat_view' farmer.id %}"
+                                       class="btn btn-secondary"
+                                       style="padding: 6px 12px;
+                                              font-size: 12px;
+                                              text-decoration: none;
+                                              color: #3A6F43;
+                                              background: #F7FBF8;
+                                              border: 1px solid rgba(58,111,67,0.2)">Chat</a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p style="color: var(--color-text-muted);
+                                  font-size: 13px;
+                                  text-align: center;
+                                  margin-top: 20px">No recent connections.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div><!-- /split-section -->
+    </div><!-- /main-content -->
+
+    <script>
+    window.addEventListener('load', function () {
         setTimeout(() => {
-            const skeleton = document.getElementById('skeleton-loader');
+            const skeleton    = document.getElementById('skeleton-loader');
             const mainContent = document.getElementById('main-content');
-            if(skeleton) skeleton.style.display = 'none';
-            if(mainContent) {
+            if (skeleton)    skeleton.style.display = 'none';
+            if (mainContent) {
                 mainContent.style.display = 'block';
                 setTimeout(() => mainContent.style.opacity = '1', 10);
             }
         }, 300);
     });
-</script>
+    </script>
 {% endblock %}

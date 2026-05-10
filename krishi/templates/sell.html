@@ -1,67 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
-{% load static %}
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sell Crops</title>
-    <link rel="stylesheet" href="{% static 'global.css' %}">
-    <link rel="stylesheet" href="{% static 'sell.css' %}">
-    <link rel="stylesheet" href="{% static 'farmer-sidebar.css' %}">
-</head>
-
-<body class="farmer-profile-layout">
-    {% include 'farmer_sidebar.html' %}
-    
-    <main class="main-content">
-    <header style="background: none; color: var(--color-primary-dark); font-size: clamp(1.25rem, 4vw, 2rem); font-weight: 700; text-align: left; padding: clamp(1rem, 4vw, 2rem) 5%; border-bottom: 1px solid var(--color-border);">Sell your crops</header>
-
-    <div class="container" style="max-width: 900px; margin: 2rem auto; width: min(100%, 90vw); box-sizing: border-box;">
-        <h2>Add Crop</h2>
-
-        <input type="text" id="cropName" placeholder="Crop Name (e.g., Rice)">
-        <input type="number" id="quantity" placeholder="Quantity (kg)">
-        <input type="number" id="price" placeholder="Price per kg (₹)">
-        <input type="text" id="quality" placeholder="Quality (e.g., Good)">
-        <div
-            style="margin: 10px 0; text-align: center; border: 1px solid var(--color-border); padding: 15px; border-radius: var(--radius-md); background: var(--color-bg-base);">
-            <p style="margin: 0 0 10px 0; font-size: 14px; color: var(--color-text-muted);">Live camera</p>
-            <video id="cameraStream" autoplay playsinline
-                style="display: none; width: 100%; max-width: 300px; border-radius: var(--radius-sm); margin-bottom: 10px;"></video>
-            <canvas id="cameraCanvas" style="display: none;"></canvas>
-            <img id="cameraPreview"
-                style="display: none; width: 100%; max-width: 150px; border-radius: var(--radius-sm); margin-bottom: 10px; border: 2px solid var(--color-primary); object-fit: cover;" />
-            <br>
-            <button type="button" id="startCameraBtn" onclick="startCamera()"
-                style="width: auto; padding: 8px 15px; border-radius: var(--radius-sm);">Start Camera</button>
-            <button type="button" id="captureBtn" onclick="captureImage()"
-                style="display: none; width: auto; padding: 8px 15px; background: var(--color-accent); color: var(--color-text-main); border-radius: var(--radius-sm);">Capture Photo</button>
-        </div>
-
-        <p style="text-align: center; margin: 10px 0;">OR Upload Image / Take Photo via Mobile System Camera:</p>
-        <input type="file" id="cropImage" accept="image/*" capture="environment" />
-        <button onclick="addCrop()">Add Crop</button>
-
-        <h2>Available Crops</h2>
-        <div class="table-responsive">
-        <table>
-            <thead>
-                <tr>
-                    <th>Crop</th>
-                    <th>Quantity (kg)</th>
-                    <th>Price (₹)</th>
-                    <th>Quality</th>
-                    <th>Image</th>
-                </tr>
-            </thead>
-            <tbody id="cropTable">
-            </tbody>
-        </table>
-        </div>
-    </div>
-
-    <script>
+    {% load static %}
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/png" href="{% static 'Krishi-Scan-ico.png' %}">
+        <title>Sell Crops</title>
+        <link rel="stylesheet" href="{% static 'global.css' %}">
+        <link rel="stylesheet" href="{% static 'sell.css' %}">
+        <link rel="stylesheet" href="{% static 'farmer-sidebar.css' %}">
+    </head>
+    <body class="farmer-profile-layout">
+        {% include 'farmer_sidebar.html' %}
+        <main class="main-content">
+            <header style="background: none;
+                           color: var(--color-primary-dark);
+                           font-size: clamp(1.25rem, 4vw, 2rem);
+                           font-weight: 700;
+                           text-align: left;
+                           padding: clamp(1rem, 4vw, 2rem) 5%;
+                           border-bottom: 1px solid var(--color-border)">
+                Sell your crops
+            </header>
+            <div class="container"
+                 style="max-width: 900px;
+                        margin: 2rem auto;
+                        width: min(100%, 90vw);
+                        box-sizing: border-box">
+                <h2>Add Crop</h2>
+                <input type="text" id="cropName" placeholder="Crop Name (e.g., Rice)">
+                <input type="number" id="quantity" placeholder="Quantity (kg)">
+                <input type="number" id="price" placeholder="Price per kg (₹)">
+                <input type="text" id="quality" placeholder="Quality (e.g., Good)">
+                <div style="margin: 10px 0;
+                            text-align: center;
+                            border: 1px solid var(--color-border);
+                            padding: 15px;
+                            border-radius: var(--radius-md);
+                            background: var(--color-bg-base)">
+                    <p style="margin: 0 0 10px 0;
+                              font-size: 14px;
+                              color: var(--color-text-muted)">Live camera</p>
+                    <video id="cameraStream"
+                           autoplay
+                           playsinline
+                           style="display: none;
+                                  width: 100%;
+                                  max-width: 300px;
+                                  border-radius: var(--radius-sm);
+                                  margin-bottom: 10px">
+                    </video>
+                    <canvas id="cameraCanvas" style="display: none;"></canvas>
+                    <img id="cameraPreview"
+                         style="display: none;
+                                width: 100%;
+                                max-width: 150px;
+                                border-radius: var(--radius-sm);
+                                margin-bottom: 10px;
+                                border: 2px solid var(--color-primary);
+                                object-fit: cover" />
+                    <br>
+                    <button type="button"
+                            id="startCameraBtn"
+                            onclick="startCamera()"
+                            style="width: auto;
+                                   padding: 8px 15px;
+                                   border-radius: var(--radius-sm)">Start Camera</button>
+                    <button type="button"
+                            id="captureBtn"
+                            onclick="captureImage()"
+                            style="display: none;
+                                   width: auto;
+                                   padding: 8px 15px;
+                                   background: var(--color-accent);
+                                   color: var(--color-text-main);
+                                   border-radius: var(--radius-sm)">Capture Photo</button>
+                </div>
+                <p style="text-align: center; margin: 10px 0;">OR Upload Image / Take Photo via Mobile System Camera:</p>
+                <input type="file" id="cropImage" accept="image/*" capture="environment" />
+                <button onclick="addCrop()">Add Crop</button>
+                <h2>Available Crops</h2>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Crop</th>
+                                <th>Quantity (kg)</th>
+                                <th>Price (₹)</th>
+                                <th>Quality</th>
+                                <th>Image</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cropTable">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <script>
         let capturedImage = null;
         let stream = null;
 
@@ -167,9 +202,7 @@
             startBtn.innerText = "Start Camera";
             startBtn.style.display = "inline-block";
         }
-    </script>
-
-    </main>
-</body>
-
+            </script>
+        </main>
+    </body>
 </html>

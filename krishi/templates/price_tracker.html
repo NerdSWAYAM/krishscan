@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
-{% load static %}
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KrishiScan - Market Prices</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Cinematic Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Gilda+Display&family=Inter:wght@300;400;500;600&display=swap"
-        rel="stylesheet">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{% static 'global.css' %}">
-    <link rel="stylesheet" href="{% static 'index.css' %}?v=2.0">
-    <style>
+    {% load static %}
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/png" href="{% static 'Krishi-Scan-ico.png' %}">
+        <title>KrishiScan - Market Prices</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <!-- Cinematic Fonts -->
+        <link href="https://fonts.googleapis.com/css2?family=Gilda+Display&family=Inter:wght@300;400;500;600&display=swap"
+              rel="stylesheet">
+        <!-- Custom CSS -->
+        <link rel="stylesheet" href="{% static 'global.css' %}">
+        <link rel="stylesheet" href="{% static 'index.css' %}?v=2.0">
+        <style>
         /* Removed duplicate body styles as they are in farmer-sidebar.css */
 
         .tracker-hero {
@@ -295,169 +295,217 @@
                 grid-template-columns: 1fr;
             }
         }
-    </style>
-</head>
-
-<body>
-    {% include 'navbar.html' %}
-
-    <main>
-    <div class="tracker-hero">
-        <h1 class="cinematic-heading-dark text-center tracker-title" style="margin-bottom: 0.5rem; color: var(--color-deep-forest);">Live Market Prices</h1>
-        <!-- <p class="cinematic-text-dark mx-auto text-center" style="max-width: 600px; color: var(--color-primary);">
+        </style>
+    </head>
+    <body>
+        {% include 'navbar.html' %}
+        <main>
+            <div class="tracker-hero">
+                <h1 class="cinematic-heading-dark text-center tracker-title"
+                    style="margin-bottom: 0.5rem;
+                           color: var(--color-deep-forest)">Live Market Prices</h1>
+                <!-- <p class="cinematic-text-dark mx-auto text-center" style="max-width: 600px; color: var(--color-primary);">
             Access real-time Mandi figures across India to ensure you always get the fair value for your harvest.
-        </p> -->
-
-        <div class="search-container">
-            <form class="search-form" method="GET" action="{% url 'price_tracker' %}">
-                <div class="form-group">
-                    <label for="state">State</label>
-                    <select id="state" name="state" class="search-input">
-                        <option value="" {% if not state %}selected{% endif %}>All States</option>
-                        <option value="Andhra Pradesh" {% if state == 'Andhra Pradesh' %}selected{% endif %}>Andhra Pradesh</option>
-                        <option value="Assam" {% if state == 'Assam' %}selected{% endif %}>Assam</option>
-                        <option value="Chandigarh" {% if state == 'Chandigarh' %}selected{% endif %}>Chandigarh</option>
-                        <option value="Chattisgarh" {% if state == 'Chattisgarh' %}selected{% endif %}>Chattisgarh</option>
-                        <option value="Gujarat" {% if state == 'Gujarat' %}selected{% endif %}>Gujarat</option>
-                        <option value="Haryana" {% if state == 'Haryana' %}selected{% endif %}>Haryana</option>
-                        <option value="Himachal Pradesh" {% if state == 'Himachal Pradesh' %}selected{% endif %}>Himachal Pradesh</option>
-                        <option value="Jammu and Kashmir" {% if state == 'Jammu and Kashmir' %}selected{% endif %}>Jammu and Kashmir</option>
-                        <option value="Karnataka" {% if state == 'Karnataka' %}selected{% endif %}>Karnataka</option>
-                        <option value="Kerala" {% if state == 'Kerala' %}selected{% endif %}>Kerala</option>
-                        <option value="Madhya Pradesh" {% if state == 'Madhya Pradesh' %}selected{% endif %}>Madhya Pradesh</option>
-                        <option value="Maharashtra" {% if state == 'Maharashtra' %}selected{% endif %}>Maharashtra</option>
-                        <option value="NCT of Delhi" {% if state == 'NCT of Delhi' %}selected{% endif %}>NCT of Delhi</option>
-                        <option value="Nagaland" {% if state == 'Nagaland' %}selected{% endif %}>Nagaland</option>
-                        <option value="Odisha" {% if state == 'Odisha' %}selected{% endif %}>Odisha</option>
-                        <option value="Punjab" {% if state == 'Punjab' %}selected{% endif %}>Punjab</option>
-                        <option value="Rajasthan" {% if state == 'Rajasthan' %}selected{% endif %}>Rajasthan</option>
-                        <option value="Tamil Nadu" {% if state == 'Tamil Nadu' %}selected{% endif %}>Tamil Nadu</option>
-                        <option value="Telangana" {% if state == 'Telangana' %}selected{% endif %}>Telangana</option>
-                        <option value="Tripura" {% if state == 'Tripura' %}selected{% endif %}>Tripura</option>
-                        <option value="Uttar Pradesh" {% if state == 'Uttar Pradesh' %}selected{% endif %}>Uttar Pradesh</option>
-                        <option value="Uttarakhand" {% if state == 'Uttarakhand' %}selected{% endif %}>Uttarakhand</option>
-                        <option value="West Bengal" {% if state == 'West Bengal' %}selected{% endif %}>West Bengal</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="commodity">Commodity</label>
-                    <select id="commodity" name="commodity" class="search-input">
-                        <option value="" {% if not commodity %}selected{% endif %}>All Commodities</option>
-                        <option value="Banana" {% if commodity == 'Banana' %}selected{% endif %}>Banana</option>
-                        <option value="Beetroot" {% if commodity == 'Beetroot' %}selected{% endif %}>Beetroot</option>
-                        <option value="Bottle gourd" {% if commodity == 'Bottle gourd' %}selected{% endif %}>Bottle gourd</option>
-                        <option value="Cabbage" {% if commodity == 'Cabbage' %}selected{% endif %}>Cabbage</option>
-                        <option value="Carrot" {% if commodity == 'Carrot' %}selected{% endif %}>Carrot</option>
-                        <option value="Castor Seed" {% if commodity == 'Castor Seed' %}selected{% endif %}>Castor Seed</option>
-                        <option value="Chikoos(Sapota)" {% if commodity == 'Chikoos(Sapota)' %}selected{% endif %}>Chikoos(Sapota)</option>
-                        <option value="Cucumbar(Kheera)" {% if commodity == 'Cucumbar(Kheera)' %}selected{% endif %}>Cucumbar(Kheera)</option>
-                        <option value="Drumstick" {% if commodity == 'Drumstick' %}selected{% endif %}>Drumstick</option>
-                        <option value="Ginger(Green)" {% if commodity == 'Ginger(Green)' %}selected{% endif %}>Ginger(Green)</option>
-                        <option value="Green Chilli" {% if commodity == 'Green Chilli' %}selected{% endif %}>Green Chilli</option>
-                        <option value="Mustard" {% if commodity == 'Mustard' %}selected{% endif %}>Mustard</option>
-                        <option value="Paddy(Common)" {% if commodity == 'Paddy(Common)' %}selected{% endif %}>Paddy(Common)</option>
-                        <option value="Pineapple" {% if commodity == 'Pineapple' %}selected{% endif %}>Pineapple</option>
-                        <option value="Potato" {% if commodity == 'Potato' %}selected{% endif %}>Potato</option>
-                        <option value="Rab/Liquid Jaggery/Molasses" {% if commodity == 'Rab/Liquid Jaggery/Molasses' %}selected{% endif %}>Rab/Liquid Jaggery/Molasses</option>
-                        <option value="Tomato" {% if commodity == 'Tomato' %}selected{% endif %}>Tomato</option>
-                        <option value="Water Melon" {% if commodity == 'Water Melon' %}selected{% endif %}>Water Melon</option>
-                        <option value="Wheat" {% if commodity == 'Wheat' %}selected{% endif %}>Wheat</option>
-                        <option value="Wood" {% if commodity == 'Wood' %}selected{% endif %}>Wood</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn-search">Search</button>
-                {% if state or commodity %}
-                <a href="{% url 'price_tracker' %}" class="btn-clear">&#x2715; Clear</a>
-                {% endif %}
-            </form>
-        </div>
-    </div>
-
-    <div class="results-container">
-        <div class="results-header">
-            <h2 class="cinematic-heading-dark" style="font-size: 2rem; margin: 0;">Market Updates</h2>
-            <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
-                <div class="results-badge">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-                    <span>Live Data</span>
-                </div>
-                <div class="results-count">
-                    {% if records %}
-                        Showing <strong style="color: #111;">{{ records|length }}</strong> record{% if records|length != 1 %}s{% endif %}
-                        {% if state and commodity %} for <strong style="color: #111;">{{ commodity }}</strong> in <strong style="color: #111;">{{ state }}</strong>
-                        {% elif state %} in <strong style="color: #111;">{{ state }}</strong>
-                        {% elif commodity %} for <strong style="color: #111;">{{ commodity }}</strong>
-                        {% else %} across all markets
+</p> -->
+                <div class="search-container">
+                    <form class="search-form" method="GET" action="{% url 'price_tracker' %}">
+                        <div class="form-group">
+                            <label for="state">State</label>
+                            <select id="state" name="state" class="search-input">
+                                <option value="" {% if not state %}selected{% endif %}>All States</option>
+                                <option value="Andhra Pradesh"
+                                        {% if state == 'Andhra Pradesh' %}selected{% endif %}>Andhra Pradesh</option>
+                                <option value="Assam" {% if state == 'Assam' %}selected{% endif %}>Assam</option>
+                                <option value="Chandigarh" {% if state == 'Chandigarh' %}selected{% endif %}>Chandigarh</option>
+                                <option value="Chattisgarh"
+                                        {% if state == 'Chattisgarh' %}selected{% endif %}>Chattisgarh</option>
+                                <option value="Gujarat" {% if state == 'Gujarat' %}selected{% endif %}>Gujarat</option>
+                                <option value="Haryana" {% if state == 'Haryana' %}selected{% endif %}>Haryana</option>
+                                <option value="Himachal Pradesh"
+                                        {% if state == 'Himachal Pradesh' %}selected{% endif %}>
+                                    Himachal Pradesh
+                                </option>
+                                <option value="Jammu and Kashmir"
+                                        {% if state == 'Jammu and Kashmir' %}selected{% endif %}>
+                                    Jammu and Kashmir
+                                </option>
+                                <option value="Karnataka" {% if state == 'Karnataka' %}selected{% endif %}>Karnataka</option>
+                                <option value="Kerala" {% if state == 'Kerala' %}selected{% endif %}>Kerala</option>
+                                <option value="Madhya Pradesh"
+                                        {% if state == 'Madhya Pradesh' %}selected{% endif %}>Madhya Pradesh</option>
+                                <option value="Maharashtra"
+                                        {% if state == 'Maharashtra' %}selected{% endif %}>Maharashtra</option>
+                                <option value="NCT of Delhi"
+                                        {% if state == 'NCT of Delhi' %}selected{% endif %}>NCT of Delhi</option>
+                                <option value="Nagaland" {% if state == 'Nagaland' %}selected{% endif %}>Nagaland</option>
+                                <option value="Odisha" {% if state == 'Odisha' %}selected{% endif %}>Odisha</option>
+                                <option value="Punjab" {% if state == 'Punjab' %}selected{% endif %}>Punjab</option>
+                                <option value="Rajasthan" {% if state == 'Rajasthan' %}selected{% endif %}>Rajasthan</option>
+                                <option value="Tamil Nadu" {% if state == 'Tamil Nadu' %}selected{% endif %}>Tamil Nadu</option>
+                                <option value="Telangana" {% if state == 'Telangana' %}selected{% endif %}>Telangana</option>
+                                <option value="Tripura" {% if state == 'Tripura' %}selected{% endif %}>Tripura</option>
+                                <option value="Uttar Pradesh"
+                                        {% if state == 'Uttar Pradesh' %}selected{% endif %}>Uttar Pradesh</option>
+                                <option value="Uttarakhand"
+                                        {% if state == 'Uttarakhand' %}selected{% endif %}>Uttarakhand</option>
+                                <option value="West Bengal"
+                                        {% if state == 'West Bengal' %}selected{% endif %}>West Bengal</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="commodity">Commodity</label>
+                            <select id="commodity" name="commodity" class="search-input">
+                                <option value="" {% if not commodity %}selected{% endif %}>All Commodities</option>
+                                <option value="Banana" {% if commodity == 'Banana' %}selected{% endif %}>Banana</option>
+                                <option value="Beetroot" {% if commodity == 'Beetroot' %}selected{% endif %}>Beetroot</option>
+                                <option value="Bottle gourd"
+                                        {% if commodity == 'Bottle gourd' %}selected{% endif %}>Bottle gourd</option>
+                                <option value="Cabbage" {% if commodity == 'Cabbage' %}selected{% endif %}>Cabbage</option>
+                                <option value="Carrot" {% if commodity == 'Carrot' %}selected{% endif %}>Carrot</option>
+                                <option value="Castor Seed"
+                                        {% if commodity == 'Castor Seed' %}selected{% endif %}>Castor Seed</option>
+                                <option value="Chikoos(Sapota)"
+                                        {% if commodity == 'Chikoos(Sapota)' %}selected{% endif %}>
+                                    Chikoos(Sapota)
+                                </option>
+                                <option value="Cucumbar(Kheera)"
+                                        {% if commodity == 'Cucumbar(Kheera)' %}selected{% endif %}>
+                                    Cucumbar(Kheera)
+                                </option>
+                                <option value="Drumstick"
+                                        {% if commodity == 'Drumstick' %}selected{% endif %}>Drumstick</option>
+                                <option value="Ginger(Green)"
+                                        {% if commodity == 'Ginger(Green)' %}selected{% endif %}>Ginger(Green)</option>
+                                <option value="Green Chilli"
+                                        {% if commodity == 'Green Chilli' %}selected{% endif %}>Green Chilli</option>
+                                <option value="Mustard" {% if commodity == 'Mustard' %}selected{% endif %}>Mustard</option>
+                                <option value="Paddy(Common)"
+                                        {% if commodity == 'Paddy(Common)' %}selected{% endif %}>Paddy(Common)</option>
+                                <option value="Pineapple"
+                                        {% if commodity == 'Pineapple' %}selected{% endif %}>Pineapple</option>
+                                <option value="Potato" {% if commodity == 'Potato' %}selected{% endif %}>Potato</option>
+                                <option value="Rab/Liquid Jaggery/Molasses"
+                                        {% if commodity == 'Rab/Liquid Jaggery/Molasses' %}selected{% endif %}>
+                                    Rab/Liquid Jaggery/Molasses
+                                </option>
+                                <option value="Tomato" {% if commodity == 'Tomato' %}selected{% endif %}>Tomato</option>
+                                <option value="Water Melon"
+                                        {% if commodity == 'Water Melon' %}selected{% endif %}>Water Melon</option>
+                                <option value="Wheat" {% if commodity == 'Wheat' %}selected{% endif %}>Wheat</option>
+                                <option value="Wood" {% if commodity == 'Wood' %}selected{% endif %}>Wood</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-search">Search</button>
+                        {% if state or commodity %}
+                            <a href="{% url 'price_tracker' %}" class="btn-clear">&#x2715; Clear</a>
                         {% endif %}
-                    {% endif %}
+                    </form>
                 </div>
             </div>
-        </div>
-
-        {% if records %}
-        <div class="market-grid">
-            {% for item in records %}
-            <div class="market-card fade-in-on-scroll visible">
-                <div class="market-header">
-                    <div>
-                        <div class="market-name">{{ item.market|title|default:"Unknown Market" }}</div>
-                        <div class="market-location">{{ item.district|title }}, {{ item.state|title }}</div>
+            <div class="results-container">
+                <div class="results-header">
+                    <h2 class="cinematic-heading-dark" style="font-size: 2rem; margin: 0;">Market Updates</h2>
+                    <div style="display:flex;
+                                gap:0.75rem;
+                                align-items:center;
+                                flex-wrap:wrap">
+                        <div class="results-badge">
+                            <svg width="14"
+                                 height="14"
+                                 viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M12 8v4l3 3" />
+                            </svg>
+                            <span>Live Data</span>
+                        </div>
+                        <div class="results-count">
+                            {% if records %}
+                                Showing <strong style="color: #111;">{{ records|length }}</strong> record
+                                {% if records|length != 1 %}s{% endif %}
+                                {% if state and commodity %}
+                                    for <strong style="color: #111;">{{ commodity }}</strong> in <strong style="color: #111;">{{ state }}</strong>
+                                {% elif state %}
+                                    in <strong style="color: #111;">{{ state }}</strong>
+                                {% elif commodity %}
+                                    for <strong style="color: #111;">{{ commodity }}</strong>
+                                {% else %}
+                                    across all markets
+                                {% endif %}
+                            {% endif %}
+                        </div>
                     </div>
-                    <div class="market-date">{{ item.arrival_date }}</div>
                 </div>
-                
-                <div style="font-size: 0.9rem; color: #666; margin-bottom: 0.5rem;">
-                    Variety: <span style="color:#333;">{{ item.variety|default:"N/A" }}</span>
-                </div>
-
-                <div class="price-grid">
-                    <div class="price-item">
-                        <span class="price-label">Min Price</span>
-                        <span class="price-value">₹{{ item.min_price }}<span style="font-size:0.8rem;color:#777;font-weight:400;">/q</span></span>
+                {% if records %}
+                    <div class="market-grid">
+                        {% for item in records %}
+                            <div class="market-card fade-in-on-scroll visible">
+                                <div class="market-header">
+                                    <div>
+                                        <div class="market-name">{{ item.market|title|default:"Unknown Market" }}</div>
+                                        <div class="market-location">{{ item.district|title }}, {{ item.state|title }}</div>
+                                    </div>
+                                    <div class="market-date">{{ item.arrival_date }}</div>
+                                </div>
+                                <div style="font-size: 0.9rem; color: #666; margin-bottom: 0.5rem;">
+                                    Variety: <span style="color:#333;">{{ item.variety|default:"N/A" }}</span>
+                                </div>
+                                <div class="price-grid">
+                                    <div class="price-item">
+                                        <span class="price-label">Min Price</span>
+                                        <span class="price-value">₹{{ item.min_price }}<span style="font-size:0.8rem;color:#777;font-weight:400;">/q</span></span>
+                                    </div>
+                                    <div class="price-item">
+                                        <span class="price-label">Max Price</span>
+                                        <span class="price-value">₹{{ item.max_price }}<span style="font-size:0.8rem;color:#777;font-weight:400;">/q</span></span>
+                                    </div>
+                                    <div class="price-item price-modal">
+                                        <span class="price-label">Modal Price (Average)</span>
+                                        <span class="price-value">₹{{ item.modal_price }}<span style="font-size:1rem;color:#10b981;font-weight:500;">/q</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
                     </div>
-                    <div class="price-item">
-                        <span class="price-label">Max Price</span>
-                        <span class="price-value">₹{{ item.max_price }}<span style="font-size:0.8rem;color:#777;font-weight:400;">/q</span></span>
+                {% else %}
+                    <div class="empty-state">
+                        <h3 class="cinematic-heading-dark"
+                            style="color: #111;
+                                   font-size: 1.8rem;
+                                   margin-bottom: 1rem">No data available</h3>
+                        {% if state or commodity %}
+                            <p class="cinematic-text-dark mx-auto" style="color: #555;">
+                                We couldn't find any recent price records
+                                {% if commodity %}for <strong>{{ commodity }}</strong>{% endif %}
+                                {% if state %}in <strong>{{ state }}</strong>{% endif %}
+                                .
+                                Try adjusting your filters or <a href="{% url 'price_tracker' %}"
+    style="color: var(--color-primary);
+           text-decoration: underline">show all prices</a>.
+                            </p>
+                        {% else %}
+                            <p class="cinematic-text-dark mx-auto" style="color: #555;">
+                                No market prices could be fetched right now. The data service may be temporarily unavailable. Please try again in a moment.
+                            </p>
+                        {% endif %}
                     </div>
-                    <div class="price-item price-modal">
-                        <span class="price-label">Modal Price (Average)</span>
-                        <span class="price-value">₹{{ item.modal_price }}<span style="font-size:1rem;color:#10b981;font-weight:500;">/q</span></span>
-                    </div>
-                </div>
+                {% endif %}
             </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="empty-state">
-            <h3 class="cinematic-heading-dark" style="color: #111; font-size: 1.8rem; margin-bottom: 1rem;">No data available</h3>
-            {% if state or commodity %}
-            <p class="cinematic-text-dark mx-auto" style="color: #555;">
-                We couldn't find any recent price records
-                {% if commodity %}for <strong>{{ commodity }}</strong>{% endif %}
-                {% if state %}in <strong>{{ state }}</strong>{% endif %}.
-                Try adjusting your filters or <a href="{% url 'price_tracker' %}" style="color: var(--color-primary); text-decoration: underline;">show all prices</a>.
-            </p>
-            {% else %}
-            <p class="cinematic-text-dark mx-auto" style="color: #555;">
-                No market prices could be fetched right now. The data service may be temporarily unavailable. Please try again in a moment.
-            </p>
-            {% endif %}
-        </div>
-        {% endif %}
-    </div>
-
-    <!-- FOOTER -->
-    <footer class="footer" style="padding-top: 3rem;">
-        <div class="footer-content">
-            <h3 class="footer-logo" style="font-family: 'Grenze Gotisch', serif; font-weight: 500; font-size: 2rem;">KrishiScan</h3>
-            <p>Bridging the farm to the table.</p>
-        </div>
-        <p class="footer-copyright">&copy; 2026 KrishiScan. Rewriting Agriculture.</p>
-    </footer>
-
-    </main>
-
-    <script>
+            <!-- FOOTER -->
+            <footer class="footer" style="padding-top: 3rem;">
+                <div class="footer-content">
+                    <h3 class="footer-logo"
+                        style="font-family: 'Grenze Gotisch', serif;
+                               font-weight: 500;
+                               font-size: 2rem">KrishiScan</h3>
+                    <p>Bridging the farm to the table.</p>
+                </div>
+                <p class="footer-copyright">&copy; 2026 KrishiScan. Rewriting Agriculture.</p>
+            </footer>
+        </main>
+        <script>
         document.addEventListener('DOMContentLoaded', () => {
             const faders = document.querySelectorAll('.fade-in-on-scroll:not(.visible)');
             const appearOptions = {
@@ -479,6 +527,6 @@
                 appearOnScroll.observe(fader);
             });
         });
-    </script>
-</body>
+        </script>
+    </body>
 </html>

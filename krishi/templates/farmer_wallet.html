@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-{% load static %}
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KrishiScan — Farmer Wallet</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'global.css' %}">
-
-    <style>
+    {% load static %}
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/png" href="{% static 'Krishi-Scan-ico.png' %}">
+        <title>KrishiScan — Farmer Wallet</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Playfair+Display:wght@500;600;700&display=swap"
+              rel="stylesheet">
+        <link rel="stylesheet" href="{% static 'global.css' %}">
+        <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
@@ -638,258 +638,340 @@
             .payout-modal   { padding: 28px 20px; }
             .history-right  { flex-direction: column; align-items: flex-end; gap: 6px; }
         }
-    </style>
-</head>
-
-<body>
-    {% include 'navbar.html' %}
-
-    <div class="page">
-
-        <!-- Page Header -->
-        <div class="page-header">
-            <div class="breadcrumb">
-                <span>Dashboard</span>
-                <div class="breadcrumb-sep"></div>
-                <span>Wallet</span>
+        </style>
+    </head>
+    <body>
+        {% include 'navbar.html' %}
+        <div class="page">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="breadcrumb">
+                    <span>Dashboard</span>
+                    <div class="breadcrumb-sep"></div>
+                    <span>Wallet</span>
+                </div>
+                <h1 class="page-title">Earnings Wallet</h1>
+                <p class="page-subtitle">Manage your funds, verify incoming payments, and configure your payout method.</p>
             </div>
-            <h1 class="page-title">Earnings Wallet</h1>
-            <p class="page-subtitle">Manage your funds, verify incoming payments, and configure your payout method.</p>
-        </div>
-
-        <!-- Balance Card -->
-        <div class="balance-card">
-            <div class="balance-left">
-                <div class="balance-eyebrow">Available Balance</div>
-                <div class="balance-amount"><sup>₹</sup>{{ wallet_balance|floatformat:2 }}</div>
-                <div class="balance-note">
-                    <div class="balance-note-rule"></div>
-                    Credited after payment verification
+            <!-- Balance Card -->
+            <div class="balance-card">
+                <div class="balance-left">
+                    <div class="balance-eyebrow">Available Balance</div>
+                    <div class="balance-amount">
+                        <sup>₹</sup>{{ wallet_balance|floatformat:2 }}
+                    </div>
+                    <div class="balance-note">
+                        <div class="balance-note-rule"></div>
+                        Credited after payment verification
+                    </div>
+                </div>
+                <div class="balance-right">
+                    <button class="btn-withdraw">
+                        <svg width="16"
+                             height="16"
+                             fill="none"
+                             viewBox="0 0 24 24"
+                             stroke="currentColor"
+                             stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                        </svg>
+                        Earned Capital
+                    </button>
                 </div>
             </div>
-            <div class="balance-right">
-                <button class="btn-withdraw">
-                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+            <!-- Payout Method or Action Required -->
+            {% if has_upi %}
+                <div class="payout-card">
+                    <div class="payout-icon">
+                        <svg width="18"
+                             height="18"
+                             fill="none"
+                             viewBox="0 0 24 24"
+                             stroke="currentColor"
+                             stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div class="payout-body">
+                        <div class="payout-label">Payout UPI ID</div>
+                        <div class="payout-value">{{ upi_id }}</div>
+                    </div>
+                    <button class="btn-ghost" onclick="openModal(true)">
+                        <svg width="13"
+                             height="13"
+                             fill="none"
+                             viewBox="0 0 24 24"
+                             stroke="currentColor"
+                             stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Update
+                    </button>
+                </div>
+            {% else %}
+                <div class="alert-banner">
+                    <div class="alert-icon">
+                        <svg width="17"
+                             height="17"
+                             fill="none"
+                             viewBox="0 0 24 24"
+                             stroke="currentColor"
+                             stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                        </svg>
+                    </div>
+                    <div class="alert-body">
+                        <div class="alert-title">Payout Method Required</div>
+                        <div class="alert-desc">Add your UPI ID to receive payments from consumers.</div>
+                    </div>
+                    <button class="btn-danger" onclick="openModal(false)">
+                        <svg width="13"
+                             height="13"
+                             fill="none"
+                             viewBox="0 0 24 24"
+                             stroke="currentColor"
+                             stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Add Now
+                    </button>
+                </div>
+            {% endif %}
+            <!-- Pending Verifications -->
+            {% if pending_items %}
+                <div style="margin-bottom: 48px;">
+                    <div class="section-head">
+                        <h2 class="section-title">Pending Verifications</h2>
+                        <span class="count-pill">{{ pending_items|length }} pending</span>
+                    </div>
+                    {% for item in pending_items %}
+                        <div class="order-card">
+                            <div class="order-head">
+                                <div>
+                                    <div class="order-crop">{{ item.crop.name }}</div>
+                                    <div class="order-buyer">
+                                        Buyer: <strong>{{ item.order.consumer.first_name }} {{ item.order.consumer.last_name }}</strong>
+                                    </div>
+                                    <div class="tag-row">
+                                        <span class="tag">{{ item.quantity }} kg</span>
+                                        <span class="tag">{{ item.created_at|date:"M d, Y" }}</span>
+                                        <span class="tag">Order #{{ item.order.id }}</span>
+                                    </div>
+                                </div>
+                                <div class="order-amount">₹{{ item.amount|floatformat:2 }}</div>
+                            </div>
+                            <div class="screenshot-box">
+                                <div class="screenshot-label">
+                                    <svg width="13"
+                                         height="13"
+                                         fill="none"
+                                         viewBox="0 0 24 24"
+                                         stroke="currentColor"
+                                         stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    Payment Proof
+                                </div>
+                                {% if item.payment.screenshot %}
+                                    <a href="{{ item.payment.screenshot.url }}" target="_blank">
+                                        <img src="{{ item.payment.screenshot.url }}"
+                                             alt="Payment Screenshot"
+                                             class="screenshot-img">
+                                    </a>
+                                {% else %}
+                                    <div class="no-proof">
+                                        <svg width="14"
+                                             height="14"
+                                             fill="none"
+                                             viewBox="0 0 24 24"
+                                             stroke="currentColor"
+                                             stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                                        </svg>
+                                        No screenshot uploaded by buyer yet.
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="order-actions">
+                                <button class="btn-approve" onclick="verifyItem('{{ item.id }}', 'approve')">
+                                    <svg width="14"
+                                         height="14"
+                                         fill="none"
+                                         viewBox="0 0 24 24"
+                                         stroke="currentColor"
+                                         stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    Mark as Received
+                                </button>
+                                <button class="btn-reject" onclick="verifyItem('{{ item.id }}', 'reject')">
+                                    <svg width="14"
+                                         height="14"
+                                         fill="none"
+                                         viewBox="0 0 24 24"
+                                         stroke="currentColor"
+                                         stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                    Reject
+                                </button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% if pending_items and history_items %}<div class="divider"></div>{% endif %}
+            <!-- Payment History -->
+            <div>
+                <div class="section-head">
+                    <h2 class="section-title">Payment History</h2>
+                </div>
+                {% if history_items %}
+                    {% for item in history_items %}
+                        <div class="history-item">
+                            <div class="status-bar {% if item.status == 'verified' %}verified{% else %}rejected{% endif %}"></div>
+                            <div class="history-body">
+                                <div class="history-crop">{{ item.crop.name }}</div>
+                                <div class="history-meta">
+                                    {{ item.order.consumer.first_name }} {{ item.order.consumer.last_name }} &middot; {{ item.created_at|date:"M d, Y" }}
+                                </div>
+                            </div>
+                            <div class="history-right">
+                                <div class="history-amount">₹{{ item.amount|floatformat:2 }}</div>
+                                <span class="status-chip {% if item.status == 'verified' %}verified{% else %}rejected{% endif %}">
+                                    <div class="chip-dot {% if item.status == 'verified' %}verified{% else %}rejected{% endif %}"></div>
+                                    {% if item.status == 'verified' %}
+                                        Verified
+                                    {% else %}
+                                        Rejected
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon-wrap">
+                            <svg width="20"
+                                 height="20"
+                                 fill="none"
+                                 viewBox="0 0 24 24"
+                                 stroke="currentColor"
+                                 stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                        </div>
+                        <div class="empty-text">No payment history yet. Records will appear here once payments are verified.</div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <!-- Payout Setup Modal -->
+        <div class="modal-overlay" id="paymentModal">
+            <div class="payout-modal">
+                <button class="modal-close" id="closeBtn" onclick="closeModal()">
+                    <svg width="12"
+                         height="12"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor"
+                         stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
-                    Earned Capital
                 </button>
-            </div>
-        </div>
-
-        <!-- Payout Method or Action Required -->
-        {% if has_upi %}
-        <div class="payout-card">
-            <div class="payout-icon">
-                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-            </div>
-            <div class="payout-body">
-                <div class="payout-label">Payout UPI ID</div>
-                <div class="payout-value">{{ upi_id }}</div>
-            </div>
-            <button class="btn-ghost" onclick="openModal(true)">
-                <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                </svg>
-                Update
-            </button>
-        </div>
-        {% else %}
-        <div class="alert-banner">
-            <div class="alert-icon">
-                <svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-                </svg>
-            </div>
-            <div class="alert-body">
-                <div class="alert-title">Payout Method Required</div>
-                <div class="alert-desc">Add your UPI ID to receive payments from consumers.</div>
-            </div>
-            <button class="btn-danger" onclick="openModal(false)">
-                <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-                </svg>
-                Add Now
-            </button>
-        </div>
-        {% endif %}
-
-        <!-- Pending Verifications -->
-        {% if pending_items %}
-        <div style="margin-bottom: 48px;">
-            <div class="section-head">
-                <h2 class="section-title">Pending Verifications</h2>
-                <span class="count-pill">{{ pending_items|length }} pending</span>
-            </div>
-
-            {% for item in pending_items %}
-            <div class="order-card">
-                <div class="order-head">
-                    <div>
-                        <div class="order-crop">{{ item.crop.name }}</div>
-                        <div class="order-buyer">Buyer: <strong>{{ item.order.consumer.first_name }} {{ item.order.consumer.last_name }}</strong></div>
-                        <div class="tag-row">
-                            <span class="tag">{{ item.quantity }} kg</span>
-                            <span class="tag">{{ item.created_at|date:"M d, Y" }}</span>
-                            <span class="tag">Order #{{ item.order.id }}</span>
+                <div class="modal-title">Payout Method</div>
+                <div class="modal-subtitle">Set where your earnings are sent when you request a withdrawal.</div>
+                <div class="tab-strip">
+                    <button class="tab-btn active" id="tab-upi" onclick="switchTab('upi')">
+                        <svg width="13"
+                             height="13"
+                             fill="none"
+                             viewBox="0 0 24 24"
+                             stroke="currentColor"
+                             stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                        UPI ID
+                    </button>
+                    <button class="tab-btn" id="tab-bank" onclick="switchTab('bank')">
+                        <svg width="13"
+                             height="13"
+                             fill="none"
+                             viewBox="0 0 24 24"
+                             stroke="currentColor"
+                             stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                        </svg>
+                        Bank Account
+                    </button>
+                </div>
+                <form method="POST" action="{% url 'wallet' %}">
+                    {% csrf_token %}
+                    <div id="form-upi" class="form-section active">
+                        <div class="field">
+                            <label class="field-label">UPI ID</label>
+                            <input type="text"
+                                   name="upi_id"
+                                   class="field-input"
+                                   placeholder="yourname@oksbi"
+                                   value="{{ upi_id|default:'' }}">
+                        </div>
+                        <div class="info-note">
+                            <svg width="14"
+                                 height="14"
+                                 fill="none"
+                                 viewBox="0 0 24 24"
+                                 stroke="currentColor"
+                                 stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Consumer payments will be transferred directly to this UPI ID.
                         </div>
                     </div>
-                    <div class="order-amount">₹{{ item.amount|floatformat:2 }}</div>
-                </div>
-
-                <div class="screenshot-box">
-                    <div class="screenshot-label">
-                        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                        </svg>
-                        Payment Proof
+                    <div id="form-bank" class="form-section">
+                        <div class="field">
+                            <label class="field-label">Account Number</label>
+                            <input type="text"
+                                   name="bank_account"
+                                   class="field-input"
+                                   placeholder="e.g. 3456789012"
+                                   value="{{ bank_account_number|default:'' }}">
+                        </div>
+                        <div class="field">
+                            <label class="field-label">IFSC Code</label>
+                            <input type="text"
+                                   name="ifsc_code"
+                                   class="field-input"
+                                   placeholder="e.g. SBIN0001234"
+                                   value="{{ ifsc_code|default:'' }}">
+                        </div>
                     </div>
-                    {% if item.payment.screenshot %}
-                    <a href="{{ item.payment.screenshot.url }}" target="_blank">
-                        <img src="{{ item.payment.screenshot.url }}" alt="Payment Screenshot" class="screenshot-img">
-                    </a>
-                    {% else %}
-                    <div class="no-proof">
-                        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                    <button type="submit" class="btn-save">
+                        <svg width="14"
+                             height="14"
+                             fill="none"
+                             viewBox="0 0 24 24"
+                             stroke="currentColor"
+                             stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
-                        No screenshot uploaded by buyer yet.
-                    </div>
-                    {% endif %}
-                </div>
-
-                <div class="order-actions">
-                    <button class="btn-approve" onclick="verifyItem('{{ item.id }}', 'approve')">
-                        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Mark as Received
+                        Save Payout Details
                     </button>
-                    <button class="btn-reject" onclick="verifyItem('{{ item.id }}', 'reject')">
-                        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                        Reject
-                    </button>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-
-        {% if pending_items and history_items %}<div class="divider"></div>{% endif %}
-
-        <!-- Payment History -->
-        <div>
-            <div class="section-head">
-                <h2 class="section-title">Payment History</h2>
-            </div>
-
-            {% if history_items %}
-                {% for item in history_items %}
-                <div class="history-item">
-                    <div class="status-bar {% if item.status == 'verified' %}verified{% else %}rejected{% endif %}"></div>
-                    <div class="history-body">
-                        <div class="history-crop">{{ item.crop.name }}</div>
-                        <div class="history-meta">{{ item.order.consumer.first_name }} {{ item.order.consumer.last_name }} &middot; {{ item.created_at|date:"M d, Y" }}</div>
-                    </div>
-                    <div class="history-right">
-                        <div class="history-amount">₹{{ item.amount|floatformat:2 }}</div>
-                        <span class="status-chip {% if item.status == 'verified' %}verified{% else %}rejected{% endif %}">
-                            <div class="chip-dot {% if item.status == 'verified' %}verified{% else %}rejected{% endif %}"></div>
-                            {% if item.status == 'verified' %}Verified{% else %}Rejected{% endif %}
-                        </span>
-                    </div>
-                </div>
-                {% endfor %}
-            {% else %}
-            <div class="empty-state">
-                <div class="empty-icon-wrap">
-                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </form>
+                <div class="modal-foot">
+                    <svg width="11"
+                         height="11"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor"
+                         stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
+                    Your details are stored securely and never shared.
                 </div>
-                <div class="empty-text">No payment history yet. Records will appear here once payments are verified.</div>
-            </div>
-            {% endif %}
-        </div>
-
-    </div>
-
-    <!-- Payout Setup Modal -->
-    <div class="modal-overlay" id="paymentModal">
-        <div class="payout-modal">
-            <button class="modal-close" id="closeBtn" onclick="closeModal()">
-                <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-            </button>
-
-            <div class="modal-title">Payout Method</div>
-            <div class="modal-subtitle">Set where your earnings are sent when you request a withdrawal.</div>
-
-            <div class="tab-strip">
-                <button class="tab-btn active" id="tab-upi" onclick="switchTab('upi')">
-                    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                    </svg>
-                    UPI ID
-                </button>
-                <button class="tab-btn" id="tab-bank" onclick="switchTab('bank')">
-                    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-                    </svg>
-                    Bank Account
-                </button>
-            </div>
-
-            <form method="POST" action="{% url 'wallet' %}">
-                {% csrf_token %}
-
-                <div id="form-upi" class="form-section active">
-                    <div class="field">
-                        <label class="field-label">UPI ID</label>
-                        <input type="text" name="upi_id" class="field-input" placeholder="yourname@oksbi" value="{{ upi_id|default:'' }}">
-                    </div>
-                    <div class="info-note">
-                        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        Consumer payments will be transferred directly to this UPI ID.
-                    </div>
-                </div>
-
-                <div id="form-bank" class="form-section">
-                    <div class="field">
-                        <label class="field-label">Account Number</label>
-                        <input type="text" name="bank_account" class="field-input" placeholder="e.g. 3456789012" value="{{ bank_account_number|default:'' }}">
-                    </div>
-                    <div class="field">
-                        <label class="field-label">IFSC Code</label>
-                        <input type="text" name="ifsc_code" class="field-input" placeholder="e.g. SBIN0001234" value="{{ ifsc_code|default:'' }}">
-                    </div>
-                </div>
-
-                <button type="submit" class="btn-save">
-                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                    </svg>
-                    Save Payout Details
-                </button>
-            </form>
-
-            <div class="modal-foot">
-                <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                </svg>
-                Your details are stored securely and never shared.
             </div>
         </div>
-    </div>
-
-    <script>
+        <script>
         const hasUpi  = {{ has_upi|yesno:"true,false" }};
         const modal   = document.getElementById('paymentModal');
         const closeBtn = document.getElementById('closeBtn');
@@ -956,6 +1038,6 @@
             }
             return value;
         }
-    </script>
-</body>
+        </script>
+    </body>
 </html>
