@@ -39,4 +39,8 @@ urlpatterns = [
     path('api/notifications/mark-read/', views.mark_notifications_read_api, name='mark_notifications_read_api'),
     path('api/dashboard-stats/', views.dashboard_stats_api, name='dashboard_stats_api'),
     path('map/<int:item_id>/', views.order_map, name='order_map'),
+    path('api/cancel-order/', views.cancel_order, name='cancel_order'),
+    path('api/submit-review/', views.submit_review_api, name='submit_review_api'),
+    path('api/get-reviews/', views.get_reviews_api, name='get_reviews_api'),
+    path('api/delete-review/', views.delete_review_api, name='delete_review_api'),
 ]

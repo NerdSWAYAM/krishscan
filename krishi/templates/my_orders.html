@@ -166,6 +166,7 @@
     .oc-status-badge.pending  { background: #FFF8E1; color: #F59E0B; }
     .oc-status-badge.partial  { background: #E3F2FD; color: #1D6FBB; }
     .oc-status-badge.completed{ background: #E8F5EC; color: #3A6F43; }
+    .oc-status-badge.cancelled{ background: #FFEBEE; color: #C0392B; }
 
     /* ETA Bar */
     .eta-bar {
@@ -192,6 +193,7 @@
     .eta-bar.delivered { background: linear-gradient(90deg,#E8F5EC,#D4EDD9); }
     .eta-bar.rejected  { background: linear-gradient(90deg,#FFEBEE,#FFD0D0); }
     .eta-bar.waiting   { background: linear-gradient(90deg,#FFF8E1,#FFF2C8); }
+    .eta-bar.cancelled { background: linear-gradient(90deg,#FFEBEE,#FFD0D0); }
 
     /* Progress track */
     .progress-track {
@@ -299,6 +301,7 @@
     .item-status-badge.paid     { background: #E3F2FD; color: #1D6FBB; }
     .item-status-badge.verified { background: #E8F5EC; color: #3A6F43; }
     .item-status-badge.rejected { background: #FFEBEE; color: #C0392B; }
+    .item-status-badge.cancelled { background: #FFEBEE; color: #C0392B; }
 
     /* Card footer */
     .oc-footer {
@@ -437,6 +440,7 @@
     <div class="filter-tab" data-filter="pending">Pending Payment</div>
     <div class="filter-tab" data-filter="partial">In Progress</div>
     <div class="filter-tab" data-filter="completed">Delivered</div>
+    <div class="filter-tab" data-filter="cancelled">Cancelled</div>
 </div>
 
 <!-- Orders List -->
@@ -451,14 +455,38 @@
                 <div class="oc-date">Placed on {{ order.created_at|date:"d M Y, g:i A" }}</div>
             </div>
             <span class="oc-status-badge {{ order.status }}">
-                {% if order.status == 'completed' %}<img src="{% static 'truck-tick-svgrepo-com.svg' %}" alt="truck-tick-svgrepo-com.svg" style="height: 20px; width: 20px;"> Delivered
-                {% elif order.status == 'partial' %}<img src="{% static 'truck-time-svgrepo-com.svg' %}" alt="truck-time-svgrepo-com.svg" style="height: 20px; width: 20px;"> In Progress
-                {% else %}<img src="{% static 'timer-svgrepo-com.svg' %}" alt="timer-svgrepo-com.svg" style="height: 20px; width: 20px;"> Pending{% endif %}
+                {% if order.status == 'cancelled' %}
+                    <span style="font-size: 16px; margin-right: 4px;">❌</span> Cancelled
+                {% elif order.status == 'completed' and order.delivery_type == 'pickup' or order.status == 'completed' and order.payment_method == 'cod' %}
+                    <img src="{% static 'profile-round-1345-svgrepo-com.svg' %}" alt="order-placed-icon" style="height: 20px; width: 20px;"> Order Placed
+                {% elif order.status == 'completed' %}
+                    <img src="{% static 'truck-tick-svgrepo-com.svg' %}" alt="truck-tick-svgrepo-com.svg" style="height: 20px; width: 20px;"> Delivered
+                {% elif order.status == 'partial' %}
+                    <img src="{% static 'truck-time-svgrepo-com.svg' %}" alt="truck-time-svgrepo-com.svg" style="height: 20px; width: 20px;"> In Progress
+                {% else %}
+                    <img src="{% static 'timer-svgrepo-com.svg' %}" alt="timer-svgrepo-com.svg" style="height: 20px; width: 20px;"> Pending
+                {% endif %}
             </span>
         </div>
 
         <!-- ETA Bar -->
-        {% if order.status == 'completed' %}
+        {% if order.status == 'cancelled' %}
+        <div class="eta-bar cancelled">
+            <div class="eta-icon"><span style="font-size: 20px;">❌</span></div>
+            <div>
+                <div class="eta-text">Order Cancelled</div>
+                <div class="eta-sub">This order was cancelled by you.</div>
+            </div>
+        </div>
+        {% elif order.status == 'completed' and order.delivery_type == 'pickup' or order.status == 'completed' and order.payment_method == 'cod' %}
+        <div class="eta-bar delivered">
+            <div class="eta-icon"><img src="{% static 'profile-round-1345-svgrepo-com.svg' %}" alt="order-placed-icon" style="height: 20px; width: 20px;"></div>
+            <div>
+                <div class="eta-text">Order Placed Successfully</div>
+                <div class="eta-sub">Your order has been placed. Please collect it directly from the farm or pay on delivery as arranged.</div>
+            </div>
+        </div>
+        {% elif order.status == 'completed' %}
         <div class="eta-bar delivered">
             <div class="eta-icon"><img src="{% static 'truck-tick-svgrepo-com.svg' %}" alt="truck-tick-svgrepo-com.svg" style="height: 20px; width: 20px;"></div>
             <div>
@@ -527,6 +555,9 @@
                 Order Total: <span>₹{{ order.total_amount }}</span>
             </div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                {% if order.status != 'completed' and order.status != 'cancelled' %}
+                <button class="oc-action-btn secondary cancel-order-btn" data-order-id="{{ order.id }}" style="color: #C0392B; border-color: rgba(192,57,43,0.25);">Cancel Order</button>
+                {% endif %}
                 {% if order.status == 'pending' %}
                 <a href="{% url 'wishlist' %}" class="oc-action-btn">Upload Payment</a>
                 {% endif %}
@@ -594,7 +625,8 @@
                             const badge = card.querySelector('.oc-status-badge');
                             if (badge) {
                                 badge.className = `oc-status-badge ${orderData.status}`;
-                                if (orderData.status === 'completed') badge.innerHTML = `<img src="{% static 'truck-tick-svgrepo-com.svg' %}" style="height: 20px; width: 20px;"> Delivered`;
+                                if (orderData.status === 'cancelled') badge.innerHTML = `<span style="font-size: 16px; margin-right: 4px;">❌</span> Cancelled`;
+                                else if (orderData.status === 'completed') badge.innerHTML = `<img src="{% static 'truck-tick-svgrepo-com.svg' %}" style="height: 20px; width: 20px;"> Delivered`;
                                 else if (orderData.status === 'partial') badge.innerHTML = `<img src="{% static 'truck-time-svgrepo-com.svg' %}" style="height: 20px; width: 20px;"> In Progress`;
                                 else badge.innerHTML = `<img src="{% static 'timer-svgrepo-com.svg' %}" style="height: 20px; width: 20px;"> Pending`;
                             }
@@ -629,5 +661,52 @@
     
     // Poll every 30 seconds
     setInterval(pollOrderStatuses, 30000);
+
+    // Cancel order functionality
+    document.querySelectorAll('.cancel-order-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const orderId = this.dataset.orderId;
+            if (confirm("Are you sure you want to cancel this order? This action cannot be undone.")) {
+                fetch('/api/cancel-order/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ order_id: orderId })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Order cancelled successfully.");
+                        window.location.reload();
+                    } else {
+                        alert(data.message || "Failed to cancel order.");
+                    }
+                })
+                .catch(err => {
+                    console.error("Error cancelling order:", err);
+                    alert("An error occurred while cancelling the order.");
+                });
+            }
+        });
+    });
+
+    // Helper function to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 </script>
 {% endblock %}

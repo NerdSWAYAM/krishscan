@@ -1,0 +1,15 @@
+{% extends 'farmer_base.html' %}
+{% load static %}
+
+{% block title %}Internal Server Error - KrishiScan{% endblock %}
+
+{% block content %}
+<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 70vh; text-align: center; padding: 20px;">
+    <h1 style="font-size: 8rem; color: var(--color-primary); font-family: 'Grenze Gotisch', cursive; margin: 0; line-height: 1;">500</h1>
+    <h2 style="font-size: 2rem; color: var(--color-deep-forest); margin-bottom: 16px; font-family: 'Playfair Display', serif;">Internal Server Error.</h2>
+    <p style="color: var(--color-text-muted); font-size: 1.1rem; max-width: 500px; margin-bottom: 32px;">
+        Oops! Something went wrong on our end. We've been notified and are working to fix it.
+    </p>
+    <a href="{% url 'home' %}" class="btn btn-primary" style="padding: 12px 32px; font-size: 1.1rem; border-radius: 12px; text-decoration: none;">Return to Home</a>
+</div>
+{% endblock %}

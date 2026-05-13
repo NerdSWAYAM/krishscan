@@ -509,8 +509,8 @@
                     <a href="/wallet/" class="dropdown-item">Wallet</a>
                     <a href="{% url 'dashboard' %}#recent-chats" class="dropdown-item">Chats</a>
                     {% else %}
-                    <a href="/wishlist/" class="dropdown-item">Wishlist</a>
-                    <a href="{% url 'my_orders' %}" class="dropdown-item">MyOrders</a>
+                    <a href="/wishlist/" class="dropdown-item">My Cart</a>
+                    <a href="{% url 'my_orders' %}" class="dropdown-item">My Orders</a>
                     {% endif %}
                     <a href="{% url 'logout' %}" class="dropdown-item" style="color: #C0392B;">Logout</a>
                 </div>

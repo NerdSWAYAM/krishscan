@@ -84,6 +84,7 @@
         transition: all var(--transition-card);
         display: flex;
         flex-direction: column;
+        cursor: pointer;
     }
 
     .product-card:hover {
@@ -181,12 +182,18 @@
         align-items: center;
         position: relative;
         flex-wrap: wrap;
+        pointer-events: none;
     }
 
-    .add-to-cart {
-        flex: 1;
-        min-width: min(100%, 8rem);
-        min-height: 2.75rem;
+    .product-actions > * {
+        pointer-events: auto;
+    }
+
+    .card-action-hint {
+        margin-top: 14px;
+        font-size: 13px;
+        color: var(--color-text-muted);
+        letter-spacing: 0.01em;
     }
 
     .qty-badge {
@@ -197,28 +204,333 @@
 
     .cart-popup {
         display: none;
-        position: absolute;
-        bottom: -10px;
-        left: -10px;
-        right: -10px;
-        background: #fff;
-        padding: 16px;
-        border-radius: 16px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-        z-index: 10;
-        border: 1px solid var(--color-primary-light);
-        animation: slideUp 0.2s ease-out;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh; /* Changed from 100% to 100vh to ensure it locks to screen height */
+        background: rgba(15, 40, 20, 0.5);
+        backdrop-filter: blur(6px);
+        z-index: 9999; /* Increased z-index to guarantee it sits above headers */
+        padding: 24px;
+        overflow-y: auto;
     }
 
-    @keyframes slideUp {
+    .cart-popup.active {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    body.popup-open {
+        overflow: hidden;
+    }
+
+    .cart-modal {
+        width: 70vw;
+        max-width: 980px;
+        max-height: calc(100vh - 48px);
+        background: var(--color-surface);
+        border-radius: 28px;
+        box-shadow: 0 24px 60px rgba(23, 55, 33, 0.18);
+        border: 1px solid rgba(88, 152, 95, 0.16);
+        overflow-y: auto;
+        animation: slideDown 0.35s ease-out;
+        position: relative;
+        margin-top: 0;
+        margin-bottom: auto;
+    }
+
+    .cart-modal-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 24px;
+    }
+
+    .cart-modal-image {
+        width: 88px;
+        height: 88px;
+        border-radius: 22px;
+        background: var(--color-bg);
+        overflow: hidden;
+        flex-shrink: 0;
+        border: 1px solid rgba(58, 111, 67, 0.12);
+    }
+
+    .cart-modal-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .cart-modal-tag {
+        margin: 0 0 6px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--color-primary);
+    }
+
+    .cart-modal-title {
+        margin: 0;
+        font-size: 1.4rem;
+        color: var(--color-deep-forest);
+    }
+
+    .cart-modal-subtitle {
+        margin: 8px 0 0;
+        color: var(--color-text-muted);
+        font-size: 14px;
+    }
+
+    .cart-modal-body {
+        padding: 0 24px 24px;
+        display: grid;
+        gap: 18px;
+    }
+
+    .cart-price {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--color-deep-forest);
+    }
+
+    .cart-price span {
+        font-size: 0.95rem;
+        color: var(--color-text-muted);
+        font-weight: 500;
+        margin-left: 6px;
+    }
+
+    .cart-stock {
+        color: var(--color-text-muted);
+        font-size: 14px;
+    }
+
+    .quantity-selector {
+        display: grid;
+        grid-template-columns: auto minmax(60px, 72px) auto;
+        align-items: start;
+        gap: 4px;
+        justify-content: start
+    }
+
+    .qty-btn {
+        width: 46px;
+        height: 46px;
+        border-radius: 16px;
+        border: 1px solid rgba(58, 111, 67, 0.18);
+        background: #F4F9F1;
+        color: var(--color-deep-forest);
+        font-size: 1.35rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+
+    .qty-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .quantity-selector input {
+        width: 100%;
+        max-width: 72px;
+        text-align: center;
+        border: 1px solid rgba(58, 111, 67, 0.16);
+        border-radius: 16px;
+        background: #F6FCF5;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--color-deep-forest);
+        padding: 12px 0;
+    }
+
+    .total-display {
+        display: flex;
+        justify-content: start;
+        align-items: center;
+        font-size: 15px;
+        color: var(--color-deep-forest);
+        font-weight: 600;
+        padding-top: 8px;
+    }
+
+    .cart-modal-main {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 24px;
+        padding: 0 24px 24px;
+    }
+
+    .cart-modal-left,
+    .cart-modal-right {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .product-description {
+        color: var(--color-text-muted);
+        line-height: 1.7;
+        font-size: 0.98rem;
+        margin: 0;
+    }
+
+    .product-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .badge-pill {
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: #EEF7ED;
+        color: var(--color-deep-forest);
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .product-specs {
+        background: #F6FBF6;
+        border-radius: 20px;
+        padding: 18px;
+        display: grid;
+        gap: 12px;
+    }
+
+    .spec-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        color: var(--color-deep-forest);
+        font-size: 14px;
+    }
+
+    .seller-insight,
+    .delivery-info {
+        background: #F6FBF6;
+        border-radius: 20px;
+        padding: 18px;
+    }
+
+    .seller-insight h5,
+    .delivery-info h5,
+    .review-header {
+        margin: 0 0 14px;
+        font-size: 1rem;
+        color: var(--color-deep-forest);
+    }
+
+    .seller-detail {
+        display: flex;
+        /* justify-content: space-between; */
+        font-size: 14px;
+        color: var(--color-text-muted);
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .review-section {
+        padding: 0 24px 24px;
+    }
+
+    .review-list {
+        display: grid;
+        gap: 14px;
+    }
+
+    .review-card {
+        background: #fff;
+        border-radius: 20px;
+        border: 1px solid rgba(58, 111, 67, 0.12);
+        padding: 18px;
+        box-shadow: 0 10px 30px rgba(58, 111, 67, 0.05);
+    }
+
+    .review-author {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    .review-author strong {
+        color: var(--color-deep-forest);
+    }
+
+    .review-text {
+        color: var(--color-text-muted);
+        line-height: 1.7;
+        font-size: 0.94rem;
+        margin: 0;
+    }
+
+    .rating-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(89, 172, 119, 0.1);
+        color: var(--color-deep-forest);
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .rating-stars {
+        color: #F1C40F;
+        letter-spacing: 0.04em;
+    }
+
+    @media (max-width: 960px) {
+        .cart-modal {
+            width: min(92vw, 100%);
+            min-height: auto;
+        }
+
+        .cart-modal-main {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .cart-modal-status {
+        padding: 0 24px 12px;
+        color: var(--color-primary);
+        font-weight: 600;
+        min-height: 24px;
+        line-height: 1.4;
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        border: none;
+        background: rgba(255, 255, 255, 0.8);
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        color: var(--color-deep-forest);
+        font-size: 1.4rem;
+        cursor: pointer;
+        box-shadow: 0 10px 20px rgba(23, 55, 33, 0.08);
+    }
+
+    @keyframes slideDown {
         from {
-            transform: translateY(10px);
             opacity: 0;
+            transform: translateY(-40px);
         }
 
         to {
-            transform: translateY(0);
             opacity: 1;
+            transform: translateY(0);
         }
     }
 
@@ -246,6 +558,28 @@
         .filter-select {
             flex: 1;
         }
+    }
+    
+    .star-rating {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        gap: 4px;
+        margin-bottom: 12px;
+    }
+    .star-rating input {
+        display: none;
+    }
+    .star-rating label {
+        font-size: 28px;
+        color: #ddd;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+    .star-rating input:checked ~ label,
+    .star-rating label:hover,
+    .star-rating label:hover ~ label {
+        color: #F1C40F;
     }
 </style>
 {% endblock %}
@@ -282,7 +616,7 @@
 
 <div class="product-grid">
     {% for crop in crops %}
-    <div class="product-card">
+    <div class="product-card" onclick="showCartPopup(this)" data-crop-id="{{ crop.id }}" data-crop-name="{{ crop.name }}" data-farmer-name="{{ crop.farmer.first_name }} {{ crop.farmer.last_name }}" data-farmer-location="{{ crop.farmer.location|default:'India' }}" data-price="{{ crop.price_per_kg }}" data-stock="{{ crop.quantity }}" data-created="{{ crop.created_at|date:'j M Y' }}" data-image-url="{% if crop.image %}{{ crop.image.url }}{% endif %}" data-crop-description="Premium farm-fresh {{ crop.name }} carefully harvested and packed by {{ crop.farmer.first_name }}." data-farmer-crops="{{ crop.farmer.crops.count }}" data-farmer-coords="{{ crop.farmer.coordinates|default:'' }}">
         <div class="product-image-wrap">
             {% if crop.image %}
             <img src="{{ crop.image.url }}" alt="{{ crop.name }}" class="product-image">
@@ -319,26 +653,14 @@
                 ₹{{ crop.price_per_kg }} <span>/ kg</span>
             </div>
 
+            <div class="card-action-hint">Tap anywhere on this card to open the add-to-cart card</div>
+
             <div class="product-actions">
-                <button class="btn btn-primary add-to-cart" onclick="showCartPopup(this, {{ crop.id }})">Add to
-                    Cart</button>
-                <a href="{% url 'chat_view' crop.farmer.id %}" class="btn btn-secondary"
+                <a href="{% url 'chat_view' crop.farmer.id %}" class="btn btn-secondary" onclick="event.stopPropagation()"
                     style="padding: 12px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: #E8F5EC; border: none; text-decoration: none;"
                     title="Chat with Farmer"><img src="{% static 'chat-dots-svgrepo-com.svg' %}"
                         alt="chat-lines-svgrepo-com.svg" style="height: 20px; width: 20px;"></a>
                 <span class="qty-badge">{{ crop.quantity }}kg left</span>
-
-                <div class="cart-popup" id="cart-popup-{{ crop.id }}">
-                    <div
-                        style="font-size: 13px; margin-bottom: 8px; color: var(--color-deep-forest); font-weight: 600;">
-                        Select Quantity (kg)</div>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="number" id="qty-{{ crop.id }}" class="form-control"
-                            style="padding: 8px; font-size: 14px;" min="1" max="{{ crop.quantity }}" value="1">
-                        <button class="btn btn-primary" style="padding: 8px 16px; font-size: 14px; min-width: 90px;"
-                            onclick="confirmAdd({{ crop.id }}, {{ crop.quantity }})">Confirm</button>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -360,7 +682,122 @@
     {% endfor %}
 </div>
 
+<div class="cart-popup" id="cart-popup-modal" onclick="closeCartPopup(event)">
+    <div class="cart-modal" onclick="event.stopPropagation()">
+        <button class="close-btn" type="button" onclick="document.getElementById('cart-popup-modal').classList.remove('active'); document.body.classList.remove('popup-open');">&times;</button>
+        <div class="cart-modal-header">
+            <div class="cart-modal-image" id="modal-image-wrap">
+                <img src="" alt="" id="modal-image">
+            </div>
+            <div>
+                <div class="cart-modal-tag">Product details</div>
+                <h4 class="cart-modal-title" id="modal-title">Crop name</h4>
+                <p class="cart-modal-subtitle" id="modal-subtitle">Seller details</p>
+                <div class="rating-pill"><span class="rating-stars">★★★★☆</span><span id="modal-rating">4.8</span> · <span id="modal-review-count">28</span> reviews</div>
+            </div>
+        </div>
+        <div class="cart-modal-main">
+            <div class="cart-modal-left">
+                <div class="cart-price" id="modal-price">₹0<span>/ kg</span></div>
+                <p class="product-description" id="modal-description"></p>
+                <div class="product-badges">
+                    <span class="badge-pill">Fresh pickup</span>
+                    <span class="badge-pill">Local farm produce</span>
+                    <span class="badge-pill">Fast dispatch</span>
+                </div>
+                <div class="product-specs">
+                    <div class="spec-row"><span>Available stock</span><strong id="modal-stock">0 kg</strong></div>
+                    <div class="spec-row"><span>Harvested from</span><strong id="modal-location">Location</strong></div>
+                    <div class="spec-row"><span>Price per kg</span><strong id="modal-price-spec">₹0</strong></div>
+                    <div class="spec-row"><span>Listing age</span><strong id="modal-created">Date</strong></div>
+                </div>
+                
+                <div>
+                    <div class="quantity-selector">
+                        <button type="button" class="qty-btn" onclick="changeQty(-1)">-</button>
+                        <input type="text" id="modal-qty" value="1" readonly>
+                        <button type="button" class="qty-btn" onclick="changeQty(1)">+</button>
+                    </div>
+                    <div class="total-display">Total: <span id="modal-total">₹0</span></div>
+                    <div class="cart-modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="document.getElementById('cart-popup-modal').classList.remove('active'); document.body.classList.remove('popup-open');">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="confirmAdd()">Add to cart</button>
+                    </div>
+                </div>
+            </div>
+            <div class="cart-modal-right">
+                <div class="seller-insight">
+                    <h5>Farmer info</h5>
+                    <div class="seller-detail"><span>Name</span><strong id="modal-farmer-name">Seller</strong></div>
+                    <div class="seller-detail"><span>Location</span><strong id="modal-farmer-location">Location</strong></div>
+                    <div class="seller-detail"><span>Crops listed</span><strong id="modal-farmer-crops">0</strong></div>
+                    <div class="seller-detail"><span>Response</span><strong>Fast reply</strong></div>
+                </div>
+                <div class="delivery-info">
+                    <h5>Delivery</h5>
+                    <div class="seller-detail"><span>Service</span><strong>Doorstep & pickup</strong></div>
+                    <div class="seller-detail"><span>Expected delivery</span><strong id="modal-eta">Calculating…</strong></div>
+                    <div class="seller-detail"><span>Shipping</span><strong>₹25 per order</strong></div>
+                </div>
+            </div>
+        </div>
+        <div class="review-section">
+            <div class="review-header">Farmer reviews</div>
+            <div class="review-list" id="modal-review-list">
+                <!-- dynamic reviews here -->
+            </div>
+            
+            {% if request.session.user_id %}
+            <div class="review-form" style="margin-top: 20px; background: #F6FBF6; padding: 18px; border-radius: 20px;">
+                <h5 style="margin-top: 0; margin-bottom: 8px; color: var(--color-deep-forest); font-size: 1rem;">Write a Review</h5>
+                <div class="star-rating" id="interactive-star-rating">
+                    <input type="radio" id="star5" name="rating" value="5" checked><label for="star5" title="5 stars">★</label>
+                    <input type="radio" id="star4" name="rating" value="4"><label for="star4" title="4 stars">★</label>
+                    <input type="radio" id="star3" name="rating" value="3"><label for="star3" title="3 stars">★</label>
+                    <input type="radio" id="star2" name="rating" value="2"><label for="star2" title="2 stars">★</label>
+                    <input type="radio" id="star1" name="rating" value="1"><label for="star1" title="1 star">★</label>
+                </div>
+                <textarea id="review-text" class="form-control" rows="3" placeholder="Share your experience with this crop..." style="margin-bottom: 12px; background: #fff; resize: vertical;"></textarea>
+                <button type="button" class="btn btn-primary" onclick="submitReview()" id="btn-submit-review" style="padding: 8px 16px;">Submit Review</button>
+                <div id="review-status" style="margin-top: 8px; font-size: 13px; color: var(--color-primary); font-weight: 600;"></div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="cart-modal-status" id="modal-status"></div>
+        <input type="hidden" id="modal-crop-id" value="">
+        <input type="hidden" id="modal-crop-price" value="0">
+        <input type="hidden" id="modal-crop-stock" value="0">
+    </div>
+</div>
+
 <script>
+    // Consumer's GPS coordinates injected from Django session
+    const CONSUMER_COORDS = "{{ user_coords|escapejs }}";
+
+    // Haversine formula — mirrors calculate_distance() in views.py
+    function haversineKm(lat1, lon1, lat2, lon2) {
+        const R = 6371;
+        const toRad = x => x * Math.PI / 180;
+        const dLat = toRad(lat2 - lat1);
+        const dLon = toRad(lon2 - lon1);
+        const a = Math.sin(dLat / 2) ** 2 +
+                  Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                  Math.sin(dLon / 2) ** 2;
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    // Returns ETA in minutes using same logic as views.py (40 km/h avg speed)
+    function computeEta(farmerCoordsStr) {
+        if (!CONSUMER_COORDS || !farmerCoordsStr) return 120;
+        try {
+            const [cLat, cLon] = CONSUMER_COORDS.split(',').map(Number);
+            const [fLat, fLon] = farmerCoordsStr.split(',').map(Number);
+            if (isNaN(cLat) || isNaN(cLon) || isNaN(fLat) || isNaN(fLon)) return 120;
+            const dist = haversineKm(cLat, cLon, fLat, fLon);
+            return Math.max(15, Math.round(dist * 1.5)); // dist/40*60 = dist*1.5
+        } catch (e) { return 120; }
+    }
     function applyFilters() {
         const query = document.getElementById('marketplace-search').value.trim().toLowerCase();
         const sort  = document.getElementById('marketplace-sort').value;
@@ -428,22 +865,96 @@
         if (e.key === 'Enter') applyFilters();
     });
 
-    function showCartPopup(btn, cropId) {
-        document.querySelectorAll('.cart-popup').forEach(p => p.style.display = 'none');
-        document.getElementById('cart-popup-' + cropId).style.display = 'block';
+    function showCartPopup(card) {
+        const popup = document.getElementById('cart-popup-modal');
+        if (!popup || !card) return;
+
+        document.body.appendChild(popup);
+
+        const cropId = card.dataset.cropId;
+        const cropName = card.dataset.cropName;
+        const farmerName = card.dataset.farmerName;
+        const farmerLocation = card.dataset.farmerLocation;
+        const price = parseFloat(card.dataset.price) || 0;
+        const stock = parseFloat(card.dataset.stock) || 0;
+        const created = card.dataset.created || '';
+        const imageUrl = card.dataset.imageUrl || '';
+        const description = card.dataset.cropDescription || '';
+        const farmerCrops = card.dataset.farmerCrops || '0';
+        const farmerCoords = card.dataset.farmerCoords || '';
+
+        document.getElementById('modal-crop-id').value = cropId;
+        document.getElementById('modal-crop-price').value = price;
+        document.getElementById('modal-crop-stock').value = stock;
+        document.getElementById('modal-image').src = imageUrl || '';
+        document.getElementById('modal-image').alt = cropName;
+        document.getElementById('modal-title').innerText = cropName;
+        document.getElementById('modal-subtitle').innerText = 'Sold by ' + farmerName + ' · ' + farmerLocation;
+        document.getElementById('modal-price').innerHTML = '₹' + price.toFixed(2) + '<span>/ kg</span>';
+        document.getElementById('modal-price-spec').innerText = '₹' + price.toFixed(2);
+        document.getElementById('modal-stock').innerText = stock + ' kg';
+        document.getElementById('modal-location').innerText = farmerLocation;
+        document.getElementById('modal-created').innerText = created;
+        document.getElementById('modal-description').innerText = description;
+        document.getElementById('modal-farmer-name').innerText = farmerName;
+        document.getElementById('modal-farmer-location').innerText = farmerLocation;
+        document.getElementById('modal-farmer-crops').innerText = farmerCrops;
+        document.getElementById('modal-qty').value = 1;
+        updateTotal(price, 1);
+        // Compute and display ETA
+        const etaMinutes = computeEta(farmerCoords);
+        const etaEl = document.getElementById('modal-eta');
+        if (etaEl) {
+            etaEl.innerText = etaMinutes + ' min' + (etaMinutes >= 60 ? ' (~' + Math.round(etaMinutes / 60 * 10) / 10 + ' hr)' : '');
+        }
+        document.getElementById('modal-status').innerText = '';
+        
+        loadReviews(cropId);
+        
+        // popup.scrollTop = 0;   
+        popup.classList.add('active');
+        document.body.classList.add('popup-open');
+        popup.scrollTop = 0;
+        popup.querySelector('.cart-modal').scrollTop = 0;
     }
 
-    function confirmAdd(cropId, maxQty) {
-        const qtyInput = document.getElementById('qty-' + cropId);
-        const qty = parseFloat(qtyInput.value);
+    function closeCartPopup(event) {
+        if (event.target !== event.currentTarget) return;
+        const popup = document.getElementById('cart-popup-modal');
+        popup.classList.remove('active');
+        document.body.classList.remove('popup-open');
+    }
+
+    function changeQty(delta) {
+        const qtyInput = document.getElementById('modal-qty');
+        const price = parseFloat(document.getElementById('modal-crop-price').value) || 0;
+        const maxQty = parseFloat(document.getElementById('modal-crop-stock').value) || 0;
+        let qty = parseInt(qtyInput.value, 10) || 1;
+        qty = Math.max(1, Math.min(maxQty, qty + delta));
+        qtyInput.value = qty;
+        updateTotal(price, qty);
+    }
+
+    function updateTotal(pricePerKg, qty) {
+        const totalElement = document.getElementById('modal-total');
+        if (totalElement) {
+            totalElement.innerText = '₹' + (pricePerKg * qty).toFixed(0);
+        }
+    }
+
+    function confirmAdd() {
+        const cropId = document.getElementById('modal-crop-id').value;
+        const qtyInput = document.getElementById('modal-qty');
+        const qty = parseInt(qtyInput.value, 10);
+        const maxQty = parseFloat(document.getElementById('modal-crop-stock').value) || 0;
+        const status = document.getElementById('modal-status');
+
         if (isNaN(qty) || qty <= 0 || qty > maxQty) {
-            alert('Please enter a valid quantity between 1 and ' + maxQty);
+            status.innerText = 'Please choose a quantity between 1 and ' + maxQty + '.';
             return;
         }
 
-        const popup = document.getElementById('cart-popup-' + cropId);
-        const originalHtml = popup.innerHTML;
-        popup.innerHTML = '<div style="text-align: center; padding: 10px 0; color: var(--color-text-muted);">Adding...</div>';
+        status.innerText = 'Adding to cart...';
 
         fetch('/api/add-to-wishlist/', {
             method: 'POST',
@@ -456,15 +967,19 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    popup.innerHTML = '<div style="color: var(--color-primary); font-weight: 600; text-align: center; padding: 10px 0; font-size: 16px;">Added to cart</div>';
+                    status.innerText = 'Added to cart successfully!';
                     setTimeout(() => {
-                        popup.style.display = 'none';
-                        popup.innerHTML = originalHtml;
-                    }, 2000);
+                        document.getElementById('cart-popup-modal').style.display = 'none';
+                        status.innerText = '';
+                        document.getElementById('modal-qty').value = 1;
+                        updateTotal(parseFloat(document.getElementById('modal-crop-price').value) || 0, 1);
+                    }, 1200);
                 } else {
-                    alert(data.message);
-                    popup.innerHTML = originalHtml;
+                    status.innerText = data.message || 'Unable to add to cart.';
                 }
+            })
+            .catch(() => {
+                status.innerText = 'Network error. Please try again.';
             });
     }
 
@@ -481,6 +996,121 @@
             }
         }
         return cookieValue;
+    }
+
+    function loadReviews(cropId) {
+        const list = document.getElementById('modal-review-list');
+        list.innerHTML = '<div style="color:var(--color-text-muted);font-size:14px;">Loading reviews...</div>';
+        
+        fetch(`/api/get-reviews/?crop_id=${cropId}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    list.innerHTML = '';
+                    if (data.reviews.length === 0) {
+                        list.innerHTML = '<div style="color:var(--color-text-muted);font-size:14px;font-style:italic;">No reviews yet. Be the first to review!</div>';
+                    } else {
+                        data.reviews.forEach(r => {
+                            list.innerHTML += `
+                                <div class="review-card">
+                                    <div class="review-author" style="align-items:center;">
+                                        <div><strong>${r.author}</strong><span style="margin-left:10px;">${r.rating} stars</span></div>
+                                        ${r.is_author ? `<button onclick="deleteReview(${r.id})" style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:12px;padding:4px;font-weight:600;">Delete</button>` : ''}
+                                    </div>
+                                    <div style="font-size:11px;color:#aaa;margin-top:-6px;margin-bottom:8px;">${r.date}</div>
+                                    <p class="review-text">"${r.text}"</p>
+                                </div>
+                            `;
+                        });
+                    }
+                    
+                    document.getElementById('modal-rating').innerText = data.avg_rating.toFixed(1);
+                    document.getElementById('modal-review-count').innerText = data.count;
+                    
+                    const starsEl = document.querySelector('.rating-stars');
+                    if (starsEl) {
+                        const filled = Math.round(data.avg_rating);
+                        starsEl.innerText = '★'.repeat(filled) + '☆'.repeat(5 - filled);
+                    }
+                } else {
+                    list.innerHTML = '<div style="color:red;font-size:14px;">Failed to load reviews.</div>';
+                }
+            })
+            .catch(err => {
+                list.innerHTML = '<div style="color:red;font-size:14px;">Error loading reviews.</div>';
+            });
+    }
+
+    function submitReview() {
+        const cropId = document.getElementById('modal-crop-id').value;
+        const rating = document.querySelector('input[name="rating"]:checked').value;
+        const text = document.getElementById('review-text').value.trim();
+        const status = document.getElementById('review-status');
+        
+        if (!text) {
+            status.innerText = "Please write a review text.";
+            status.style.color = "red";
+            return;
+        }
+        
+        const btn = document.getElementById('btn-submit-review');
+        btn.disabled = true;
+        status.innerText = "Submitting...";
+        status.style.color = "var(--color-primary)";
+        
+        fetch('/api/submit-review/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ crop_id: cropId, rating: rating, text: text })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                status.innerText = "Review submitted successfully!";
+                status.style.color = "var(--color-primary)";
+                document.getElementById('review-text').value = '';
+                document.getElementById('star5').checked = true;
+                loadReviews(cropId);
+            } else {
+                status.innerText = data.message || "Failed to submit review.";
+                status.style.color = "red";
+            }
+            btn.disabled = false;
+        })
+        .catch(err => {
+            status.innerText = "Error submitting review.";
+            status.style.color = "red";
+            btn.disabled = false;
+        });
+    }
+
+    function deleteReview(reviewId) {
+        if (!confirm("Are you sure you want to delete this review?")) return;
+        
+        const cropId = document.getElementById('modal-crop-id').value;
+        
+        fetch('/api/delete-review/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ review_id: reviewId })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                loadReviews(cropId);
+            } else {
+                alert(data.message || "Failed to delete review.");
+            }
+        })
+        .catch(err => {
+            alert("Error deleting review.");
+        });
     }
 </script>
 {% endblock %}

@@ -25,3 +25,4 @@ urlpatterns = [
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 handler404 = 'krishi.views.custom_404'
+handler500 = 'krishi.views.custom_500'

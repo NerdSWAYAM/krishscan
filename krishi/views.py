@@ -224,7 +224,11 @@ def marketplace(request):
         except UserAccount.DoesNotExist:
             wishlist = {}
         
-    return render(request, 'marketplace.html', {'crops': crop_list, 'wishlist': wishlist})
+    return render(request, 'marketplace.html', {
+        'crops': crop_list,
+        'wishlist': wishlist,
+        'user_coords': user_coords or '',
+    })
 
 @login_required(login_url='/login/')
 def weather(request):
@@ -643,50 +647,134 @@ dotenv.load_dotenv()
 def price_tracker(request):
     API_KEY = os.getenv("API_KEY", "579b464db66ec23bdd0000014221d4e33efb481147dfeea08b43d410")
     RESOURCE_ID = os.getenv("RESOURCE_ID", "9ef84268-d588-465a-a308-a864a43d0070")
-    
+
     url = f"https://api.data.gov.in/resource/{RESOURCE_ID}"
-    
-    # Filters are optional — empty string means "no filter applied"
-    state = request.GET.get('state', '').strip()
+
+    state     = request.GET.get('state', '').strip()
     commodity = request.GET.get('commodity', '').strip()
-    
+
+    # ------------------------------------------------------------------ #
+    #  Helper: load CSV and return normalised record dicts                 #
+    # ------------------------------------------------------------------ #
+    def _load_csv(state_filter='', commodity_filter='', limit=100):
+        import csv as _csv
+        csv_path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            'mandi_prices.csv'
+        )
+        results = []
+        try:
+            with open(csv_path, newline='', encoding='utf-8') as f:
+                reader = _csv.DictReader(f)
+                for row in reader:
+                    if state_filter and row.get('state', '').strip().lower() != state_filter.lower():
+                        continue
+                    if commodity_filter and row.get('commodity', '').strip().lower() != commodity_filter.lower():
+                        continue
+                    modal = float(row.get('modal_price', 0) or 0)
+                    results.append({
+                        'state':        row.get('state', ''),
+                        'district':     row.get('district', ''),
+                        'market':       row.get('market', ''),
+                        'commodity':    row.get('commodity', ''),
+                        'variety':      row.get('variety', 'Other'),
+                        'arrival_date': row.get('arrival_date', 'N/A'),
+                        'min_price':    row.get('min_price') or round(modal * 0.85),
+                        'max_price':    row.get('max_price') or round(modal * 1.15),
+                        'modal_price':  row.get('modal_price', modal),
+                    })
+                    if len(results) >= limit:
+                        break
+        except Exception as exc:
+            print("CSV load error:", exc)
+        return results
+
+    # ------------------------------------------------------------------ #
+    #  Main records (Market Updates section)                              #
+    # ------------------------------------------------------------------ #
     params = {
         "api-key": API_KEY,
-        "format": "json",
-        "limit": 100,
+        "format":  "json",
+        "limit":   100,
     }
-    
-    # Only apply filters when explicitly provided
     if state:
-        params["filters[state]"] = state
+        params["filters[state.keyword]"] = state
     if commodity:
         params["filters[commodity]"] = commodity
-    
+
     cache_key = f'price_tracker_{state or "all"}_{commodity or "all"}'
-    records = cache.get(cache_key)
-    total = 0
-    
+    records   = cache.get(cache_key)
+    total     = 0
+
     if records is None:
+        api_records = None
         try:
-            response = requests.get(url, params=params, timeout=5)
+            response = requests.get(url, params=params, timeout=3)
             if response.status_code == 200:
-                data = response.json()
-                records = data.get('records', [])
-                total = data.get('total', len(records))
-                cache.set(cache_key, records, 60 * 30)  # cache 30 min
-            else:
-                records = []
+                data        = response.json()
+                api_records = data.get('records', [])
+                total       = data.get('total', len(api_records))
         except requests.exceptions.RequestException as e:
-            print("Error fetching data:", e)
-            records = []
+            print("API unavailable, using CSV fallback:", e)
+
+        if api_records is not None:
+            records = api_records
+            cache.set(cache_key, records, 60 * 30)
+        else:
+            records = _load_csv(state_filter=state, commodity_filter=commodity, limit=100)
+            total   = len(records)
+            cache.set(cache_key, records, 60 * 15)   # shorter TTL for CSV data
     else:
         total = len(records)
-        
+
+    # ------------------------------------------------------------------ #
+    #  Top commodity prices (hero ticker + cards — always Karnataka)      #
+    # ------------------------------------------------------------------ #
+    top_prices_cache_key = 'price_tracker_top_commodities_karnataka'
+    top_commodity_prices = cache.get(top_prices_cache_key)
+
+    if top_commodity_prices is None:
+        top_commodity_prices = []
+        # 1) Try live API
+        try:
+            top_params = {
+                "api-key": API_KEY,
+                "format":  "json",
+                "limit":   50,
+                "filters[state.keyword]": "Karnataka",
+                "filters[district]": "Belagavi",
+            }
+            top_resp = requests.get(url, params=top_params, timeout=3)
+            if top_resp.status_code == 200:
+                top_records = top_resp.json().get('records', [])
+                seen = {}
+                for rec in top_records:
+                    comm = rec.get('commodity', '')
+                    if comm and comm not in seen:
+                        seen[comm] = rec
+                top_commodity_prices = list(seen.values())[:12]
+        except requests.exceptions.RequestException as e:
+            print("Top-prices API timeout, using CSV:", e)
+
+        # 2) CSV fallback
+        if not top_commodity_prices:
+            csv_rows = _load_csv(state_filter='Karnataka', limit=500)
+            seen = {}
+            for rec in csv_rows:
+                comm = rec.get('commodity', '')
+                if comm and comm not in seen:
+                    seen[comm] = rec
+            top_commodity_prices = list(seen.values())[:12]
+
+        if top_commodity_prices:
+            cache.set(top_prices_cache_key, top_commodity_prices, 60 * 30)
+
     context = {
         'records': records,
         'state': state,
         'commodity': commodity,
         'total': total,
+        'top_commodity_prices': top_commodity_prices,
     }
     return render(request, 'price_tracker.html', context)
 
@@ -906,7 +994,7 @@ def verify_order_item(request):
             user=item.order.consumer,
             title="Payment verified",
             message=f"Your payment for '{item.crop.name}' has been approved by the farmer.",
-            link="/my_orders/"
+            link="/orders/"
         )
     else:
         item.status = 'rejected'
@@ -921,7 +1009,7 @@ def verify_order_item(request):
             user=item.order.consumer,
             title="Payment review update",
             message=f"The farmer did not approve payment proof for '{item.crop.name}'. Please get in touch with them for next steps.",
-            link="/my_orders/"
+            link="/orders/"
         )
 
     # Update parent order status
@@ -956,6 +1044,14 @@ def create_checkout(request):
     if not user_id:
         return JsonResponse({'success': False, 'message': 'Not authenticated'})
 
+    try:
+        data = json.loads(request.body)
+    except Exception:
+        data = {}
+
+    delivery_type = data.get('delivery_type', 'doorstep')
+    payment_method = data.get('payment_method', 'online')
+
     consumer = UserAccount.objects.get(id=user_id)
     wishlist = consumer.wishlist if consumer.wishlist else {}
     if not isinstance(wishlist, dict):
@@ -964,20 +1060,21 @@ def create_checkout(request):
     if not wishlist:
         return JsonResponse({'success': False, 'message': 'Wishlist is empty'})
 
-    # Validate all farmers have UPI IDs before creating anything
-    for crop_id, qty in wishlist.items():
-        try:
-            crop = Crop.objects.get(id=int(crop_id))
-            if not crop.farmer.upi_id:
-                return JsonResponse({
-                    'success': False,
-                    'message': f'{crop.farmer.first_name} {crop.farmer.last_name} has not set up their UPI ID yet. Please remove their items and try again.'
-                })
-        except Crop.DoesNotExist:
-            continue
+    # Validate all farmers have UPI IDs before creating anything if payment is online
+    if payment_method == 'online':
+        for crop_id, qty in wishlist.items():
+            try:
+                crop = Crop.objects.get(id=int(crop_id))
+                if not crop.farmer.upi_id:
+                    return JsonResponse({
+                        'success': False,
+                        'message': f'{crop.farmer.first_name} {crop.farmer.last_name} has not set up their UPI ID yet. Please remove their items and try again.'
+                    })
+            except Crop.DoesNotExist:
+                continue
 
     # Create Order
-    order = Order.objects.create(consumer=consumer, status='pending')
+    order = Order.objects.create(consumer=consumer, status='pending', delivery_type=delivery_type, payment_method=payment_method)
 
     farmer_groups = {}
     for crop_id, qty in wishlist.items():
@@ -986,16 +1083,49 @@ def create_checkout(request):
             amount = float(crop.price_per_kg) * float(qty)
             farmer = crop.farmer
 
+            item_status = 'pending'
+            if payment_method == 'cod':
+                item_status = 'cod_pending'
+            elif delivery_type == 'pickup':
+                item_status = 'pickup_pending'
+
             item = OrderItem.objects.create(
                 order=order,
                 crop=crop,
                 farmer=farmer,
                 quantity=float(qty),
                 amount=amount,
-                status='pending'
+                status=item_status
             )
 
-            # Note: Stock will be deducted only after farmer verifies payment
+            # Note: Stock will be deducted only after farmer verifies payment for online
+            if payment_method != 'online':
+                from decimal import Decimal
+                crop.quantity -= Decimal(str(item.quantity))
+                crop.save()
+                
+                # Credit farmer wallet as it's not going through UPI online flow?
+                # Actually, for COD and Pickup, the farmer gets paid directly. 
+                # Wallet balance is basically what's been sold through the platform. 
+                # Let's add it to wallet balance so it reflects earnings.
+                farmer.wallet_balance += Decimal(str(item.amount))
+                farmer.save()
+
+                from .models import Notification
+                if delivery_type == 'pickup':
+                    Notification.objects.create(
+                        user=farmer,
+                        title="New Self-Pickup Order",
+                        message=f"{consumer.first_name} {consumer.last_name} wants {qty}kg of '{crop.name}'. They will receive it by visiting your farm directly.",
+                        link="/wallet/"
+                    )
+                elif payment_method == 'cod':
+                    Notification.objects.create(
+                        user=farmer,
+                        title="New Cash on Delivery Order",
+                        message=f"{consumer.first_name} {consumer.last_name} has placed a Cash on Delivery order for {qty}kg of '{crop.name}'.",
+                        link="/wallet/"
+                    )
 
             if farmer.id not in farmer_groups:
                 farmer_groups[farmer.id] = {
@@ -1015,20 +1145,32 @@ def create_checkout(request):
         except Crop.DoesNotExist:
             continue
 
-    # Build UPI deep links
-    for fg in farmer_groups.values():
-        upi_link = (
-            f"upi://pay?pa={fg['upi_id']}"
-            f"&pn={fg['farmer_name'].replace(' ', '%20')}"
-            f"&am={fg['subtotal']:.2f}"
-            f"&cu=INR"
-            f"&tn=KrishiScan_Order_{order.id}"
-        )
-        fg['upi_link'] = upi_link
+    # Build UPI deep links if online
+    if payment_method == 'online':
+        for fg in farmer_groups.values():
+            upi_link = (
+                f"upi://pay?pa={fg['upi_id']}"
+                f"&pn={fg['farmer_name'].replace(' ', '%20')}"
+                f"&am={fg['subtotal']:.2f}"
+                f"&cu=INR"
+                f"&tn=KrishiScan_Order_{order.id}"
+            )
+            fg['upi_link'] = upi_link
+            
+    # Clear wishlist if not online
+    if payment_method != 'online':
+        consumer.wishlist = {}
+        consumer.save(update_fields=['wishlist'])
+        
+        # Also mark order as completed if no verification step needed
+        order.status = 'completed'
+        order.save(update_fields=['status'])
 
     return JsonResponse({
         'success': True,
         'order_id': order.id,
+        'payment_method': payment_method,
+        'delivery_type': delivery_type,
         'farmer_groups': list(farmer_groups.values()),
     })
 
@@ -1574,9 +1716,163 @@ def order_map(request, item_id):
     return render(request, 'map.html', context)
 
 
+@login_required(login_url='/login/')
+def cancel_order(request):
+    import json
+    from django.http import JsonResponse
+    from .models import Order
+    from decimal import Decimal
+
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Invalid request'})
+
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return JsonResponse({'success': False, 'message': 'Not authenticated'})
+
+    try:
+        data = json.loads(request.body)
+        order_id = data.get('order_id')
+    except Exception:
+        return JsonResponse({'success': False, 'message': 'Invalid data'})
+
+    try:
+        order = Order.objects.get(id=order_id, consumer_id=user_id)
+    except Order.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Order not found'})
+
+    if order.status == 'completed':
+        return JsonResponse({'success': False, 'message': 'Cannot cancel a completed order'})
+        
+    if order.status == 'cancelled':
+        return JsonResponse({'success': False, 'message': 'Order is already cancelled'})
+
+    # Restore stock for items that already deducted stock
+    for item in order.items.all():
+        if item.status in ['verified', 'cod_pending', 'pickup_pending']:
+            crop = item.crop
+            crop.quantity += Decimal(str(item.quantity))
+            crop.save()
+            
+            farmer = item.farmer
+            farmer.wallet_balance -= Decimal(str(item.amount))
+            farmer.save()
+            
+            from .models import Notification
+            Notification.objects.create(
+                user=farmer,
+                title="Order Cancelled",
+                message=f"Order for {item.quantity}kg of '{crop.name}' was cancelled by the consumer.",
+                link="/wallet/"
+            )
+
+        item.status = 'cancelled'
+        item.save()
+
+    order.status = 'cancelled'
+    order.save()
+
+    return JsonResponse({'success': True, 'message': 'Order cancelled successfully'})
+
 def logout_user(request):
     auth_logout(request)
     return redirect('login')
 
-def custom_404(request, exception):
+def custom_404(request, exception=None):
     return render(request, '404.html', status=404)
+
+def custom_500(request):
+    return render(request, '500.html', status=500)
+
+@login_required(login_url='/login/')
+def submit_review_api(request):
+    import json
+    from django.http import JsonResponse
+    from .models import Crop, Review, UserAccount
+    
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Invalid request'})
+        
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return JsonResponse({'success': False, 'message': 'Not authenticated'})
+        
+    try:
+        data = json.loads(request.body)
+        crop_id = data.get('crop_id')
+        rating = int(data.get('rating', 5))
+        text = data.get('text', '').strip()
+        
+        if not crop_id or not text or rating < 1 or rating > 5:
+            return JsonResponse({'success': False, 'message': 'Invalid input data'})
+            
+        crop = Crop.objects.get(id=crop_id)
+        user = UserAccount.objects.get(id=user_id)
+        
+        Review.objects.create(crop=crop, user=user, rating=rating, text=text)
+        
+        return JsonResponse({'success': True, 'message': 'Review submitted successfully'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+def get_reviews_api(request):
+    from django.http import JsonResponse
+    from .models import Review
+    
+    crop_id = request.GET.get('crop_id')
+    if not crop_id:
+        return JsonResponse({'success': False, 'message': 'Missing crop ID'})
+        
+    reviews = Review.objects.filter(crop_id=crop_id).order_by('-created_at')
+    
+    user_id = request.session.get('user_id')
+    
+    data = []
+    total_rating = 0
+    for r in reviews:
+        total_rating += r.rating
+        data.append({
+            'id': r.id,
+            'author': f"{r.user.first_name} {r.user.last_name[0] if r.user.last_name else ''}.",
+            'rating': r.rating,
+            'text': r.text,
+            'date': r.created_at.strftime("%b %d, %Y"),
+            'is_author': user_id == r.user_id
+        })
+        
+    avg_rating = round(total_rating / len(reviews), 1) if reviews else 0
+    
+    return JsonResponse({
+        'success': True, 
+        'reviews': data,
+        'avg_rating': avg_rating,
+        'count': len(reviews)
+    })
+
+@login_required(login_url='/login/')
+def delete_review_api(request):
+    import json
+    from django.http import JsonResponse
+    from .models import Review
+    
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Invalid request'})
+        
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return JsonResponse({'success': False, 'message': 'Not authenticated'})
+        
+    try:
+        data = json.loads(request.body)
+        review_id = data.get('review_id')
+        
+        review = Review.objects.get(id=review_id)
+        if review.user_id != user_id:
+            return JsonResponse({'success': False, 'message': 'Permission denied'})
+            
+        review.delete()
+        return JsonResponse({'success': True, 'message': 'Review deleted'})
+    except Review.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Review not found'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
