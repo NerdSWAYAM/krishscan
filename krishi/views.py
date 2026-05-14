@@ -405,6 +405,14 @@ def add_to_wishlist(request):
             user.wishlist = wishlist
             user.save(update_fields=['wishlist'])
             
+            from .models import Notification
+            Notification.objects.create(
+                user=user,
+                title="Added to Cart",
+                message=f"{crop.name} ({quantity}kg) has been added to your cart.",
+                link="/wishlist/"
+            )
+            
             return JsonResponse({'success': True, 'message': 'Added to wishlist!'})
         except Exception as e:
             return JsonResponse({'success': False, 'message': str(e)})
@@ -561,71 +569,84 @@ def disease_detect(request):
             img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
             img_data_uri = f"data:image/jpeg;base64,{img_str}"
 
-            import requests
-            import json
+            from .ml_services import get_disease_model, get_resnet_model, CLASS_NAMES
+            import torch
+            import tensorflow as tf
+            from torchvision import transforms
+            import numpy as np
 
-            invoke_url = "https://integrate.api.nvidia.com/v1/chat/completions"
-            headers = {
-                "Authorization": os.getenv("NVIDIA_API_KEY"),
-                "Accept": "application/json"
-            }
-            payload = {
-                "model": "google/gemma-4-31b-it",
-                "messages": [
-                    {
-                        "role": "user",
-                        "content": [
-                            {"type": "text", "text": "Analyze this crop image and identify the disease. You MUST return ONLY a valid JSON object. The JSON should have exactly two keys: 'disease' (string, the name of the disease or 'Healthy Crop' or 'Unknown') and 'confidence' (number between 0 and 100, representing your confidence score). Do not include markdown formatting or any other text."},
-                            {"type": "image_url", "image_url": {"url": img_data_uri}}
-                        ]
-                    }
-                ],
-                "max_tokens": 1024,
-                "temperature": 0.2,
-                "top_p": 0.95,
-                "stream": False,
-            }
+            # 1. HuggingFace PyTorch Model Inference
+            disease_model = get_disease_model()
+            transform = transforms.Compose([
+                transforms.Resize((300, 300)),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                     std=[0.229, 0.224, 0.225])
+            ])
+            input_tensor = transform(img).unsqueeze(0)
+
+            with torch.no_grad():
+                logits = disease_model(input_tensor)
+                probs = torch.nn.functional.softmax(logits, dim=1)
+                hf_conf, hf_idx = torch.max(probs, dim=1)
+                hf_conf = hf_conf.item()
+                hf_idx = hf_idx.item()
+
+            if hf_idx < len(CLASS_NAMES):
+                hf_label = CLASS_NAMES[hf_idx]
+            else:
+                hf_label = f"Unknown Class {hf_idx}"
+
+            # 2. ResNet TensorFlow Model Inference
+            resnet_model = get_resnet_model()
+            img_resized = img.resize((224, 224))
+            img_array = np.array(img_resized, dtype=np.float32)
+            img_array = np.expand_dims(img_array, axis=0)
+            img_array = tf.keras.applications.resnet50.preprocess_input(img_array)
+
+            resnet_preds = resnet_model.predict(img_array, verbose=0)
+            resnet_idx = int(np.argmax(resnet_preds[0]))
+            resnet_conf = float(resnet_preds[0][resnet_idx])
+
+            if resnet_idx < len(CLASS_NAMES):
+                resnet_label = CLASS_NAMES[resnet_idx]
+            else:
+                resnet_label = f"Unknown Class {resnet_idx}"
+
+            # 3. Decision Logic
+            best_conf = 0
+            best_label = ""
             
-            response = requests.post(invoke_url, headers=headers, json=payload)
-            if response.status_code == 200:
-                data = response.json()
-                content = data['choices'][0]['message']['content']
-                # Clean up potential markdown formatting
-                content = content.replace('```json', '').replace('```', '').strip()
-                try:
-                    parsed_result = json.loads(content)
-                    disease = parsed_result.get('disease', "Unknown")
-                    confidence = float(parsed_result.get('confidence', 0))
-                    
-                    if disease.lower() in ["healthy crop", "healthy"]:
-                        result = {
-                            'disease': "Healthy Crop",
-                            'confidence': confidence,
-                            'image_uri': img_data_uri
-                        }
-                    elif confidence > 50.0 and disease.lower() != "unknown":
-                        result = {
-                            'disease': disease.title(),
-                            'confidence': confidence,
-                            'image_uri': img_data_uri
-                        }
-                    else:
-                        result = {
-                            'disease': "Can't recognize disease",
-                            'confidence': confidence,
-                            'error': "Can't recognize disease. The uploaded image does not appear to be a known crop disease.",
-                            'image_uri': img_data_uri
-                        }
-                except json.JSONDecodeError:
+            if hf_conf > 0.60 and resnet_conf > 0.60:
+                if hf_conf > resnet_conf:
+                    best_conf = hf_conf
+                    best_label = hf_label
+                else:
+                    best_conf = resnet_conf
+                    best_label = resnet_label
+            
+            if best_conf > 0.60:
+                clean_label = best_label.replace('___', ' - ').replace('_', ' ')
+                if "healthy" in clean_label.lower():
                     result = {
-                        'error': "Failed to parse API response.",
+                        'disease': "Healthy Crop",
+                        'confidence': best_conf * 100,
+                        'image_uri': img_data_uri
+                    }
+                else:
+                    result = {
+                        'disease': clean_label,
+                        'confidence': best_conf * 100,
                         'image_uri': img_data_uri
                     }
             else:
                 result = {
-                    'error': f"API call failed with status {response.status_code}",
+                    'disease': "Failed to detect",
+                    'confidence': max(hf_conf, resnet_conf) * 100,
+                    'error': "Failed to detect. Confidence scores are below 60%.",
                     'image_uri': img_data_uri
                 }
+
         except Exception as e:
             result = {'error': str(e)}
             if 'img_data_uri' in locals() and img_data_uri:
@@ -645,8 +666,8 @@ dotenv.load_dotenv()
 
 @login_required(login_url='/login/')
 def price_tracker(request):
-    API_KEY = os.getenv("API_KEY", "579b464db66ec23bdd0000014221d4e33efb481147dfeea08b43d410")
-    RESOURCE_ID = os.getenv("RESOURCE_ID", "9ef84268-d588-465a-a308-a864a43d0070")
+    API_KEY = os.getenv("API_KEY")
+    RESOURCE_ID = os.getenv("RESOURCE_ID")
 
     url = f"https://api.data.gov.in/resource/{RESOURCE_ID}"
 
@@ -925,6 +946,19 @@ def submit_payment(request):
         message=f"A payment proof has been submitted for '{item.crop.name}' by {item.order.consumer.first_name}. Please review and confirm.",
         link="/wallet/"
     )
+    
+    try:
+        from django.core.mail import send_mail
+        from django.conf import settings
+        send_mail(
+            subject='Payment Verification Requested',
+            message=f"Hello {item.farmer.first_name},\n\n{item.order.consumer.first_name} {item.order.consumer.last_name} has submitted a payment proof for their order of '{item.crop.name}'. Please check your wallet to review and approve the payment.\n\nThank you,\nKrishiScan Team",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[item.farmer.email],
+            fail_silently=True,
+        )
+    except Exception:
+        pass
 
     # Update parent order status
     order = item.order
@@ -996,6 +1030,19 @@ def verify_order_item(request):
             message=f"Your payment for '{item.crop.name}' has been approved by the farmer.",
             link="/orders/"
         )
+        
+        try:
+            from django.core.mail import send_mail
+            from django.conf import settings
+            send_mail(
+                subject='Order Payment Approved',
+                message=f"Hello {item.order.consumer.first_name},\n\nYour payment for '{item.crop.name}' has been approved by {item.farmer.first_name} {item.farmer.last_name}. Your order is now verified!\n\nThank you,\nKrishiScan Team",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[item.order.consumer.email],
+                fail_silently=True,
+            )
+        except Exception:
+            pass
     else:
         item.status = 'rejected'
         item.save()
@@ -1011,6 +1058,20 @@ def verify_order_item(request):
             message=f"The farmer did not approve payment proof for '{item.crop.name}'. Please get in touch with them for next steps.",
             link="/orders/"
         )
+        
+        try:
+            from django.core.mail import send_mail
+            from django.conf import settings
+            send_mail(
+                subject='Order Payment Update',
+                message=f"Hello {item.order.consumer.first_name},\n\nUnfortunately, {item.farmer.first_name} {item.farmer.last_name} did not approve your payment proof for '{item.crop.name}'. Please get in touch with them or resubmit your payment proof.\n\nThank you,\nKrishiScan Team",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[item.order.consumer.email],
+                fail_silently=True,
+            )
+        except Exception:
+            pass
+
 
     # Update parent order status
     order = item.order
@@ -1119,6 +1180,18 @@ def create_checkout(request):
                         message=f"{consumer.first_name} {consumer.last_name} wants {qty}kg of '{crop.name}'. They will receive it by visiting your farm directly.",
                         link="/wallet/"
                     )
+                    try:
+                        from django.core.mail import send_mail
+                        from django.conf import settings
+                        send_mail(
+                            subject='New Self-Pickup Order Received',
+                            message=f"Hello {farmer.first_name},\n\n{consumer.first_name} {consumer.last_name} has placed a Self-Pickup order for {qty}kg of '{crop.name}'. They will visit your farm to collect it.\n\nThank you,\nKrishiScan Team",
+                            from_email=settings.DEFAULT_FROM_EMAIL,
+                            recipient_list=[farmer.email],
+                            fail_silently=True,
+                        )
+                    except Exception:
+                        pass
                 elif payment_method == 'cod':
                     Notification.objects.create(
                         user=farmer,
@@ -1126,6 +1199,18 @@ def create_checkout(request):
                         message=f"{consumer.first_name} {consumer.last_name} has placed a Cash on Delivery order for {qty}kg of '{crop.name}'.",
                         link="/wallet/"
                     )
+                    try:
+                        from django.core.mail import send_mail
+                        from django.conf import settings
+                        send_mail(
+                            subject='New Cash on Delivery Order Received',
+                            message=f"Hello {farmer.first_name},\n\n{consumer.first_name} {consumer.last_name} has placed a Cash on Delivery order for {qty}kg of '{crop.name}'. Please prepare the order for delivery.\n\nThank you,\nKrishiScan Team",
+                            from_email=settings.DEFAULT_FROM_EMAIL,
+                            recipient_list=[farmer.email],
+                            fail_silently=True,
+                        )
+                    except Exception:
+                        pass
 
             if farmer.id not in farmer_groups:
                 farmer_groups[farmer.id] = {
@@ -1588,8 +1673,8 @@ def dashboard_stats_api(request):
     from django.core.cache import cache
 
     # 1. Market Prices
-    API_KEY = os.getenv("API_KEY", "579b464db66ec23bdd0000014221d4e33efb481147dfeea08b43d410")
-    RESOURCE_ID = os.getenv("RESOURCE_ID", "9ef84268-d588-465a-a308-a864a43d0070")
+    API_KEY = os.getenv("API_KEY")
+    RESOURCE_ID = os.getenv("RESOURCE_ID")
     m_url = f"https://api.data.gov.in/resource/{RESOURCE_ID}"
     
     m_cache_key = 'dashboard_market_prices'
@@ -1614,7 +1699,7 @@ def dashboard_stats_api(request):
     if weather_data is None:
         try:
             w_url = "https://api.openweathermap.org/data/2.5/weather"
-            w_params = {"appid": os.getenv("WEATHER_API", "ddd2be8826cfdca0b5ed7bea91f2c640"), "units": "metric"}
+            w_params = {"appid": os.getenv("WEATHER_API"), "units": "metric"}
             
             coords = request.session.get('coordinates')
             if coords:

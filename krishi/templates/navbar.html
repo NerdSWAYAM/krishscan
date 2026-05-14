@@ -537,13 +537,13 @@
         <a href="{% url 'crop_history' %}"
             class="mobile-nav-item {% if request.resolver_match.url_name == 'crop_history' %}active{% endif %}">Crop
             History</a>
-        <a href="{% url 'dashboard' %}"
-            class="mobile-nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">Profile</a>
         <a href="{% url 'price_tracker' %}"
             class="mobile-nav-item {% if request.resolver_match.url_name == 'price_tracker' %}active{% endif %}">Market Prices</a>
         <a href="{% url 'wallet' %}"
             class="mobile-nav-item {% if request.resolver_match.url_name == 'wallet' %}active{% endif %}">Wallet</a>
         <a href="{% url 'dashboard' %}#recent-chats" class="mobile-nav-item">Chats</a>
+        <a href="{% url 'dashboard' %}"
+            class="mobile-nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">Profile</a>
         <!-- <a href="#" class="mobile-nav-item">Reports</a> -->
         {% else %}
         <a href="{% url 'consumerdash' %}"
@@ -646,6 +646,8 @@
                 }
             }
         };
+        window.KrishiScan = window.KrishiScan || {};
+        window.KrishiScan.refreshNotifications = loadNotifications;
 
         const markNotificationsRead = async () => {
             try {

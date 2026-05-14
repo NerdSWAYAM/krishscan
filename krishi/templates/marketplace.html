@@ -1,10 +1,8 @@
 {% extends 'farmer_base.html' %}
 {% load static %}
-
 {% block title %}KrishiScan - Marketplace{% endblock %}
-
 {% block extra_css %}
-<style>
+    <style>
     .market-header {
         text-align: center;
         padding: 40px 0;
@@ -581,197 +579,320 @@
     .star-rating label:hover ~ label {
         color: #F1C40F;
     }
+
 </style>
 {% endblock %}
-
 {% block content %}
-<div class="market-header">
-    <h1 class="market-title">KrishiScan</h1>
-
-    <div class="filter-bar">
-        <input type="text" id="marketplace-search" class="form-control search-input"
-            placeholder="Search crops, farmers, or regions..."
-            oninput="applyFilters()">
-        <button type="button" id="btn-search" class="btn btn-primary btn-search-toolbar"
-            style="padding: 12px 16px; min-height: 2.75rem; white-space: nowrap;" onclick="applyFilters()">Search</button>
+    <div class="market-header">
+        <h1 class="market-title">KrishiScan</h1>
+        <div class="filter-bar">
+            <input type="text"
+                   id="marketplace-search"
+                   class="form-control search-input"
+                   placeholder="Search crops, farmers, or regions..."
+                   oninput="applyFilters()">
+            <button type="button"
+                    id="btn-search"
+                    class="btn btn-primary btn-search-toolbar"
+                    style="padding: 12px 16px;
+                           min-height: 2.75rem;
+                           white-space: nowrap"
+                    onclick="applyFilters()">Search</button>
+        </div>
     </div>
-</div>
-
-<div class="listings-toolbar">
-    <h2
-        style="font-family: 'Playfair Display', serif; font-size: clamp(1.15rem, 4vw, 1.5rem); color: var(--color-deep-forest);">
-        Available Listings</h2>
-    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-        <select id="marketplace-sort" class="form-select filter-select" onchange="applyFilters()">
-            <option value="relevance">Relevance</option>
-            <option value="newest">Newest First</option>
-            <option value="price_low">Low Price</option>
-            <option value="nearest">Nearest</option>
-        </select>
-        {% if request.session.role == 'Farmer' %}
-        <a href="{% url 'upload_crop' %}" class="btn btn-secondary" style="white-space: nowrap;">+ Upload Crop</a>
-        {% endif %}
-    </div>
-</div>
-
-<div class="product-grid">
-    {% for crop in crops %}
-    <div class="product-card" onclick="showCartPopup(this)" data-crop-id="{{ crop.id }}" data-crop-name="{{ crop.name }}" data-farmer-name="{{ crop.farmer.first_name }} {{ crop.farmer.last_name }}" data-farmer-location="{{ crop.farmer.location|default:'India' }}" data-price="{{ crop.price_per_kg }}" data-stock="{{ crop.quantity }}" data-created="{{ crop.created_at|date:'j M Y' }}" data-image-url="{% if crop.image %}{{ crop.image.url }}{% endif %}" data-crop-description="Premium farm-fresh {{ crop.name }} carefully harvested and packed by {{ crop.farmer.first_name }}." data-farmer-crops="{{ crop.farmer.crops.count }}" data-farmer-coords="{{ crop.farmer.coordinates|default:'' }}">
-        <div class="product-image-wrap">
-            {% if crop.image %}
-            <img src="{{ crop.image.url }}" alt="{{ crop.name }}" class="product-image">
-            {% else %}
-            <div class="placeholder-crop-visual" aria-hidden="true">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                    stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M12 3v4m0 10v4M4.5 8.25h15m-15 7.5h15M6 20h12a2 2 0 002-2V8.25A2.25 2.25 0 0017.75 6c-1.02 0-1.97.52-2.53 1.32l-1.22 1.83a2 2 0 01-3.32 0L9.46 7.32A2.99 2.99 0 006.25 6 2.25 2.25 0 004 8.25V18a2 2 0 002 2z" />
-                </svg>
-            </div>
+    <div class="listings-toolbar">
+        <h2 style="font-family: 'Playfair Display', serif;
+                   font-size: clamp(1.15rem, 4vw, 1.5rem);
+                   color: var(--color-deep-forest)">Available Listings</h2>
+        <div style="display: flex;
+                    gap: 12px;
+                    align-items: center;
+                    flex-wrap: wrap">
+            <select id="marketplace-sort"
+                    class="form-select filter-select"
+                    onchange="applyFilters()">
+                <option value="relevance">Relevance</option>
+                <option value="newest">Newest First</option>
+                <option value="price_low">Low Price</option>
+                <option value="nearest">Nearest</option>
+            </select>
+            {% if request.session.role == 'Farmer' %}
+                <a href="{% url 'upload_crop' %}"
+                   class="btn btn-secondary"
+                   style="white-space: nowrap">+ Upload Crop</a>
             {% endif %}
         </div>
-
-        <div class="product-details">
-            <h3 class="product-name">{{ crop.name }}</h3>
-
-            <div class="farmer-info">
-                <div class="farmer-avatar">{{ crop.farmer.first_name.0|upper }}{{ crop.farmer.last_name.0|upper }}</div>
-                <div class="farmer-name">{{ crop.farmer.first_name }} {{ crop.farmer.last_name }}</div>
-            </div>
-
-            <div>
-                <span class="location-pill"><img src="{% static 'location-pin-svgrepo-com.svg' %}"
-                        style="height: 20px; width: 20px;"> {{ crop.farmer.location|default:"India" }}
-                    {% if crop.distance is not None %}
-                    <span style="color: #59AC77; font-weight: 600; margin-left: 4px;">• {{ crop.distance }} km
-                        away</span>
+    </div>
+    <div class="product-grid">
+        {% for crop in crops %}
+            <div class="product-card"
+                 onclick="showCartPopup(this)"
+                 data-crop-id="{{ crop.id }}"
+                 data-crop-name="{{ crop.name }}"
+                 data-farmer-name="{{ crop.farmer.first_name }} {{ crop.farmer.last_name }}"
+                 data-farmer-location="{{ crop.farmer.location|default:'India' }}"
+                 data-price="{{ crop.price_per_kg }}"
+                 data-stock="{{ crop.quantity }}"
+                 data-created="{{ crop.created_at|date:'j M Y' }}"
+                 data-image-url="{% if crop.image %}{{ crop.image.url }}{% endif %}"
+                 data-crop-description="Premium farm-fresh {{ crop.name }} carefully harvested and packed by {{ crop.farmer.first_name }}."
+                 data-farmer-crops="{{ crop.farmer.crops.count }}"
+                 data-farmer-coords="{{ crop.farmer.coordinates|default:'' }}">
+                <div class="product-image-wrap">
+                    {% if crop.image %}
+                        <img src="{{ crop.image.url }}"
+                             alt="{{ crop.name }}"
+                             class="product-image">
+                    {% else %}
+                        <div class="placeholder-crop-visual" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                 fill="none"
+                                 viewBox="0 0 24 24"
+                                 stroke="currentColor"
+                                 stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v4m0 10v4M4.5 8.25h15m-15 7.5h15M6 20h12a2 2 0 002-2V8.25A2.25 2.25 0 0017.75 6c-1.02 0-1.97.52-2.53 1.32l-1.22 1.83a2 2 0 01-3.32 0L9.46 7.32A2.99 2.99 0 006.25 6 2.25 2.25 0 004 8.25V18a2 2 0 002 2z" />
+                            </svg>
+                        </div>
                     {% endif %}
-                </span>
-            </div>
-
-            <div class="price-display">
-                ₹{{ crop.price_per_kg }} <span>/ kg</span>
-            </div>
-
-            <div class="card-action-hint">Tap anywhere on this card to open the add-to-cart card</div>
-
-            <div class="product-actions">
-                <a href="{% url 'chat_view' crop.farmer.id %}" class="btn btn-secondary" onclick="event.stopPropagation()"
-                    style="padding: 12px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: #E8F5EC; border: none; text-decoration: none;"
-                    title="Chat with Farmer"><img src="{% static 'chat-dots-svgrepo-com.svg' %}"
-                        alt="chat-lines-svgrepo-com.svg" style="height: 20px; width: 20px;"></a>
-                <span class="qty-badge">{{ crop.quantity }}kg left</span>
-            </div>
-        </div>
-    </div>
-    {% empty %}
-    <div
-        style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; background: var(--color-surface); border-radius: 20px; border: 1px dashed var(--color-border);">
-        <div class="placeholder-crop-visual"
-            style="height: 4rem; margin: 0 auto 16px; border-radius: 12px; max-width: 4rem;" aria-hidden="true">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-            </svg>
-        </div>
-        <h3
-            style="font-family: 'Playfair Display', serif; font-size: 24px; color: var(--color-deep-forest); margin-bottom: 8px;">
-            No Crops Available</h3>
-        <p style="color: var(--color-text-muted);">Check back later or try adjusting your search filters.</p>
-    </div>
-    {% endfor %}
-</div>
-
-<div class="cart-popup" id="cart-popup-modal" onclick="closeCartPopup(event)">
-    <div class="cart-modal" onclick="event.stopPropagation()">
-        <button class="close-btn" type="button" onclick="document.getElementById('cart-popup-modal').classList.remove('active'); document.body.classList.remove('popup-open');">&times;</button>
-        <div class="cart-modal-header">
-            <div class="cart-modal-image" id="modal-image-wrap">
-                <img src="" alt="" id="modal-image">
-            </div>
-            <div>
-                <div class="cart-modal-tag">Product details</div>
-                <h4 class="cart-modal-title" id="modal-title">Crop name</h4>
-                <p class="cart-modal-subtitle" id="modal-subtitle">Seller details</p>
-                <div class="rating-pill"><span class="rating-stars">★★★★☆</span><span id="modal-rating">4.8</span> · <span id="modal-review-count">28</span> reviews</div>
-            </div>
-        </div>
-        <div class="cart-modal-main">
-            <div class="cart-modal-left">
-                <div class="cart-price" id="modal-price">₹0<span>/ kg</span></div>
-                <p class="product-description" id="modal-description"></p>
-                <div class="product-badges">
-                    <span class="badge-pill">Fresh pickup</span>
-                    <span class="badge-pill">Local farm produce</span>
-                    <span class="badge-pill">Fast dispatch</span>
                 </div>
-                <div class="product-specs">
-                    <div class="spec-row"><span>Available stock</span><strong id="modal-stock">0 kg</strong></div>
-                    <div class="spec-row"><span>Harvested from</span><strong id="modal-location">Location</strong></div>
-                    <div class="spec-row"><span>Price per kg</span><strong id="modal-price-spec">₹0</strong></div>
-                    <div class="spec-row"><span>Listing age</span><strong id="modal-created">Date</strong></div>
+                <div class="product-details">
+                    <h3 class="product-name">{{ crop.name }}</h3>
+                    <div class="farmer-info">
+                        <div class="farmer-avatar">{{ crop.farmer.first_name.0|upper }}{{ crop.farmer.last_name.0|upper }}</div>
+                        <div class="farmer-name">{{ crop.farmer.first_name }} {{ crop.farmer.last_name }}</div>
+                    </div>
+                    <div>
+                        <span class="location-pill">
+                            <img src="{% static 'location-pin-svgrepo-com.svg' %}"
+                                 style="height: 20px;
+                                        width: 20px">
+                            {{ crop.farmer.location|default:"India" }}
+                            {% if crop.distance is not None %}
+                                <span style="color: #59AC77; font-weight: 600; margin-left: 4px;">• {{ crop.distance }} km
+                                away</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="price-display">
+                        ₹{{ crop.price_per_kg }} <span>/ kg</span>
+                    </div>
+                    <div class="card-action-hint"></div>
+                    <div class="product-actions">
+                        <a href="{% url 'chat_view' crop.farmer.id %}"
+                           class="btn btn-secondary"
+                           onclick="event.stopPropagation()"
+                           style="padding: 12px;
+                                  border-radius: 12px;
+                                  display: flex;
+                                  align-items: center;
+                                  justify-content: center;
+                                  background: #E8F5EC;
+                                  border: none;
+                                  text-decoration: none"
+                           title="Chat with Farmer">
+                            <img src="{% static 'chat-dots-svgrepo-com.svg' %}"
+                                 alt="chat-lines-svgrepo-com.svg"
+                                 style="height: 20px;
+                                        width: 20px">
+                        </a>
+                        <span class="qty-badge">{{ crop.quantity }}kg left</span>
+                    </div>
                 </div>
-                
+            </div>
+        {% empty %}
+            <div style="grid-column: 1 / -1;
+                        text-align: center;
+                        padding: 60px 20px;
+                        background: var(--color-surface);
+                        border-radius: 20px;
+                        border: 1px dashed var(--color-border)">
+                <div class="placeholder-crop-visual"
+                     style="height: 4rem;
+                            margin: 0 auto 16px;
+                            border-radius: 12px;
+                            max-width: 4rem"
+                     aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor"
+                         stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                </div>
+                <h3 style="font-family: 'Playfair Display', serif;
+                           font-size: 24px;
+                           color: var(--color-deep-forest);
+                           margin-bottom: 8px">No Crops Available</h3>
+                <p style="color: var(--color-text-muted);">Check back later or try adjusting your search filters.</p>
+            </div>
+        {% endfor %}
+    </div>
+    <div class="cart-popup"
+         id="cart-popup-modal"
+         onclick="closeCartPopup(event)">
+        <div class="cart-modal" onclick="event.stopPropagation()">
+            <button class="close-btn"
+                    type="button"
+                    onclick="document.getElementById('cart-popup-modal').classList.remove('active'); document.body.classList.remove('popup-open');">
+                &times;
+            </button>
+            <div class="cart-modal-header">
+                <div class="cart-modal-image" id="modal-image-wrap">
+                    <img src="" alt="" id="modal-image">
+                </div>
                 <div>
-                    <div class="quantity-selector">
-                        <button type="button" class="qty-btn" onclick="changeQty(-1)">-</button>
-                        <input type="text" id="modal-qty" value="1" readonly>
-                        <button type="button" class="qty-btn" onclick="changeQty(1)">+</button>
-                    </div>
-                    <div class="total-display">Total: <span id="modal-total">₹0</span></div>
-                    <div class="cart-modal-actions">
-                        <button type="button" class="btn btn-secondary" onclick="document.getElementById('cart-popup-modal').classList.remove('active'); document.body.classList.remove('popup-open');">Cancel</button>
-                        <button type="button" class="btn btn-primary" onclick="confirmAdd()">Add to cart</button>
+                    <div class="cart-modal-tag">Product details</div>
+                    <h4 class="cart-modal-title" id="modal-title">Crop name</h4>
+                    <p class="cart-modal-subtitle" id="modal-subtitle">Seller details</p>
+                    <div class="rating-pill">
+                        <span class="rating-stars">★★★★☆</span><span id="modal-rating">4.8</span> · <span id="modal-review-count">28</span> reviews
                     </div>
                 </div>
             </div>
-            <div class="cart-modal-right">
-                <div class="seller-insight">
-                    <h5>Farmer info</h5>
-                    <div class="seller-detail"><span>Name</span><strong id="modal-farmer-name">Seller</strong></div>
-                    <div class="seller-detail"><span>Location</span><strong id="modal-farmer-location">Location</strong></div>
-                    <div class="seller-detail"><span>Crops listed</span><strong id="modal-farmer-crops">0</strong></div>
-                    <div class="seller-detail"><span>Response</span><strong>Fast reply</strong></div>
+            <div class="cart-modal-main">
+                <div class="cart-modal-left">
+                    <div class="cart-price" id="modal-price">
+                        ₹0<span>/ kg</span>
+                    </div>
+                    <p class="product-description" id="modal-description"></p>
+                    <div class="product-badges">
+                        <span class="badge-pill">Fresh pickup</span>
+                        <span class="badge-pill">Local farm produce</span>
+                        <span class="badge-pill">Fast dispatch</span>
+                    </div>
+                    <div class="product-specs">
+                        <div class="spec-row">
+                            <span>Available stock</span><strong id="modal-stock">0 kg</strong>
+                        </div>
+                        <div class="spec-row">
+                            <span>Harvested from</span><strong id="modal-location">Location</strong>
+                        </div>
+                        <div class="spec-row">
+                            <span>Price per kg</span><strong id="modal-price-spec">₹0</strong>
+                        </div>
+                        <div class="spec-row">
+                            <span>Listing age</span><strong id="modal-created">Date</strong>
+                        </div>
+                    </div>
+                    {% if request.session.role == 'Consumer' %}
+                    <div>
+                        <div class="quantity-selector">
+                            <button type="button" class="qty-btn" onclick="changeQty(-1)">-</button>
+                            <input type="text" id="modal-qty" value="1" readonly>
+                            <button type="button" class="qty-btn" onclick="changeQty(1)">+</button>
+                        </div>
+                        <div class="total-display">
+                            Total: <span id="modal-total">₹0</span>
+                        </div>
+                        <div class="cart-modal-actions">
+                            <button type="button"
+                                    class="btn btn-secondary"
+                                    onclick="document.getElementById('cart-popup-modal').classList.remove('active'); document.body.classList.remove('popup-open');">
+                                Cancel
+                            </button>
+                            <button type="button" class="btn btn-primary" onclick="confirmAdd()">Add to cart</button>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div style="margin-top: 12px; padding: 14px 18px; background: #FFF8E1; border: 1px solid #FFE082; border-radius: 16px; font-size: 14px; color: #7B5800; display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 20px;">🚜</span>
+                        <span>Only <strong>consumers</strong> can add items to cart. Switch to a consumer account to purchase.</span>
+                    </div>
+                    {% endif %}
                 </div>
-                <div class="delivery-info">
-                    <h5>Delivery</h5>
-                    <div class="seller-detail"><span>Service</span><strong>Doorstep & pickup</strong></div>
-                    <div class="seller-detail"><span>Expected delivery</span><strong id="modal-eta">Calculating…</strong></div>
-                    <div class="seller-detail"><span>Shipping</span><strong>₹25 per order</strong></div>
+                <div class="cart-modal-right">
+                    <div class="seller-insight">
+                        <h5>Farmer info</h5>
+                        <div class="seller-detail">
+                            <span>Name</span><strong id="modal-farmer-name">Seller</strong>
+                        </div>
+                        <div class="seller-detail">
+                            <span>Location</span><strong id="modal-farmer-location">Location</strong>
+                        </div>
+                        <div class="seller-detail">
+                            <span>Crops listed</span><strong id="modal-farmer-crops">0</strong>
+                        </div>
+                        <div class="seller-detail">
+                            <span>Response</span><strong>Fast reply</strong>
+                        </div>
+                    </div>
+                    <div class="delivery-info">
+                        <h5>Delivery</h5>
+                        <div class="seller-detail">
+                            <span>Service</span><strong>Doorstep & pickup</strong>
+                        </div>
+                        <div class="seller-detail">
+                            <span>Expected delivery</span><strong id="modal-eta">Calculating…</strong>
+                        </div>
+                        <div class="seller-detail">
+                            <span>Shipping</span><strong>₹25 per order</strong>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="review-section">
-            <div class="review-header">Farmer reviews</div>
-            <div class="review-list" id="modal-review-list">
-                <!-- dynamic reviews here -->
-            </div>
-            
-            {% if request.session.user_id %}
-            <div class="review-form" style="margin-top: 20px; background: #F6FBF6; padding: 18px; border-radius: 20px;">
-                <h5 style="margin-top: 0; margin-bottom: 8px; color: var(--color-deep-forest); font-size: 1rem;">Write a Review</h5>
-                <div class="star-rating" id="interactive-star-rating">
-                    <input type="radio" id="star5" name="rating" value="5" checked><label for="star5" title="5 stars">★</label>
-                    <input type="radio" id="star4" name="rating" value="4"><label for="star4" title="4 stars">★</label>
-                    <input type="radio" id="star3" name="rating" value="3"><label for="star3" title="3 stars">★</label>
-                    <input type="radio" id="star2" name="rating" value="2"><label for="star2" title="2 stars">★</label>
-                    <input type="radio" id="star1" name="rating" value="1"><label for="star1" title="1 star">★</label>
+            <div class="review-section">
+                <div class="review-header">Farmer reviews</div>
+                <div class="review-list" id="modal-review-list">
+                    <!-- dynamic reviews here -->
                 </div>
-                <textarea id="review-text" class="form-control" rows="3" placeholder="Share your experience with this crop..." style="margin-bottom: 12px; background: #fff; resize: vertical;"></textarea>
-                <button type="button" class="btn btn-primary" onclick="submitReview()" id="btn-submit-review" style="padding: 8px 16px;">Submit Review</button>
-                <div id="review-status" style="margin-top: 8px; font-size: 13px; color: var(--color-primary); font-weight: 600;"></div>
+                {% if request.session.role == 'Consumer' %}
+                    <div class="review-form"
+                         style="margin-top: 20px;
+                                background: #F6FBF6;
+                                padding: 18px;
+                                border-radius: 20px">
+                        <h5 style="margin-top: 0;
+                                   margin-bottom: 8px;
+                                   color: var(--color-deep-forest);
+                                   font-size: 1rem">Write a Review</h5>
+                        <div class="star-rating" id="interactive-star-rating">
+                            <input type="radio" id="star5" name="rating" value="5" checked>
+                            <label for="star5" title="5 stars">★</label>
+                            <input type="radio" id="star4" name="rating" value="4">
+                            <label for="star4" title="4 stars">★</label>
+                            <input type="radio" id="star3" name="rating" value="3">
+                            <label for="star3" title="3 stars">★</label>
+                            <input type="radio" id="star2" name="rating" value="2">
+                            <label for="star2" title="2 stars">★</label>
+                            <input type="radio" id="star1" name="rating" value="1">
+                            <label for="star1" title="1 star">★</label>
+                        </div>
+                        <textarea id="review-text"
+                                  class="form-control"
+                                  rows="3"
+                                  placeholder="Share your experience with this crop..."
+                                  style="margin-bottom: 12px;
+                                         background: #fff;
+                                         resize: vertical"></textarea>
+                        <button type="button"
+                                class="btn btn-primary"
+                                onclick="submitReview()"
+                                id="btn-submit-review"
+                                style="padding: 8px 16px">Submit Review</button>
+                        <div id="review-status"
+                             style="margin-top: 8px;
+                                    font-size: 13px;
+                                    color: var(--color-primary);
+                                    font-weight: 600"></div>
+                    </div>
+                {% elif request.session.user_id %}
+                    <div style="margin-top: 16px; padding: 14px 18px; background: #FFF8E1; border: 1px solid #FFE082; border-radius: 16px; font-size: 14px; color: #7B5800; display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 20px;">📝</span>
+                        <span>Only <strong>consumers</strong> can write reviews for crop listings.</span>
+                    </div>
+                {% endif %}
             </div>
-            {% endif %}
-        </div>
-        
-        <div class="cart-modal-status" id="modal-status"></div>
-        <input type="hidden" id="modal-crop-id" value="">
-        <input type="hidden" id="modal-crop-price" value="0">
-        <input type="hidden" id="modal-crop-stock" value="0">
+            <div class="cart-modal-status" id="modal-status"></div>
+            <input type="hidden" id="modal-crop-id" value="">
+            <input type="hidden" id="modal-crop-price" value="0">
+            <input type="hidden" id="modal-crop-stock" value="0">
     </div>
-</div>
+{% endblock %}
 
-<script>
+
+{% block extra_js %}
+    <script>
     // Consumer's GPS coordinates injected from Django session
     const CONSUMER_COORDS = "{{ user_coords|escapejs }}";
 
@@ -967,13 +1088,18 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    status.innerText = 'Added to cart successfully!';
-                    setTimeout(() => {
-                        document.getElementById('cart-popup-modal').style.display = 'none';
-                        status.innerText = '';
-                        document.getElementById('modal-qty').value = 1;
-                        updateTotal(parseFloat(document.getElementById('modal-crop-price').value) || 0, 1);
-                    }, 1200);
+                    // Close the modal
+                    const popup = document.getElementById('cart-popup-modal');
+                    popup.classList.remove('active');
+                    document.body.classList.remove('popup-open');
+                    status.innerText = '';
+                    document.getElementById('modal-qty').value = 1;
+                    updateTotal(parseFloat(document.getElementById('modal-crop-price').value) || 0, 1);
+
+                    // Refresh notifications in the navbar
+                    if (window.KrishiScan && window.KrishiScan.refreshNotifications) {
+                        window.KrishiScan.refreshNotifications();
+                    }
                 } else {
                     status.innerText = data.message || 'Unable to add to cart.';
                 }
@@ -1112,5 +1238,5 @@
             alert("Error deleting review.");
         });
     }
-</script>
+    </script>
 {% endblock %}
