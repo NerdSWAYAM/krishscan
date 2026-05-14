@@ -5,7 +5,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="icon" type="image/png" href="{% static 'Krishi-Scan-ico.png' %}">
-        <title>KrishiScan - Wishlist & Cart</title>
+        <title>KrishiScan - My Cart & Cart</title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@400;500;600;700&display=swap"
@@ -631,7 +631,7 @@
             <!-- Cart Items -->
             <div>
                 <div class="cart-header">
-                    <h1 class="cart-title">Your Wishlist</h1>
+                    <h1 class="cart-title">Your My Cart</h1>
                     <p class="cart-subtitle">Review your selected farm-fresh produce before checkout.</p>
                 </div>
                 {% if cart_items %}
@@ -648,8 +648,7 @@
                                 <div class="item-details">
                                     <div class="item-name">{{ item.crop.name }}</div>
                                     <div class="item-farmer">
-                                        Sold by: {{ item.crop.farmer.first_name }} {{
-                                        item.crop.farmer.last_name }}
+                                        Sold by: {{ item.crop.farmer.first_name }} {{ item.crop.farmer.last_name }}
                                     </div>
                                     <div class="item-location"
                                          style="font-size: 12px;
@@ -694,7 +693,7 @@
                         <h2 style="font-family: 'Playfair Display', serif;
                                    font-size: 24px;
                                    color: var(--color-deep-forest);
-                                   margin-bottom: 8px">Your Wishlist is Empty</h2>
+                                   margin-bottom: 8px">Your My Cart is Empty</h2>
                         <p style="color: var(--color-text-muted); margin-bottom: 24px;">
                             Looks like you haven't added any fresh
                             produce yet.
@@ -731,7 +730,7 @@
                     </div>
                     {% if request.session.user_id %}
                         {% if request.session.role == 'Consumer' %}
-                            <button class="btn-checkout" onclick="openPaymentModal()">Proceed to Payment</button>
+                            <button class="btn-checkout" onclick="openDeliveryModal()">Proceed to Checkout</button>
                         {% else %}
                             <button class="btn-checkout" disabled style="opacity:0.5;cursor:not-allowed;">
                                 Only Consumers can
@@ -748,6 +747,53 @@
                 </div>
             {% endif %}
         </div>
+        <!-- ── Delivery Options Modal ── -->
+        <div class="modal-overlay" id="deliveryModal">
+            <div class="payment-modal" style="max-width: 600px;">
+                <button class="modal-close" onclick="closeDeliveryModal()" title="Close">✕</button>
+                <div class="modal-header">
+                    <div class="modal-title">Delivery Options</div>
+                    <div class="modal-subtitle">How would you like to receive your fresh produce?</div>
+                </div>
+                
+                <div id="delivery-step-1">
+                    <div class="method-card" onclick="showDoorstepOptions()">
+                        <div class="method-icon" style="background: linear-gradient(135deg, #22c55e22, #16a34a22);"><img src="{% static 'truck-fast-svgrepo-com.svg' %}" alt="Door Step Delivery"></div>
+                        <div class="method-info">
+                            <div class="method-name">Door Step Delivery</div>
+                            <div class="method-desc">Get it delivered straight to your home</div>
+                        </div>
+                    </div>
+                    <div class="method-card" style="margin-top: 16px;" onclick="placeOrderDirectly('pickup', 'none')">
+                        <div class="method-icon" style="background: linear-gradient(135deg, #a855f722, #9333ea22);"><img src="{% static 'profile-round-1345-svgrepo-com.svg' %}" alt="Self Pickup"></div>
+                        <div class="method-info">
+                            <div class="method-name">Self Pickup from Farm</div>
+                            <div class="method-desc">Pick up directly from the farmer (No online payment required)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="delivery-step-2" style="display: none;">
+                    <div style="margin-bottom: 20px; font-weight: 600; cursor: pointer; color: var(--color-text-muted);" onclick="backToDeliveryStep1()">← Back</div>
+                    <h3 style="margin-top: 0; color: var(--color-deep-forest);">Select Payment Method</h3>
+                    <div class="method-card" onclick="proceedToUPI()">
+                        <div class="method-icon" style="background: linear-gradient(135deg, #3b82f622, #2563eb22);"><img src="{% static 'mobile-dollar-svgrepo-com.svg' %}" alt="UPI Payment"></div>
+                        <div class="method-info">
+                            <div class="method-name">Pay Online (UPI)</div>
+                            <div class="method-desc">Direct peer-to-peer transfer to farmer</div>
+                        </div>
+                    </div>
+                    <div class="method-card" style="margin-top: 16px;" onclick="placeOrderDirectly('doorstep', 'cod')">
+                        <div class="method-icon" style="background: linear-gradient(135deg, #22c55e22, #16a34a22);"><img src="{% static 'cash-on-delivery-svgrepo-com.svg' %}" alt="Cash on Delivery"></div>
+                        <div class="method-info">
+                            <div class="method-name">Cash on Delivery</div>
+                            <div class="method-desc">Pay when your order arrives</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- ── UPI Payment Modal ── -->
         <div class="modal-overlay" id="paymentModal">
             <div class="payment-modal">
@@ -764,34 +810,15 @@
                     <span style="font-size: 24px;"></span>
                     Total: ₹{{ grand_total|floatformat:2 }}
                 </div>
-                <!-- Step 1: Initiate -->
-                <div id="step-initiate" style="text-align: center; padding: 10px 0;">
-                    <p style="font-size: 16px;
-                              color: #4b5563;
-                              margin-bottom: 32px;
-                              line-height: 1.6">
-                        Your cart will be split by farmer. You'll make direct payments to each farmer, and they'll confirm
-                        your order.
-                    </p>
-                    <button class="btn-pay"
-                            id="btn-initiate"
-                            onclick="initiateCheckout()"
-                            style="max-width: 320px;
-                                   margin: 0 auto">
-                        <span id="btn-initiate-text">Proceed to Payments</span>
-                        <div class="spinner" id="initiate-spinner" style="display:none;"></div>
-                    </button>
-                    <div class="secure-note"
-                         style="margin-top: 24px;
-                                color: var(--color-primary);
-                                font-weight: 600">
-                        <img src="{% static 'lock-password-svgrepo-com.svg' %}"
-                             width="18px"
-                             height="18px">
-                        Direct Peer-to-Peer UPI Transfer
+                <div id="step-loading" style="text-align: center; padding: 32px 0;">
+                    <div style="font-size: 18px; color: var(--color-deep-forest); font-weight: 700; margin-bottom: 16px;">
+                        Preparing your UPI payment details…
                     </div>
+                    <div style="font-size: 14px; color: #475569; line-height: 1.6; max-width: 420px; margin: 0 auto 24px;">
+                        We are fetching your farmer-wise payment QR codes so you can pay directly through your preferred UPI app.
+                    </div>
+                    <div class="spinner" id="payment-loading-spinner" style="width: 48px; height: 48px; margin: 0 auto; display: block;"></div>
                 </div>
-                <!-- Step 2: Payment groups (shown after initiate) -->
                 <div id="step-payments"
                      style="display:none;
                             max-height: 500px;
@@ -813,13 +840,78 @@
         <script>
         let checkoutData = null;
 
+        function openDeliveryModal() {
+            document.getElementById('deliveryModal').classList.add('active');
+            document.getElementById('delivery-step-1').style.display = 'block';
+            document.getElementById('delivery-step-2').style.display = 'none';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDeliveryModal() {
+            document.getElementById('deliveryModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('deliveryModal').addEventListener('click', function (e) {
+            if (e.target === this) closeDeliveryModal();
+        });
+
+        function showDoorstepOptions() {
+            document.getElementById('delivery-step-1').style.display = 'none';
+            document.getElementById('delivery-step-2').style.display = 'block';
+        }
+
+        function backToDeliveryStep1() {
+            document.getElementById('delivery-step-1').style.display = 'block';
+            document.getElementById('delivery-step-2').style.display = 'none';
+        }
+
+        function proceedToUPI() {
+            closeDeliveryModal();
+            openPaymentModal();
+            initiateCheckout();
+        }
+
+        function placeOrderDirectly(deliveryType, paymentMethod) {
+            const btn = event.currentTarget;
+            btn.style.opacity = '0.7';
+            btn.style.pointerEvents = 'none';
+            
+            fetch('/api/create-checkout/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                body: JSON.stringify({ delivery_type: deliveryType, payment_method: paymentMethod })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/orders/';
+                } else {
+                    alert(data.message || 'Could not create order.');
+                    btn.style.opacity = '1';
+                    btn.style.pointerEvents = 'auto';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('An error occurred. Please try again.');
+                btn.style.opacity = '1';
+                btn.style.pointerEvents = 'auto';
+            });
+        }
+
         function openPaymentModal() {
             document.getElementById('paymentModal').classList.add('active');
+            document.getElementById('step-loading').style.display = 'block';
+            document.getElementById('step-payments').style.display = 'none';
+            document.getElementById('modal-close-btn').style.display = 'flex';
             document.body.style.overflow = 'hidden';
         }
 
         function closePaymentModal() {
             document.getElementById('paymentModal').classList.remove('active');
+            document.getElementById('step-loading').style.display = 'none';
+            document.getElementById('step-payments').style.display = 'none';
             document.body.style.overflow = '';
         }
 
@@ -828,39 +920,31 @@
         });
 
         function initiateCheckout() {
-            const btn = document.getElementById('btn-initiate');
-            const spinner = document.getElementById('initiate-spinner');
-            const text = document.getElementById('btn-initiate-text');
-            btn.disabled = true;
-            spinner.style.display = 'block';
-            text.textContent = 'Creating order…';
+            const loadingSpinner = document.getElementById('payment-loading-spinner');
+            loadingSpinner.style.display = 'block';
 
             fetch('/api/create-checkout/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
-                body: JSON.stringify({})
+                body: JSON.stringify({ delivery_type: 'doorstep', payment_method: 'online' })
             })
                 .then(r => r.json())
                 .then(data => {
                     if (!data.success) {
                         alert(data.message || 'Could not create order.');
-                        btn.disabled = false;
-                        spinner.style.display = 'none';
-                        text.textContent = 'Proceed to UPI Payments';
+                        loadingSpinner.style.display = 'none';
                         return;
                     }
                     checkoutData = data;
                     renderPaymentGroups(data.farmer_groups);
-                    document.getElementById('step-initiate').style.display = 'none';
+                    document.getElementById('step-loading').style.display = 'none';
                     document.getElementById('step-payments').style.display = 'block';
                     document.getElementById('modal-close-btn').style.display = 'flex';
                 })
                 .catch(err => {
                     console.error(err);
                     alert('An error occurred. Please try again.');
-                    btn.disabled = false;
-                    spinner.style.display = 'none';
-                    text.textContent = 'Proceed to UPI Payments';
+                    loadingSpinner.style.display = 'none';
                 });
         }
 
@@ -986,7 +1070,7 @@
                         const section = document.getElementById(`upload-section-${orderItemId}`);
                         section.innerHTML = `
                         <div style="background:#dcfce7; border:1px solid #86efac; border-radius:8px; padding:12px; color:#15803d; font-weight:600; font-size:13px;">
-                            ✅ Proof submitted! Awaiting farmer verification.
+                            Proof submitted! Awaiting farmer verification.
                         </div>`;
                     } else {
                         alert(data.message || 'Upload failed.');

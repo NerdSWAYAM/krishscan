@@ -24,12 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-+*d=56xx$*%m@i0d$6mlgo)4m4$0#+jff%q#tr44&q*iuy3o@q'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-fallback-key-for-dev')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -81,11 +81,11 @@ WSGI_APPLICATION = 'krishiscan.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'krishiscan_db',
-        'USER': 'postgres',
-        'PASSWORD': 'levi',
-        'HOST': 'localhost',
-        'PORT': '5432'
+        'NAME': os.getenv('DB_NAME', 'krishiscan_db'),
+        'USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', 'levi'),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '5432')
     }
 }
 
@@ -154,10 +154,10 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER = 'nerdswayam@gmail.com'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'nerdswayam@gmail.com')
 EMAIL_HOST_PASSWORD = os.getenv('SMTP_APP_PASS')
 
-DEFAULT_FROM_EMAIL = 'nerdswayam@gmail.com'
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'nerdswayam@gmail.com')
 
 
 ### --- AWS SES Email setup (Didn't gave acess :( 

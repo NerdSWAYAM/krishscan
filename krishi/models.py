@@ -44,8 +44,20 @@ class Order(models.Model):
         ('pending', 'Pending'),
         ('partial', 'Partial'),
         ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+    ]
+    DELIVERY_CHOICES = [
+        ('doorstep', 'Door-step Delivery'),
+        ('pickup', 'Self Pickup'),
+    ]
+    PAYMENT_METHOD_CHOICES = [
+        ('online', 'Online (UPI)'),
+        ('cod', 'Cash on Delivery'),
+        ('none', 'No Payment (Pickup)'),
     ]
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    delivery_type = models.CharField(max_length=20, choices=DELIVERY_CHOICES, default='doorstep')
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, default='online')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -60,9 +72,12 @@ class OrderItem(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     STATUS_CHOICES = [
         ('pending', 'Pending'),
+        ('cod_pending', 'Cash on Delivery Pending'),
+        ('pickup_pending', 'Awaiting Self-Pickup'),
         ('paid', 'Paid'),
         ('verified', 'Verified'),
         ('rejected', 'Rejected'),
+        ('cancelled', 'Cancelled'),
     ]
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -104,3 +119,13 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"Notification for {self.user.first_name}: {self.title}"
+
+class Review(models.Model):
+    crop = models.ForeignKey(Crop, on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(UserAccount, on_delete=models.CASCADE, related_name='reviews')
+    rating = models.IntegerField()
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Review by {self.user.first_name} for {self.crop.name}"
