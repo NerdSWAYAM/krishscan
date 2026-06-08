@@ -580,7 +580,7 @@
         color: #F1C40F;
     }
 
-</style>
+    </style>
 {% endblock %}
 {% block content %}
     <div class="market-header">
@@ -776,29 +776,38 @@
                         </div>
                     </div>
                     {% if request.session.role == 'Consumer' %}
-                    <div>
-                        <div class="quantity-selector">
-                            <button type="button" class="qty-btn" onclick="changeQty(-1)">-</button>
-                            <input type="text" id="modal-qty" value="1" readonly>
-                            <button type="button" class="qty-btn" onclick="changeQty(1)">+</button>
+                        <div>
+                            <div class="quantity-selector">
+                                <button type="button" class="qty-btn" onclick="changeQty(-1)">-</button>
+                                <input type="text" id="modal-qty" value="1" readonly>
+                                <button type="button" class="qty-btn" onclick="changeQty(1)">+</button>
+                            </div>
+                            <div class="total-display">
+                                Total: <span id="modal-total">₹0</span>
+                            </div>
+                            <div class="cart-modal-actions">
+                                <button type="button"
+                                        class="btn btn-secondary"
+                                        onclick="document.getElementById('cart-popup-modal').classList.remove('active'); document.body.classList.remove('popup-open');">
+                                    Cancel
+                                </button>
+                                <button type="button" class="btn btn-primary" onclick="confirmAdd()">Add to cart</button>
+                            </div>
                         </div>
-                        <div class="total-display">
-                            Total: <span id="modal-total">₹0</span>
-                        </div>
-                        <div class="cart-modal-actions">
-                            <button type="button"
-                                    class="btn btn-secondary"
-                                    onclick="document.getElementById('cart-popup-modal').classList.remove('active'); document.body.classList.remove('popup-open');">
-                                Cancel
-                            </button>
-                            <button type="button" class="btn btn-primary" onclick="confirmAdd()">Add to cart</button>
-                        </div>
-                    </div>
                     {% else %}
-                    <div style="margin-top: 12px; padding: 14px 18px; background: #FFF8E1; border: 1px solid #FFE082; border-radius: 16px; font-size: 14px; color: #7B5800; display: flex; align-items: center; gap: 10px;">
-                        <span style="font-size: 20px;">🚜</span>
-                        <span>Only <strong>consumers</strong> can add items to cart. Switch to a consumer account to purchase.</span>
-                    </div>
+                        <div style="margin-top: 12px;
+                                    padding: 14px 18px;
+                                    background: #FFF8E1;
+                                    border: 1px solid #FFE082;
+                                    border-radius: 16px;
+                                    font-size: 14px;
+                                    color: #7B5800;
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 10px">
+                            <span style="font-size: 20px;">🚜</span>
+                            <span>Only <strong>consumers</strong> can add items to cart. Switch to a consumer account to purchase.</span>
+                        </div>
                     {% endif %}
                 </div>
                 <div class="cart-modal-right">
@@ -877,7 +886,16 @@
                                     font-weight: 600"></div>
                     </div>
                 {% elif request.session.user_id %}
-                    <div style="margin-top: 16px; padding: 14px 18px; background: #FFF8E1; border: 1px solid #FFE082; border-radius: 16px; font-size: 14px; color: #7B5800; display: flex; align-items: center; gap: 10px;">
+                    <div style="margin-top: 16px;
+                                padding: 14px 18px;
+                                background: #FFF8E1;
+                                border: 1px solid #FFE082;
+                                border-radius: 16px;
+                                font-size: 14px;
+                                color: #7B5800;
+                                display: flex;
+                                align-items: center;
+                                gap: 10px">
                         <span style="font-size: 20px;">📝</span>
                         <span>Only <strong>consumers</strong> can write reviews for crop listings.</span>
                     </div>
@@ -887,12 +905,10 @@
             <input type="hidden" id="modal-crop-id" value="">
             <input type="hidden" id="modal-crop-price" value="0">
             <input type="hidden" id="modal-crop-stock" value="0">
-    </div>
-{% endblock %}
-
-
-{% block extra_js %}
-    <script>
+        </div>
+    {% endblock %}
+    {% block extra_js %}
+        <script>
     // Consumer's GPS coordinates injected from Django session
     const CONSUMER_COORDS = "{{ user_coords|escapejs }}";
 
@@ -1238,5 +1254,5 @@
             alert("Error deleting review.");
         });
     }
-    </script>
-{% endblock %}
+        </script>
+    {% endblock %}
