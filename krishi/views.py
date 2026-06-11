@@ -666,6 +666,12 @@ dotenv.load_dotenv()
 
 @login_required(login_url='/login/')
 def price_tracker(request):
+    import json
+    import subprocess
+    import urllib.parse
+    from django.conf import settings
+    from django.utils import timezone
+
     API_KEY = os.getenv("API_KEY")
     RESOURCE_ID = os.getenv("RESOURCE_ID")
 
@@ -673,6 +679,140 @@ def price_tracker(request):
 
     state     = request.GET.get('state', '').strip()
     commodity = request.GET.get('commodity', '').strip()
+    async_load = request.GET.get('async_load') == '1'
+
+    if not async_load:
+        context = {
+            'state': state,
+            'commodity': commodity,
+            'skeleton_only': True
+        }
+        return render(request, 'price_tracker.html', context)
+
+    # ------------------------------------------------------------------ #
+    #  Daily JSON cache (curl fallback — valid for the entire day)        #
+    # ------------------------------------------------------------------ #
+    def _daily_cache_path():
+        cache_dir = os.path.join(settings.BASE_DIR, 'data')
+        os.makedirs(cache_dir, exist_ok=True)
+        return os.path.join(cache_dir, 'price_tracker_daily.json')
+
+    def _load_daily_cache():
+        today = timezone.localdate().isoformat()
+        try:
+            with open(_daily_cache_path(), 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            if data.get('date') == today:
+                return data
+        except (FileNotFoundError, json.JSONDecodeError, OSError):
+            pass
+        return {'date': today, 'fetched_at': None, 'entries': {}}
+
+    def _save_daily_cache(cache_data):
+        path = _daily_cache_path()
+        try:
+            with open(path, 'w', encoding='utf-8') as f:
+                json.dump(cache_data, f, ensure_ascii=False, indent=2)
+            print(f"[INFO] Saved daily price cache to {path}")
+        except OSError as exc:
+            print(f"[ERROR] Failed to save daily price cache: {exc}")
+
+    def _persist_daily_entry(daily_cache, entry_key, records, total, source):
+        if not records:
+            return
+        daily_cache['entries'][entry_key] = {
+            'records': records,
+            'total': total,
+            'source': source,
+        }
+        daily_cache['fetched_at'] = timezone.localtime().strftime('%Y-%m-%d %H:%M:%S')
+        _save_daily_cache(daily_cache)
+
+    def _fetch_via_curl(api_url, params, timeout=8):
+        full_url = f"{api_url}?{urllib.parse.urlencode(params)}"
+        try:
+            result = subprocess.run(
+                ['curl', '-sS', '--max-time', str(timeout), full_url],
+                capture_output=True, text=True, timeout=timeout + 1, check=False,
+            )
+            if result.returncode != 0:
+                print(f"[ERROR] curl exit {result.returncode}: {result.stderr.strip()}")
+                return None
+            if not result.stdout.strip():
+                print("[ERROR] curl returned empty response")
+                return None
+            data = json.loads(result.stdout)
+            if data.get('status') == 'ok':
+                return data
+            print(f"[ERROR] curl API status not ok: {data.get('status')}")
+        except Exception as exc:
+            print(f"[ERROR] curl fetch failed: {exc}")
+        return None
+
+    def _filter_records(records, state_filter='', commodity_filter=''):
+        filtered = records
+        if state_filter:
+            filtered = [
+                r for r in filtered
+                if r.get('state', '').strip().lower() == state_filter.lower()
+            ]
+        if commodity_filter:
+            filtered = [
+                r for r in filtered
+                if r.get('commodity', '').strip().lower() == commodity_filter.lower()
+            ]
+        return filtered
+
+    def _fetch_mandi_api(api_url, params, entry_key, daily_cache):
+        """Try requests → curl → today's JSON file. Returns (records, total, source)."""
+        try:
+            response = requests.get(api_url, params=params, timeout=8)
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('status') == 'ok':
+                    records = data.get('records', [])
+                    total = data.get('total', len(records))
+                    if records:
+                        _persist_daily_entry(daily_cache, entry_key, records, total, 'live')
+                        return records, total, 'live'
+                else:
+                    print(f"[ERROR] API returned error status: {data}")
+            else:
+                print(f"[ERROR] API HTTP {response.status_code}")
+        except requests.exceptions.RequestException as exc:
+            print(f"[ERROR] API unavailable: {exc}")
+
+        print(f"[INFO] Trying curl fallback for {entry_key}...")
+        curl_data = _fetch_via_curl(api_url, params)
+        if curl_data:
+            records = curl_data.get('records', [])
+            total = curl_data.get('total', len(records))
+            if records:
+                _persist_daily_entry(daily_cache, entry_key, records, total, 'cached')
+                return records, total, 'cached'
+
+        entry = daily_cache.get('entries', {}).get(entry_key)
+        if entry and entry.get('records'):
+            print(f"[INFO] Using today's JSON cache for {entry_key}")
+            src = entry.get('source', 'cached')
+            return entry['records'], entry.get('total', len(entry['records'])), src
+
+        all_entry = daily_cache.get('entries', {}).get('main_all_all')
+        if all_entry and all_entry.get('records'):
+            state_f = params.get('filters[state.keyword]', '')
+            comm_f = params.get('filters[commodity]', '')
+            filtered = _filter_records(all_entry['records'], state_f, comm_f)
+            if filtered:
+                print("[INFO] Using filtered records from today's JSON cache (all_all)")
+                src = all_entry.get('source', 'cached')
+                return filtered, len(filtered), src
+
+        return None, 0, None
+
+    daily_cache = _load_daily_cache()
+    data_source = 'live'
+    cache_date = daily_cache.get('date')
+    cache_fetched_at = daily_cache.get('fetched_at')
 
     # ------------------------------------------------------------------ #
     #  Helper: load CSV and return normalised record dicts                 #
@@ -710,6 +850,45 @@ def price_tracker(request):
             print("CSV load error:", exc)
         return results
 
+    def _ensure_today_json_cache():
+        """Populate today's JSON file if missing (curl-first — API often times out)."""
+        nonlocal daily_cache, cache_fetched_at, data_source
+        if daily_cache.get('entries'):
+            return
+        base_params = {
+            "api-key": API_KEY,
+            "format": "json",
+            "limit": 100,
+        }
+        print("[INFO] Today's JSON cache empty — fetching via curl...")
+        curl_data = _fetch_via_curl(url, base_params)
+        if curl_data and curl_data.get('records'):
+            _persist_daily_entry(
+                daily_cache, 'main_all_all',
+                curl_data['records'], curl_data.get('total', 0), 'cached',
+            )
+            data_source = 'cached'
+            cache_fetched_at = daily_cache.get('fetched_at')
+            return
+        api_records, _, source = _fetch_mandi_api(url, base_params, 'main_all_all', daily_cache)
+        if api_records:
+            data_source = source
+            cache_fetched_at = daily_cache.get('fetched_at')
+            return
+        csv_records = _load_csv(limit=100)
+        if csv_records:
+            print("[INFO] Saving CSV fallback into today's JSON cache...")
+            _persist_daily_entry(
+                daily_cache, 'main_all_all', csv_records, len(csv_records), 'csv',
+            )
+            data_source = 'csv'
+            cache_fetched_at = daily_cache.get('fetched_at')
+
+    _ensure_today_json_cache()
+    daily_cache = _load_daily_cache()
+    cache_date = daily_cache.get('date')
+    cache_fetched_at = daily_cache.get('fetched_at') or cache_fetched_at
+
     # ------------------------------------------------------------------ #
     #  Main records (Market Updates section)                              #
     # ------------------------------------------------------------------ #
@@ -724,61 +903,99 @@ def price_tracker(request):
         params["filters[commodity]"] = commodity
 
     cache_key = f'price_tracker_{state or "all"}_{commodity or "all"}'
-    records   = cache.get(cache_key)
-    total     = 0
+    entry_key = f'main_{state or "all"}_{commodity or "all"}'
+    cached_payload = cache.get(cache_key)
+    records = None
+    total = 0
+
+    if cached_payload is not None:
+        if isinstance(cached_payload, dict) and 'records' in cached_payload:
+            records = cached_payload['records']
+            total = cached_payload.get('total', len(records))
+            data_source = cached_payload.get('source', 'live')
+            cache_date = cached_payload.get('cache_date', cache_date)
+            cache_fetched_at = cached_payload.get('cache_fetched_at', cache_fetched_at)
+        else:
+            records = cached_payload
+            total = len(records)
 
     if records is None:
-        api_records = None
-        try:
-            response = requests.get(url, params=params, timeout=3)
-            if response.status_code == 200:
-                data        = response.json()
-                api_records = data.get('records', [])
-                total       = data.get('total', len(api_records))
-        except requests.exceptions.RequestException as e:
-            print("API unavailable, using CSV fallback:", e)
-
-        if api_records is not None:
+        api_records, total, source = _fetch_mandi_api(url, params, entry_key, daily_cache)
+        if api_records:
             records = api_records
-            cache.set(cache_key, records, 60 * 30)
+            data_source = source
+            cache_fetched_at = daily_cache.get('fetched_at')
+            cache.set(cache_key, {
+                'records': records,
+                'total': total,
+                'source': source,
+                'cache_date': daily_cache.get('date'),
+                'cache_fetched_at': cache_fetched_at,
+            }, 60 * 30)
         else:
+            print("[INFO] Falling back to CSV data...")
             records = _load_csv(state_filter=state, commodity_filter=commodity, limit=100)
-            total   = len(records)
-            cache.set(cache_key, records, 60 * 15)   # shorter TTL for CSV data
-    else:
-        total = len(records)
+            total = len(records)
+            data_source = 'csv'
+            if records:
+                _persist_daily_entry(
+                    daily_cache, entry_key, records, total, 'csv',
+                )
+                cache_fetched_at = daily_cache.get('fetched_at')
+            cache.set(cache_key, {
+                'records': records,
+                'total': total,
+                'source': 'csv',
+                'cache_date': daily_cache.get('date'),
+                'cache_fetched_at': cache_fetched_at,
+            }, 60 * 15)
 
     # ------------------------------------------------------------------ #
     #  Top commodity prices (hero ticker + cards — always Karnataka)      #
     # ------------------------------------------------------------------ #
     top_prices_cache_key = 'price_tracker_top_commodities_karnataka'
-    top_commodity_prices = cache.get(top_prices_cache_key)
+    top_cached = cache.get(top_prices_cache_key)
+    top_commodity_prices = None
+
+    if top_cached is not None:
+        if isinstance(top_cached, dict) and 'records' in top_cached:
+            top_commodity_prices = top_cached['records']
+            if top_cached.get('source') == 'cached':
+                data_source = 'cached'
+            cache_fetched_at = top_cached.get('cache_fetched_at', cache_fetched_at)
+        else:
+            top_commodity_prices = top_cached
 
     if top_commodity_prices is None:
         top_commodity_prices = []
-        # 1) Try live API
-        try:
-            top_params = {
-                "api-key": API_KEY,
-                "format":  "json",
-                "limit":   50,
-                "filters[state.keyword]": "Karnataka",
-                "filters[district]": "Belagavi",
-            }
-            top_resp = requests.get(url, params=top_params, timeout=3)
-            if top_resp.status_code == 200:
-                top_records = top_resp.json().get('records', [])
-                seen = {}
-                for rec in top_records:
-                    comm = rec.get('commodity', '')
-                    if comm and comm not in seen:
-                        seen[comm] = rec
-                top_commodity_prices = list(seen.values())[:12]
-        except requests.exceptions.RequestException as e:
-            print("Top-prices API timeout, using CSV:", e)
+        top_params = {
+            "api-key": API_KEY,
+            "format":  "json",
+            "limit":   50,
+            "filters[state.keyword]": "Karnataka",
+            "filters[district]": "BELAGAVI",
+        }
+        top_records, _, top_source = _fetch_mandi_api(
+            url, top_params, 'top_karnataka', daily_cache,
+        )
+        if top_records:
+            seen = {}
+            for rec in top_records:
+                comm = rec.get('commodity', '')
+                if comm and comm not in seen:
+                    seen[comm] = rec
+            top_commodity_prices = list(seen.values())[:12]
+            if top_source == 'cached':
+                data_source = 'cached'
+            cache_fetched_at = daily_cache.get('fetched_at')
+            cache.set(top_prices_cache_key, {
+                'records': top_commodity_prices,
+                'source': top_source,
+                'cache_fetched_at': cache_fetched_at,
+            }, 60 * 30)
 
-        # 2) CSV fallback
         if not top_commodity_prices:
+            print("[INFO] Falling back to CSV data for Top Prices...")
             csv_rows = _load_csv(state_filter='Karnataka', limit=500)
             seen = {}
             for rec in csv_rows:
@@ -786,9 +1003,23 @@ def price_tracker(request):
                 if comm and comm not in seen:
                     seen[comm] = rec
             top_commodity_prices = list(seen.values())[:12]
+            if top_commodity_prices:
+                _persist_daily_entry(
+                    daily_cache, 'top_karnataka',
+                    top_commodity_prices, len(top_commodity_prices), 'csv',
+                )
+                cache_fetched_at = daily_cache.get('fetched_at')
+            if not records:
+                data_source = 'csv'
 
-        if top_commodity_prices:
-            cache.set(top_prices_cache_key, top_commodity_prices, 60 * 30)
+    cache_date_display = None
+    if cache_date:
+        try:
+            from datetime import date as date_cls
+            parsed = date_cls.fromisoformat(cache_date)
+            cache_date_display = parsed.strftime('%B %d, %Y')
+        except ValueError:
+            cache_date_display = cache_date
 
     context = {
         'records': records,
@@ -796,6 +1027,10 @@ def price_tracker(request):
         'commodity': commodity,
         'total': total,
         'top_commodity_prices': top_commodity_prices,
+        'skeleton_only': False,
+        'data_source': data_source,
+        'cache_date': cache_date_display or cache_date,
+        'cache_fetched_at': cache_fetched_at,
     }
     return render(request, 'price_tracker.html', context)
 
@@ -1683,7 +1918,7 @@ def dashboard_stats_api(request):
     if market_prices is None:
         try:
             # Short timeout for API calls in AJAX
-            res = requests.get(m_url, params={"api-key": API_KEY, "format": "json", "limit": 5}, timeout=3)
+            res = requests.get(m_url, params={"api-key": API_KEY, "format": "json", "limit": 5}, timeout=8)
             if res.status_code == 200:
                 market_prices = res.json().get('records', [])
                 cache.set(m_cache_key, market_prices, 60 * 60)
@@ -1709,7 +1944,7 @@ def dashboard_stats_api(request):
                 loc = request.session.get('location', 'Bangalore')
                 w_params['q'] = loc.split(',')[0] if loc else 'Bangalore'
                 
-            res = requests.get(w_url, params=w_params, timeout=3)
+            res = requests.get(w_url, params=w_params, timeout=8)
             if res.status_code == 200:
                 wd = res.json()
                 weather_data = {

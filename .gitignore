@@ -11,3 +11,4 @@ __pycache__/
 ./media/
 MLmodels/resnet50_transfer_best.h5MLmodels/*.h5
 staticfiles/
+data/price_tracker_daily.json

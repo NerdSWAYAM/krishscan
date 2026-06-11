@@ -123,6 +123,36 @@
             padding: 0.2rem 0.65rem;
             border-radius: 999px;
         }
+        .top-prices-badge.cached {
+            background: rgba(245,158,11,0.12);
+            color: #b45309;
+            border-color: rgba(245,158,11,0.35);
+        }
+        .cache-banner {
+            max-width: 1200px;
+            margin: 1rem auto 0;
+            padding: 0.65rem 1.25rem;
+            background: rgba(245,158,11,0.1);
+            border: 1px solid rgba(245,158,11,0.35);
+            border-radius: var(--radius-sm);
+            color: #92400e;
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .cache-banner strong { color: #78350f; }
+        .live-dot.cached {
+            background: #f59e0b;
+            animation: none;
+            box-shadow: none;
+        }
+        .results-badge.cached {
+            background: rgba(245,158,11,0.1);
+            border-color: rgba(245,158,11,0.35);
+            color: #b45309;
+        }
         .top-prices-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -206,6 +236,38 @@
             padding: 0 5%;
             border: none;
             border-top: 1px solid var(--color-border);
+        }
+
+        /* ===================== SKELETON LOADER ===================== */
+        .skeleton {
+            background: #e2e8f0;
+            background: linear-gradient(90deg, #ececec 25%, #f5f5f5 50%, #ececec 75%);
+            background-size: 200% 100%;
+            animation: 1.5s skeleton-loading infinite;
+            border-radius: var(--radius-sm);
+        }
+        @keyframes skeleton-loading {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+        .skeleton-card {
+            background: var(--color-bg-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+        .skeleton-text {
+            height: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .skeleton-title {
+            height: 1.5rem;
+            margin-bottom: 1rem;
         }
 
         /* ===================== ORIGINAL STYLES ===================== */
@@ -492,34 +554,6 @@
     <body>
         {% include 'navbar.html' %}
         <main>
-            <!-- LIVE PRICE TICKER -->
-            {% if top_commodity_prices %}
-            <div class="ticker-wrap">
-                <div class="ticker-inner">
-                    <div class="ticker-label">&#x25CF; Live Prices</div>
-                    <div class="ticker-scroll-wrapper">
-                        <div class="ticker-scroll">
-                            {% for item in top_commodity_prices %}
-                            <span class="ticker-item">
-                                <span class="t-commodity">{{ item.commodity }}</span>
-                                <span class="t-price">₹{{ item.modal_price }}/q</span>
-                                <span class="ticker-sep">|</span>
-                            </span>
-                            {% endfor %}
-                            {# Duplicate for seamless loop #}
-                            {% for item in top_commodity_prices %}
-                            <span class="ticker-item">
-                                <span class="t-commodity">{{ item.commodity }}</span>
-                                <span class="t-price">₹{{ item.modal_price }}/q</span>
-                                <span class="ticker-sep">|</span>
-                            </span>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-
             <div class="tracker-hero">
                 <h1 class="cinematic-heading-dark text-center tracker-title"
                     style="margin-bottom: 0.5rem;
@@ -621,12 +655,59 @@
             </div>
 
             <!-- TOP COMMODITY PRICES (always shown) -->
+            <div id="content-container" {% if skeleton_only %}style="display: none;"{% endif %}>
+            {% if top_commodity_prices %}
+            <div class="ticker-wrap">
+                <div class="ticker-inner">
+                    <div class="ticker-label">
+                        &#x25CF; {% if data_source == 'cached' %}Cached{% else %}Live{% endif %} Prices
+                    </div>
+                    <div class="ticker-scroll-wrapper">
+                        <div class="ticker-scroll">
+                            {% for item in top_commodity_prices %}
+                            <span class="ticker-item">
+                                <span class="t-commodity">{{ item.commodity }}</span>
+                                <span class="t-price">₹{{ item.modal_price }}/q</span>
+                                <span class="ticker-sep">|</span>
+                            </span>
+                            {% endfor %}
+                            {% for item in top_commodity_prices %}
+                            <span class="ticker-item">
+                                <span class="t-commodity">{{ item.commodity }}</span>
+                                <span class="t-price">₹{{ item.modal_price }}/q</span>
+                                <span class="ticker-sep">|</span>
+                            </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if data_source == 'cached' and cache_date %}
+            <div class="cache-banner" style="margin-left: 5%; margin-right: 5%;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 8v4l3 3" />
+                </svg>
+                <span>
+                    Showing <strong>cached market prices</strong> for
+                    <strong>{{ cache_date }}</strong>
+                    {% if cache_fetched_at %} (saved at {{ cache_fetched_at }}){% endif %}
+                    — live API is temporarily unavailable.
+                </span>
+            </div>
+            {% endif %}
+
             {% if top_commodity_prices %}
             <section class="top-prices-section">
                 <div class="top-prices-header">
-                    <span class="live-dot"></span>
+                    <span class="live-dot{% if data_source == 'cached' %} cached{% endif %}"></span>
                     <h2>Today's Market Prices</h2>
-                    <span class="top-prices-badge">Belagavi, Karnataka</span>
+                    <span class="top-prices-badge{% if data_source == 'cached' %} cached{% endif %}">
+                        Belagavi, Karnataka
+                        {% if data_source == 'cached' and cache_date %} · {{ cache_date }}{% endif %}
+                    </span>
                 </div>
                 <div class="top-prices-grid">
                     {% for item in top_commodity_prices %}
@@ -656,7 +737,7 @@
                                 gap:0.75rem;
                                 align-items:center;
                                 flex-wrap:wrap">
-                        <div class="results-badge">
+                        <div class="results-badge{% if data_source == 'cached' %} cached{% endif %}">
                             <svg width="14"
                                  height="14"
                                  viewBox="0 0 24 24"
@@ -666,7 +747,13 @@
                                 <circle cx="12" cy="12" r="10" />
                                 <path d="M12 8v4l3 3" />
                             </svg>
-                            <span>Live Data</span>
+                            <span>
+                                {% if data_source == 'cached' %}
+                                    Cached Data{% if cache_date %} · {{ cache_date }}{% endif %}
+                                {% else %}
+                                    Live Data
+                                {% endif %}
+                            </span>
                         </div>
                         <div class="results-count">
                             {% if records %}
@@ -734,12 +821,119 @@
                             </p>
                         {% else %}
                             <p class="cinematic-text-dark mx-auto" style="color: #555;">
-                                No market prices could be fetched right now. The data service may be temporarily unavailable. Please try again in a moment.
+                                No market prices could be fetched right now. The data service may be temporarily unavailable.
+                                {% if data_source == 'cached' and cache_date %}
+                                    Cached data for <strong>{{ cache_date }}</strong> is also empty.
+                                {% endif %}
+                                Please try again in a moment.
                             </p>
                         {% endif %}
                     </div>
                 {% endif %}
             </div>
+            </div> <!-- End content-container -->
+
+            <!-- SKELETON LOADER -->
+            <div id="skeleton-container" {% if not skeleton_only %}style="display: none;"{% endif %}>
+                <section class="top-prices-section">
+                    <div class="top-prices-header">
+                        <span class="live-dot" style="background:#ccc; animation:none; box-shadow:none;"></span>
+                        <div class="skeleton skeleton-title" style="width: 200px; margin:0;"></div>
+                    </div>
+                    <div class="top-prices-grid">
+                        <div class="top-price-card">
+                            <div class="skeleton skeleton-text" style="width: 80%"></div>
+                            <div class="skeleton skeleton-text" style="width: 50%; margin-bottom: 1rem;"></div>
+                            <div class="skeleton skeleton-title" style="margin-bottom: 0.2rem;"></div>
+                            <div class="skeleton skeleton-text" style="width: 40%"></div>
+                        </div>
+                        <div class="top-price-card">
+                            <div class="skeleton skeleton-text" style="width: 70%"></div>
+                            <div class="skeleton skeleton-text" style="width: 60%; margin-bottom: 1rem;"></div>
+                            <div class="skeleton skeleton-title" style="margin-bottom: 0.2rem;"></div>
+                            <div class="skeleton skeleton-text" style="width: 45%"></div>
+                        </div>
+                        <div class="top-price-card">
+                            <div class="skeleton skeleton-text" style="width: 85%"></div>
+                            <div class="skeleton skeleton-text" style="width: 40%; margin-bottom: 1rem;"></div>
+                            <div class="skeleton skeleton-title" style="margin-bottom: 0.2rem;"></div>
+                            <div class="skeleton skeleton-text" style="width: 30%"></div>
+                        </div>
+                        <div class="top-price-card">
+                            <div class="skeleton skeleton-text" style="width: 60%"></div>
+                            <div class="skeleton skeleton-text" style="width: 70%; margin-bottom: 1rem;"></div>
+                            <div class="skeleton skeleton-title" style="margin-bottom: 0.2rem;"></div>
+                            <div class="skeleton skeleton-text" style="width: 50%"></div>
+                        </div>
+                        <div class="top-price-card">
+                            <div class="skeleton skeleton-text" style="width: 75%"></div>
+                            <div class="skeleton skeleton-text" style="width: 55%; margin-bottom: 1rem;"></div>
+                            <div class="skeleton skeleton-title" style="margin-bottom: 0.2rem;"></div>
+                            <div class="skeleton skeleton-text" style="width: 35%"></div>
+                        </div>
+                        <div class="top-price-card">
+                            <div class="skeleton skeleton-text" style="width: 80%"></div>
+                            <div class="skeleton skeleton-text" style="width: 45%; margin-bottom: 1rem;"></div>
+                            <div class="skeleton skeleton-title" style="margin-bottom: 0.2rem;"></div>
+                            <div class="skeleton skeleton-text" style="width: 40%"></div>
+                        </div>
+                    </div>
+                </section>
+                <hr class="section-divider">
+                <div class="results-container">
+                    <div class="results-header">
+                        <div class="skeleton skeleton-title" style="width: 250px; height: 2rem;"></div>
+                    </div>
+                    <div class="market-grid">
+                        <div class="skeleton-card">
+                            <div class="skeleton skeleton-title" style="width: 60%"></div>
+                            <div class="skeleton skeleton-text" style="width: 40%; margin-bottom: 1.5rem;"></div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div>
+                                    <div class="skeleton skeleton-text" style="width: 50%"></div>
+                                    <div class="skeleton skeleton-title" style="width: 80%"></div>
+                                </div>
+                                <div>
+                                    <div class="skeleton skeleton-text" style="width: 50%"></div>
+                                    <div class="skeleton skeleton-title" style="width: 80%"></div>
+                                </div>
+                            </div>
+                            <div class="skeleton skeleton-title" style="width: 100%; height: 4rem; margin-top: 1rem;"></div>
+                        </div>
+                        <div class="skeleton-card">
+                            <div class="skeleton skeleton-title" style="width: 70%"></div>
+                            <div class="skeleton skeleton-text" style="width: 50%; margin-bottom: 1.5rem;"></div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div>
+                                    <div class="skeleton skeleton-text" style="width: 50%"></div>
+                                    <div class="skeleton skeleton-title" style="width: 80%"></div>
+                                </div>
+                                <div>
+                                    <div class="skeleton skeleton-text" style="width: 50%"></div>
+                                    <div class="skeleton skeleton-title" style="width: 80%"></div>
+                                </div>
+                            </div>
+                            <div class="skeleton skeleton-title" style="width: 100%; height: 4rem; margin-top: 1rem;"></div>
+                        </div>
+                        <div class="skeleton-card">
+                            <div class="skeleton skeleton-title" style="width: 50%"></div>
+                            <div class="skeleton skeleton-text" style="width: 30%; margin-bottom: 1.5rem;"></div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div>
+                                    <div class="skeleton skeleton-text" style="width: 50%"></div>
+                                    <div class="skeleton skeleton-title" style="width: 80%"></div>
+                                </div>
+                                <div>
+                                    <div class="skeleton skeleton-text" style="width: 50%"></div>
+                                    <div class="skeleton skeleton-title" style="width: 80%"></div>
+                                </div>
+                            </div>
+                            <div class="skeleton skeleton-title" style="width: 100%; height: 4rem; margin-top: 1rem;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- FOOTER -->
             <footer class="footer" style="padding-top: 3rem;">
                 <div class="footer-content">
@@ -773,6 +967,75 @@
             faders.forEach(fader => {
                 appearOnScroll.observe(fader);
             });
+
+            // Skeleton Loader Logic
+            const searchForm = document.querySelector('.search-form');
+            const clearBtn = document.querySelector('.btn-clear');
+            const contentContainer = document.getElementById('content-container');
+            const skeletonContainer = document.getElementById('skeleton-container');
+
+            function showSkeleton() {
+                if (contentContainer && skeletonContainer) {
+                    contentContainer.style.display = 'none';
+                    skeletonContainer.style.display = 'block';
+                }
+            }
+
+            if (searchForm) {
+                searchForm.addEventListener('submit', () => {
+                    showSkeleton();
+                });
+            }
+
+            if (clearBtn) {
+                clearBtn.addEventListener('click', () => {
+                    showSkeleton();
+                });
+            }
+
+            {% if skeleton_only %}
+            // Async load data when skeleton_only is true
+            const url = new URL(window.location.href);
+            url.searchParams.set('async_load', '1');
+            
+            fetch(url.toString())
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    
+                    const newContent = doc.getElementById('content-container');
+                    if (newContent && contentContainer) {
+                        contentContainer.innerHTML = newContent.innerHTML;
+                        contentContainer.style.display = 'block';
+                    }
+
+                    if (skeletonContainer) {
+                        skeletonContainer.style.display = 'none';
+                    }
+
+                    // Re-init observer for faders
+                    const newFaders = document.querySelectorAll('.fade-in-on-scroll:not(.visible)');
+                    const appearOptions = { threshold: 0.1, rootMargin: "0px 0px -50px 0px" };
+                    const appearOnScroll = new IntersectionObserver(function (entries, observer) {
+                        entries.forEach((entry, index) => {
+                            if (entry.isIntersecting) {
+                                setTimeout(() => {
+                                    entry.target.classList.add('visible');
+                                }, index * 100); 
+                                observer.unobserve(entry.target);
+                            }
+                        });
+                    }, appearOptions);
+                    newFaders.forEach(fader => { appearOnScroll.observe(fader); });
+                })
+                .catch(err => {
+                    console.error('Error fetching data:', err);
+                    if (skeletonContainer) {
+                        skeletonContainer.innerHTML = '<div class="empty-state"><h3 style="color:#111; font-family:\'Gilda Display\', serif;">Error Loading Data</h3><p style="color:#555;">Please try refreshing the page.</p></div>';
+                    }
+                });
+            {% endif %}
         });
         </script>
     </body>
